@@ -16,7 +16,7 @@ Cho dù bạn là một người đam mê thiên văn muốn theo dõi **ISS** h
 Trải nghiệm giao diện 3D sống động, nơi bạn có thể thấy các vệ tinh đang bay lơ lửng trên đầu mình theo đúng quỹ đạo thực tế. Lớp phủ mây từ vệ tinh **Himawari-9** được cập nhật liên tục, cho bạn cái nhìn trực quan nhất về các cơn bão hoặc vùng mây đang hình thành.
 
 ### Hệ Thống Đánh Giá Rủi Ro Thông Minh
-Chúng tôi không chỉ đưa ra những con số khô khan. StarWeather phân tích hàng loạt dữ liệu từ mật độ mây đến cường độ mưa để trả về một **Điểm Rủi Ro (Risk Score)** dễ hiểu. Bạn sẽ biết ngay tình trạng thời tiết tại khu vực của mình đang ở mức An toàn, Trung bình hay Nguy cấp.
+Mình không chỉ đưa ra những con số khô khan. StarWeather phân tích hàng loạt dữ liệu từ mật độ mây đến cường độ mưa để trả về một **Điểm Rủi Ro (Risk Score)** dễ hiểu. Bạn sẽ biết ngay tình trạng thời tiết tại khu vực của mình đang ở mức An toàn, Trung bình hay Nguy cấp.
 
 ### API Dành Cho Nhà Phát Triển
 Nếu bạn muốn xây dựng ứng dụng riêng? Hệ thống API của chúng tôi cực kỳ linh hoạt, được thiết kế theo chuẩn Enterprise, giúp bạn truy xuất dữ liệu vệ tinh và thời tiết chỉ với vài dòng code.
