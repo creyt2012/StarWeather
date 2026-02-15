@@ -2,6 +2,7 @@
 
 namespace App\Events;
 
+use App\Models\Satellite;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PresenceChannel;
@@ -10,27 +11,30 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class SatelliteUpdated
+class SatelliteUpdated implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    /**
-     * Create a new event instance.
-     */
-    public function __construct()
+    public array $data;
+
+    public function __construct(Satellite $satellite, array $trackData)
     {
-        //
+        $this->data = array_merge([
+            'id' => $satellite->id,
+            'name' => $satellite->name,
+            'norad_id' => $satellite->norad_id,
+        ], $trackData);
     }
 
-    /**
-     * Get the channels the event should broadcast on.
-     *
-     * @return array<int, \Illuminate\Broadcasting\Channel>
-     */
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('channel-name'),
+            new Channel('satellites.live'),
         ];
+    }
+
+    public function broadcastAs(): string
+    {
+        return 'satellite.updated';
     }
 }
