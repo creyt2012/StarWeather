@@ -12,7 +12,7 @@ return new class extends Migration {
             $blueprint->id();
             $blueprint->string('name');
             $blueprint->string('domain')->unique()->nullable();
-            $blueprint->string('plan')->default('FREE'); // FREE, PRO, ENTERPRISE, GOV
+            $blueprint->string('plan')->default('FREE');
             $blueprint->json('settings')->nullable();
             $blueprint->timestamp('expires_at')->nullable();
             $blueprint->timestamps();
@@ -42,63 +42,38 @@ return new class extends Migration {
             $blueprint->timestamps();
         });
 
-        // 4. Ground Stations
-        Schema::create('ground_stations', function (Blueprint $blueprint) {
+        // 4. Satellite Tracks (Missing previously)
+        Schema::create('satellite_tracks', function (Blueprint $blueprint) {
             $blueprint->id();
-            $blueprint->string('station_id')->unique();
-            $blueprint->string('name');
+            $blueprint->foreignId('satellite_id')->constrained()->onDelete('cascade');
             $blueprint->decimal('latitude', 10, 8);
             $blueprint->decimal('longitude', 11, 8);
-            $blueprint->string('country_code', 2)->nullable();
+            $blueprint->float('altitude')->nullable();
+            $blueprint->float('velocity')->nullable();
+            $blueprint->timestamp('tracked_at')->index();
             $blueprint->timestamps();
         });
 
-        // 5. Unified Weather Metrics (The Data Fusion table)
-        // Note: For large systems, this should be partitioned.
+        // 5. Unified Weather Metrics
         Schema::create('weather_metrics', function (Blueprint $blueprint) {
             $blueprint->id();
-            $blueprint->decimal('latitude', 10, 8)->index();
-            $blueprint->decimal('longitude', 11, 8)->index();
-
-            // Core Metrics
-            $blueprint->float('cloud_coverage')->nullable(); // %
-            $blueprint->float('cloud_density')->nullable();
-            $blueprint->float('rain_intensity')->nullable(); // mm/h
-            $blueprint->float('temperature')->nullable();
-            $blueprint->float('humidity')->nullable();
-            $blueprint->float('pressure')->nullable();
-
-            // Computed Scores
-            $blueprint->float('risk_score')->default(0);
-            $blueprint->string('risk_level')->default('LOW');
-            $blueprint->float('confidence')->default(1.0);
-
-            // Metadata
-            $blueprint->timestamp('timestamp')->index();
-            $blueprint->json('data_sources')->nullable(); // Himawari, Radar, etc.
-            $blueprint->timestamps();
-        });
-
-        // 6. Alerts
-        Schema::create('alerts', function (Blueprint $blueprint) {
-            $blueprint->id();
-            $blueprint->string('type'); // RAIN, CLOUD_GROWTH, RISK
-            $blueprint->string('severity')->default('INFO'); // INFO, WARNING, CRITICAL
             $blueprint->decimal('latitude', 10, 8)->nullable();
             $blueprint->decimal('longitude', 11, 8)->nullable();
-            $blueprint->text('message');
-            $blueprint->json('payload')->nullable();
-            $blueprint->timestamp('detected_at');
-            $blueprint->timestamp('resolved_at')->nullable();
+            $blueprint->float('cloud_coverage')->default(0);
+            $blueprint->float('rain_intensity')->default(0);
+            $blueprint->float('risk_score')->default(0);
+            $blueprint->string('risk_level')->default('LOW');
+            $blueprint->string('source')->nullable();
+            $blueprint->timestamp('captured_at')->index();
+            $blueprint->json('data_sources')->nullable();
             $blueprint->timestamps();
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('alerts');
         Schema::dropIfExists('weather_metrics');
-        Schema::dropIfExists('ground_stations');
+        Schema::dropIfExists('satellite_tracks');
         Schema::dropIfExists('satellites');
         Schema::dropIfExists('api_keys');
         Schema::dropIfExists('tenants');
