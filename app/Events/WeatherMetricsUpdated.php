@@ -2,6 +2,7 @@
 
 namespace App\Events;
 
+use App\Models\WeatherMetric;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PresenceChannel;
@@ -10,27 +11,33 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class WeatherMetricsUpdated
+class WeatherMetricsUpdated implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    /**
-     * Create a new event instance.
-     */
-    public function __construct()
+    public array $data;
+
+    public function __construct(WeatherMetric $metric, array $riskData)
     {
-        //
+        $this->data = [
+            'timestamp' => $metric->captured_at,
+            'cloud_coverage' => $metric->cloud_coverage,
+            'rain_intensity' => $metric->rain_intensity,
+            'risk_score' => $riskData['score'],
+            'risk_level' => $riskData['level'],
+            'image_url' => $metric->metadata['image_url'] ?? null,
+        ];
     }
 
-    /**
-     * Get the channels the event should broadcast on.
-     *
-     * @return array<int, \Illuminate\Broadcasting\Channel>
-     */
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('channel-name'),
+            new Channel('weather.live'),
         ];
+    }
+
+    public function broadcastAs(): string
+    {
+        return 'weather.updated';
     }
 }
