@@ -27,6 +27,22 @@ class SatelliteSeeder extends Seeder
                 'status' => 'ACTIVE'
             ],
             [
+                'name' => 'STARLINK-31182',
+                'norad_id' => '58345',
+                'tle_line1' => '1 58345U 23174A   24047.38888889  .00064542  00000-0  52345-3 0  9990',
+                'tle_line2' => '2 58345  53.0567 151.7821 0001456  87.3456 272.7654 15.08825381  1234',
+                'type' => 'COMMUNICATION',
+                'status' => 'ACTIVE'
+            ],
+            [
+                'name' => 'GPS BIIR-2 (PRN 13)',
+                'norad_id' => '24876',
+                'tle_line1' => '1 24876U 97035A   24047.50000000  .00000054  00000-0  00000-0 0  9993',
+                'tle_line2' => '2 24876  55.5678 201.2345 0123456 123.4567 234.5678  2.00567891 12345',
+                'type' => 'NAVIGATION',
+                'status' => 'ACTIVE'
+            ],
+            [
                 'name' => 'SENTINEL-2A',
                 'norad_id' => '40697',
                 'tle_line1' => '1 40697U 15028A   24047.85966442  .00000140  00000-0  10487-3 0  9997',
