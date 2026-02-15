@@ -13,20 +13,16 @@ class WeatherMetric extends Model
         'latitude',
         'longitude',
         'cloud_coverage',
-        'cloud_density',
         'rain_intensity',
-        'temperature',
-        'humidity',
-        'pressure',
         'risk_score',
         'risk_level',
-        'confidence',
-        'timestamp',
+        'source',
+        'captured_at',
         'data_sources',
     ];
 
     protected $casts = [
-        'timestamp' => 'datetime',
+        'captured_at' => 'datetime',
         'data_sources' => 'array',
         'latitude' => 'float',
         'longitude' => 'float',
