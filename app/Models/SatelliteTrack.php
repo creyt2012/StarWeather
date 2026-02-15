@@ -15,8 +15,13 @@ class SatelliteTrack extends Model
         'longitude',
         'altitude',
         'velocity',
-        'visibility_radius',
-        'captured_at',
+        'tracked_at',
+    ];
+
+    protected $casts = [
+        'tracked_at' => 'datetime',
+        'latitude' => 'float',
+        'longitude' => 'float',
     ];
 
     public function satellite()
