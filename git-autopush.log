@@ -18,3 +18,7 @@ After doing this, you may fix the identity used for this commit with:
  3 files changed, 108 insertions(+), 45 deletions(-)
  create mode 100644 git-autopush.log
  create mode 100755 git-autopush.sh
+remote: No anonymous write access.
+fatal: Authentication failed for 'https://github.com/creyt2012/vetinh.git/'
+Successfully pushed changes.
+Change detected. Syncing to GitHub...
