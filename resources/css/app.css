@@ -1,21 +1,56 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --space-deep: #05050a;
+  --space-dark: #0a0a12;
+  --vibrant-blue: #4f46e5;
+  --vibrant-purple: #8b5cf6;
+  --vibrant-green: #10b981;
+  --vibrant-orange: #f59e0b;
+  --glass-bg: rgba(15, 15, 25, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.08);
+}
+
 @layer base {
   body {
-    @apply bg-space-dark text-white font-sans antialiased;
+    @apply bg-[#05050a] text-white font-outfit antialiased selection:bg-vibrant-blue selection:text-white;
   }
 }
 
-.glass {
-  @apply bg-glass-gradient backdrop-blur-md border border-white/10 rounded-xl;
+@layer components {
+  .glass {
+    @apply bg-[var(--glass-bg)] backdrop-blur-xl border border-[var(--glass-border)] shadow-2xl;
+  }
+
+  .glow-blue {
+    box-shadow: 0 0 20px rgba(79, 70, 229, 0.2);
+  }
+
+  .glow-text {
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    @apply w-1;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-white/10 rounded-full hover:bg-white/20 transition;
+  }
 }
 
-.glow-blue {
-  box-shadow: 0 0 20px rgba(79, 70, 229, 0.3);
+.font-outfit {
+  font-family: 'Outfit', sans-serif;
 }
 
-.glow-text {
-  text-shadow: 0 0 10px rgba(79, 70, 229, 0.5);
+.font-mono {
+  font-family: 'JetBrains+Mono', monospace;
 }
