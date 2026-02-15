@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-space-dark text-white font-sans antialiased;
+  }
+}
+
+.glass {
+  @apply bg-glass-gradient backdrop-blur-md border border-white/10 rounded-xl;
+}
+
+.glow-blue {
+  box-shadow: 0 0 20px rgba(79, 70, 229, 0.3);
+}
+
+.glow-text {
+  text-shadow: 0 0 10px rgba(79, 70, 229, 0.5);
+}
