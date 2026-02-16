@@ -736,3 +736,8 @@ error: could not lock config file .git/config: File exists
  3 files changed, 14 insertions(+)
 To https://github.com/creyt2012/vetinh.git
    8929dae..0a248d8  main -> main
+[main 595aa88] Auto-sync: resources/js/Pages/Admin/MissionControl.vue (2026-02-17 05:39:57)
+ 3 files changed, 160 insertions(+)
+ create mode 100644 resources/js/Pages/Admin/MissionControl.vue
+To https://github.com/creyt2012/vetinh.git
+   0a248d8..595aa88  main -> main

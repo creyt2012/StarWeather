@@ -17,6 +17,10 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::put('/satellites/{satellite}', [\App\Http\Controllers\Admin\SatelliteManagementController::class, 'update'])->name('admin.satellites.update');
     Route::delete('/satellites/{satellite}', [\App\Http\Controllers\Admin\SatelliteManagementController::class, 'destroy'])->name('admin.satellites.destroy');
 
+    // Mission Control
+    Route::get('/mission-control', function () {
+        return Inertia::render('Admin/MissionControl'); })->name('admin.mission-control');
+
     // Billing
     Route::get('/billing', [\App\Http\Controllers\Admin\BillingController::class, 'index'])->name('admin.billing');
 
