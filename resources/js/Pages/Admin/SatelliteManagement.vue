@@ -425,6 +425,7 @@ const route = window.route;
 .bg-vibrant-blue { background-color: #0088ff; }
 .border-vibrant-blue { border-color: #0088ff; }
 .text-vibrant-green { color: #00ffaa; }
+.bg-vibrant-green { background-color: #00ffaa; }
 .border-vibrant-green { border-color: #00ffaa; }
 
 .custom-scrollbar::-webkit-scrollbar {
@@ -439,5 +440,24 @@ const route = window.route;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
     background: rgba(0, 136, 255, 0.5);
+}
+
+/* Animations */
+@keyframes scan-fast {
+    from { transform: translateY(-100%); }
+    to { transform: translateY(300%); }
+}
+
+.animate-scan-fast {
+    animation: scan-fast 2s linear infinite;
+}
+
+/* Drawer Transitions */
+.drawer-enter-active, .drawer-leave-active {
+    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.drawer-enter-from, .drawer-leave-to {
+    transform: translateX(100%);
 }
 </style>
