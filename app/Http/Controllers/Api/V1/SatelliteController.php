@@ -9,10 +9,32 @@ use Illuminate\Http\JsonResponse;
 
 class SatelliteController extends Controller
 {
+    protected \App\Repositories\StateRepository $stateRepo;
+
+    public function __construct(\App\Repositories\StateRepository $stateRepo)
+    {
+        $this->stateRepo = $stateRepo;
+    }
+
     /**
-     * Get live positions of all active satellites.
+     * Get live positions of all active satellites using L1 Cache.
      */
     public function index(): JsonResponse
+    {
+        $states = $this->stateRepo->getSatelliteStates();
+
+        if (empty($states)) {
+            // Fallback to DB if cache is cold
+            return $this->indexFromDb();
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'data' => array_values($states)
+        ]);
+    }
+
+    private function indexFromDb(): JsonResponse
     {
         $satellites = Satellite::where('status', 'ACTIVE')
             ->get()
