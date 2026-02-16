@@ -31,4 +31,14 @@ class Satellite extends Model
     {
         return $this->hasMany(SatelliteTrack::class);
     }
+
+    /**
+     * Get live orbital telemetry for the satellite.
+     * 
+     * @return array
+     */
+    public function getTelemetryAttribute()
+    {
+        return app(\App\Engines\Satellite\SatelliteEngine::class)->propagate($this);
+    }
 }
