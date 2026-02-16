@@ -202,23 +202,91 @@ const fetchLiveSatellites = async () => {
                 </div>
 
                 <!-- Legend Overlay -->
-                <div class="glass p-5 rounded-2xl">
-                    <h3 class="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] mb-4">Live Legend</h3>
-                    <div class="space-y-3">
-                        <div class="flex items-center justify-between text-[10px] font-bold">
-                            <span class="text-white/40 italic uppercase">Orbit Types</span>
-                            <div class="flex space-x-2">
-                                <span class="px-1.5 py-0.5 bg-white/5 rounded text-white/60">LEO</span>
-                                <span class="px-1.5 py-0.5 bg-white/5 rounded text-white/20">MEO</span>
-                                <span class="px-1.5 py-0.5 bg-white/5 rounded text-white/20">GEO</span>
+                <div class="glass rounded-2xl overflow-hidden border border-white/10">
+                    <div class="flex items-center justify-between p-4 bg-white/5 border-b border-white/5">
+                        <div class="flex items-center space-x-2">
+                            <div class="p-1.5 bg-white/10 rounded-full">
+                                <svg class="w-3.5 h-3.5 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <span class="text-xs font-bold text-white/90">Legend</span>
+                        </div>
+                        <svg class="w-4 h-4 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </div>
+
+                    <div class="p-5 space-y-6">
+                        <!-- CATEGORIES -->
+                        <div class="space-y-3">
+                            <h3 class="text-[9px] font-black text-white/30 uppercase tracking-[0.2em]">Categories</h3>
+                            <div class="space-y-2.5">
+                                <button v-for="cat in [
+                                    { id: 'COMMUNICATION', label: 'Communication', color: 'bg-[#0ea5e9]' },
+                                    { id: 'NAVIGATION', label: 'GPS Navigation', color: 'bg-[#22c55e]' },
+                                    { id: 'SCIENTIFIC', label: 'Scientific', color: 'bg-[#a855f7]' },
+                                    { id: 'SPACE_DEBRIS', label: 'Space Debris', color: 'bg-[#f97316]' }
+                                ]" :key="cat.id" @click="toggleLayer(cat.id)" 
+                                   class="flex items-center space-x-3 group transition w-full"
+                                   :class="activeLayers.includes(cat.id) ? 'opacity-100' : 'opacity-30 grayscale cursor-pointer'">
+                                    <span :class="cat.color" class="w-2.5 h-2.5 rounded-full shadow-[0_0_8px_currentColor]"></span>
+                                    <span class="text-[11px] font-bold text-white/70 group-hover:text-white">{{ cat.label }}</span>
+                                </button>
                             </div>
                         </div>
-                        <div class="pt-2 border-t border-white/5 grid grid-cols-2 gap-y-2">
-                            <div class="flex items-center space-x-2 text-[9px] text-white/50">
-                                <kbd class="px-1 bg-white/10 rounded">ESC</kbd> <span>Deselect</span>
+
+                        <div class="h-px bg-white/5 mx-[-1.25rem]"></div>
+
+                        <!-- ORBIT TYPES -->
+                        <div class="space-y-3">
+                            <h3 class="text-[9px] font-black text-white/30 uppercase tracking-[0.2em]">Orbit Types</h3>
+                            <div class="space-y-2">
+                                <div class="flex items-baseline space-x-2">
+                                    <span class="text-[10px] font-black text-white/80 w-8">LEO</span>
+                                    <span class="text-[10px] font-bold text-white/30">0-2k km</span>
+                                </div>
+                                <div class="flex items-baseline space-x-2">
+                                    <span class="text-[10px] font-black text-white/80 w-8">MEO</span>
+                                    <span class="text-[10px] font-bold text-white/30">2-36k km</span>
+                                </div>
+                                <div class="flex items-baseline space-x-2">
+                                    <span class="text-[10px] font-black text-white/80 w-8">GEO</span>
+                                    <span class="text-[10px] font-bold text-white/30">36k km</span>
+                                </div>
                             </div>
-                            <div class="flex items-center space-x-2 text-[9px] text-white/50">
-                                <kbd class="px-1 bg-white/10 rounded">R</kbd> <span>Rotate</span>
+                        </div>
+
+                        <div class="h-px bg-white/5 mx-[-1.25rem]"></div>
+
+                        <!-- KEYBOARD -->
+                        <div class="space-y-3">
+                            <h3 class="text-[9px] font-black text-white/30 uppercase tracking-[0.2em]">Keyboard</h3>
+                            <div class="space-y-2">
+                                <div class="flex items-center justify-between group">
+                                    <div class="flex items-center space-x-2">
+                                        <kbd class="px-2 py-0.5 bg-white/5 rounded text-[10px] font-mono text-white/60 border border-white/5">1-4</kbd>
+                                        <span class="text-[10px] font-bold text-white/40 group-hover:text-white/60">Views</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between group">
+                                    <div class="flex items-center space-x-2">
+                                        <kbd class="px-2 py-0.5 bg-white/5 rounded text-[10px] font-mono text-white/60 border border-white/5">+/-</kbd>
+                                        <span class="text-[10px] font-bold text-white/40 group-hover:text-white/60">Zoom</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between group">
+                                    <div class="flex items-center space-x-2">
+                                        <kbd class="px-2 py-0.5 bg-white/5 rounded text-[10px] font-mono text-white/60 border border-white/5">R</kbd>
+                                        <span class="text-[10px] font-bold text-white/40 group-hover:text-white/60">Rotate</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between group">
+                                    <div class="flex items-center space-x-2">
+                                        <kbd class="px-2 py-0.5 bg-white/5 rounded text-[10px] font-mono text-white/60 border border-white/5">Esc</kbd>
+                                        <span class="text-[10px] font-bold text-white/40 group-hover:text-white/60">Deselect</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
