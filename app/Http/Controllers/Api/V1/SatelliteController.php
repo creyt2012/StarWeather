@@ -53,6 +53,7 @@ class SatelliteController extends Controller
                         'altitude' => $latestTrack->altitude,
                         'velocity' => $latestTrack->velocity,
                         'timestamp' => $latestTrack->tracked_at,
+                        'source' => $latestTrack->source ?? 'Authentic Telemetry'
                     ] : null
                 ];
             });
