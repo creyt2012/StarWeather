@@ -11,12 +11,22 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::table('weather_metrics', function (Blueprint $table) {
-            $table->foreignId('station_id')->nullable()->after('id')->constrained('ground_stations')->onDelete('set null');
-            $table->float('temperature')->nullable()->after('risk_level');
-            $table->float('humidity')->nullable()->after('temperature');
-            $table->float('pressure')->nullable()->after('humidity');
-            $table->string('wind_speed')->nullable()->after('pressure');
-            $table->string('wind_direction')->nullable()->after('wind_speed');
+            if (!Schema::hasColumn('weather_metrics', 'station_id')) {
+                $table->foreignId('station_id')->nullable()->after('id')->constrained('ground_stations')->onDelete('set null');
+            }
+            if (!Schema::hasColumn('weather_metrics', 'temperature')) {
+                $table->float('temperature')->nullable()->after('risk_level');
+            }
+            if (!Schema::hasColumn('weather_metrics', 'humidity')) {
+                $table->float('humidity')->nullable()->after('temperature');
+            }
+            // pressure is already added in a previous migration, skipping
+            if (!Schema::hasColumn('weather_metrics', 'wind_speed')) {
+                $table->string('wind_speed')->nullable()->after('pressure');
+            }
+            if (!Schema::hasColumn('weather_metrics', 'wind_direction')) {
+                $table->string('wind_direction')->nullable()->after('wind_speed');
+            }
         });
     }
 
@@ -27,7 +37,7 @@ return new class extends Migration {
     {
         Schema::table('weather_metrics', function (Blueprint $table) {
             $table->dropForeign(['station_id']);
-            $table->dropColumn(['station_id', 'temperature', 'humidity', 'pressure', 'wind_speed', 'wind_direction']);
+            $table->dropColumn(['station_id', 'temperature', 'humidity', 'wind_speed', 'wind_direction']);
         });
     }
 };
