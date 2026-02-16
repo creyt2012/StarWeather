@@ -522,9 +522,11 @@ const animate = () => {
                         </div>
                     </div>
                     <div class="space-y-0.5 text-right">
-                        <span class="text-[7px] text-white/40 uppercase font-bold">Wind Speed</span>
+                        <span class="text-[7px] text-white/40 uppercase font-bold">Wind / Gusts</span>
                         <div class="flex items-baseline justify-end space-x-1">
                             <span class="text-xs font-black text-vibrant-green">{{ hoveredSurface.windSpeed }}</span>
+                            <span class="text-[8px] text-white/30">/</span>
+                            <span class="text-[10px] font-bold text-vibrant-green/70">{{ hoveredSurface.windGusts }}</span>
                             <span class="text-[8px] text-white/20">km/h</span>
                         </div>
                     </div>
@@ -536,9 +538,10 @@ const animate = () => {
                         </div>
                     </div>
                     <div class="space-y-0.5 text-right">
-                        <span class="text-[7px] text-white/40 uppercase font-bold">Humidity</span>
+                        <span class="text-[7px] text-white/40 uppercase font-bold">Rain/Snow</span>
                         <div class="flex items-baseline justify-end space-x-1">
-                            <span class="text-xs font-black text-vibrant-blue">{{ hoveredSurface.humidity }}%</span>
+                            <span class="text-xs font-black text-vibrant-blue">{{ hoveredSurface.precip }}</span>
+                            <span class="text-[8px] text-white/20">mm</span>
                         </div>
                     </div>
                 </div>
