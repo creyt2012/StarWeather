@@ -65,4 +65,31 @@ class WeatherController extends Controller
             'data' => $metrics
         ]);
     }
+
+    /**
+     * Get intelligence history for a specific coordinate (Interpolated Mock for SaaS demo).
+     */
+    public function locationHistory(Request $request): JsonResponse
+    {
+        $lat = $request->get('lat');
+        $lng = $request->get('lng');
+
+        // Return 24 points of interpolated data based on current global state
+        $data = [];
+        $basePressure = 1013;
+
+        for ($i = 0; $i < 24; $i++) {
+            $data[] = [
+                'time' => now()->subHours(23 - $i)->format('H:i'),
+                'pressure' => $basePressure + sin(($lat + $lng + $i) * 0.5) * 5,
+                'temp' => 20 + cos(($lat + $i) * 0.3) * 10
+            ];
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $data,
+            'meta' => ['lat' => $lat, 'lng' => $lng]
+        ]);
+    }
 }
