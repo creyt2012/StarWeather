@@ -21,7 +21,7 @@ class AlertMonitorJob implements ShouldQueue
     ): void {
         // 1. Fetch Latest Metrics across all sectors
         $metrics = WeatherMetric::where('captured_at', '>', now()->subMinutes(10))->get();
-        $rules = $conditionEngine->getDefaultRules();
+        $rules = \App\Models\AlertRule::where('is_active', true)->get();
 
         foreach ($metrics as $metric) {
             // Prepare data for engine
