@@ -43,9 +43,9 @@ class SatelliteEngine
         $epochYear = ($epochYear < 57) ? 2000 + $epochYear : 1900 + $epochYear;
 
         // Time since epoch in minutes
-        $epoch = (new DateTime("$epochYear-01-01 00:00:00", new DateTimeZone('UTC')))
-            ->modify('+' . floor($epochDay - 1) . ' days')
-            ->modify('+' . (($epochDay - floor($epochDay)) * 86400) . ' seconds');
+        $baseEpoch = (new DateTime("$epochYear-01-01 00:00:00", new DateTimeZone('UTC')));
+        $totalSeconds = ($epochDay - 1) * 86400;
+        $epoch = (clone $baseEpoch)->setTimestamp($baseEpoch->getTimestamp() + (int) floor($totalSeconds));
 
         $tsince = ($time->getTimestamp() - $epoch->getTimestamp()) / 60.0;
 
