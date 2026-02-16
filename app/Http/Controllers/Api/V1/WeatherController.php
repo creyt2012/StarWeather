@@ -12,11 +12,16 @@ class WeatherController extends Controller
 {
     protected RiskEngine $riskEngine;
     protected \App\Repositories\StateRepository $stateRepo;
+    protected \App\Engines\Geo\GeoEngine $geoEngine;
 
-    public function __construct(RiskEngine $riskEngine, \App\Repositories\StateRepository $stateRepo)
-    {
+    public function __construct(
+        RiskEngine $riskEngine,
+        \App\Repositories\StateRepository $stateRepo,
+        \App\Engines\Geo\GeoEngine $geoEngine
+    ) {
         $this->riskEngine = $riskEngine;
         $this->stateRepo = $stateRepo;
+        $this->geoEngine = $geoEngine;
     }
 
     /**
@@ -67,14 +72,17 @@ class WeatherController extends Controller
     }
 
     /**
-     * Get intelligence history for a specific coordinate (Interpolated Mock for SaaS demo).
+     * Get intelligence history for a specific coordinate (Enhanced for Phase 12).
      */
     public function locationHistory(Request $request): JsonResponse
     {
-        $lat = $request->get('lat');
-        $lng = $request->get('lng');
+        $lat = (float) $request->get('lat');
+        $lng = (float) $request->get('lng');
 
-        // Return 24 points of interpolated data based on current global state
+        // 1. Resolve Location Intel (Reverse Geocode)
+        $location = $this->geoEngine->reverseGeocode($lat, $lng);
+
+        // 2. Return 24 points of interpolated data
         $data = [];
         $basePressure = 1013;
 
@@ -89,7 +97,22 @@ class WeatherController extends Controller
         return response()->json([
             'status' => 'success',
             'data' => $data,
-            'meta' => ['lat' => $lat, 'lng' => $lng]
+            'meta' => [
+                'lat' => $lat,
+                'lng' => $lng,
+                'location' => $location
+            ]
+        ]);
+    }
+
+    /**
+     * Get Global Risk Heatmap data for the Globe visualization.
+     */
+    public function heatmap(): JsonResponse
+    {
+        return response()->json([
+            'status' => 'success',
+            'data' => $this->geoEngine->getRiskHeatmap()
         ]);
     }
 }
