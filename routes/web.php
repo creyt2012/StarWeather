@@ -38,6 +38,9 @@ Route::prefix('admin')->group(function () {
 
     // Alert Rules (Condition Engine) (NEW)
     Route::get('/alerts/rules', [\App\Http\Controllers\Admin\AlertRuleController::class, 'index'])->name('admin.alerts.rules');
+    Route::post('/alerts/rules', [\App\Http\Controllers\Admin\AlertRuleController::class, 'store'])->name('admin.alerts.rules.store');
+    Route::put('/alerts/rules/{rule}', [\App\Http\Controllers\Admin\AlertRuleController::class, 'update'])->name('admin.alerts.rules.update');
+    Route::delete('/alerts/rules/{rule}', [\App\Http\Controllers\Admin\AlertRuleController::class, 'destroy'])->name('admin.alerts.rules.destroy');
 
     // Billing
     Route::get('/billing', [\App\Http\Controllers\Admin\BillingController::class, 'index'])->name('admin.billing');
