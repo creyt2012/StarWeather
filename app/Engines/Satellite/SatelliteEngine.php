@@ -87,6 +87,7 @@ class SatelliteEngine
             'altitude' => round($r - self::WGS84_A, 2),
             'velocity' => round($n * $a, 2), // km/min -> km/s would be / 60
             'timestamp' => $time->format('Y-m-d H:i:s'),
+            'source' => 'CelesTrak Real-time'
         ];
     }
 
