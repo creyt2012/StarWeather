@@ -27,6 +27,12 @@ Route::middleware(['auth.api_key', \App\Http\Middleware\CheckApiKeyLimits::class
     Route::get('/weather/heatmap', [WeatherController::class, 'heatmap']);
     Route::get('/weather/forecast', [WeatherController::class, 'forecast']);
     Route::get('/weather/point-info', [WeatherController::class, 'pointInfo']);
+    Route::get('/weather/radar-config', function () {
+        return response()->json([
+            'status' => 'success',
+            'data' => \Illuminate\Support\Facades\Cache::get('radar_config_latest')
+        ]);
+    });
     Route::get('/weather/trends', function () {
         return \App\Models\DailyWeatherSummary::latest()->limit(30)->get();
     });
