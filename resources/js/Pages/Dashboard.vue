@@ -460,13 +460,23 @@ const handleSurfaceClick = async (data) => {
                 <!-- Simulation/History Chart Placeholder -->
                 <div class="space-y-4">
                     <div class="flex items-center justify-between">
-                        <h3 class="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">24H Pressure Logic</h3>
+                        <h3 class="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">24H Pressure Intelligence</h3>
                         <span class="text-[8px] text-vibrant-blue font-black uppercase">Live Computation</span>
                     </div>
                     <div class="h-32 bg-white/5 rounded-2xl border border-white/5 flex items-end p-4 space-x-1 group">
-                        <div v-for="i in 24" :key="i" 
-                             class="flex-1 bg-vibrant-blue/20 rounded-t-sm group-hover:bg-vibrant-blue/40 transition-all duration-500"
-                             :style="{ height: (30 + Math.random() * 70) + '%' }"></div>
+                        <template v-if="selectedLocation.history && selectedLocation.history.length > 0">
+                            <div v-for="(point, idx) in selectedLocation.history" :key="idx" 
+                                 class="flex-1 bg-vibrant-blue/20 rounded-t-sm group-hover:bg-vibrant-blue/40 transition-all duration-500 relative group/bar"
+                                 :style="{ height: ((point.pressure - 980) / 60 * 100) + '%' }">
+                                 <!-- Tooltip for Bar -->
+                                 <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover/bar:block glass px-2 py-1 rounded text-[8px] whitespace-nowrap z-50 pointer-events-none">
+                                     {{ point.time }}: {{ point.pressure.toFixed(1) }} hPa
+                                 </div>
+                            </div>
+                        </template>
+                        <template v-else>
+                            <div v-for="i in 24" :key="i" class="flex-1 bg-white/5 rounded-t-sm animate-pulse" :style="{ height: '20%' }"></div>
+                        </template>
                     </div>
                 </div>
 
