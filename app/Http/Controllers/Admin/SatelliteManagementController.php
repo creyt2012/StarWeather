@@ -25,11 +25,16 @@ class SatelliteManagementController extends Controller
             'tle_line1' => 'nullable|string',
             'tle_line2' => 'nullable|string',
             'status' => 'required|string',
+            'api_config' => 'nullable|array',
+            'data_source' => 'nullable|string',
+            'source_url' => 'nullable|url',
+            'dataset_name' => 'nullable|string',
+            'priority' => 'nullable|integer',
         ]);
 
         Satellite::create($validated);
 
-        return redirect()->back()->with('success', 'Satellite added successfully');
+        return redirect()->back()->with('success', 'Satellite mission config initialized');
     }
 
     public function update(Request $request, Satellite $satellite)
@@ -40,11 +45,16 @@ class SatelliteManagementController extends Controller
             'status' => 'required|string',
             'tle_line1' => 'nullable|string',
             'tle_line2' => 'nullable|string',
+            'api_config' => 'nullable|array',
+            'data_source' => 'nullable|string',
+            'source_url' => 'nullable|url',
+            'dataset_name' => 'nullable|string',
+            'priority' => 'nullable|integer',
         ]);
 
         $satellite->update($validated);
 
-        return redirect()->back()->with('success', 'Satellite updated successfully');
+        return redirect()->back()->with('success', 'Satellite configuration updated');
     }
 
     public function destroy(Satellite $satellite)
