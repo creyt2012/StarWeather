@@ -15,6 +15,10 @@ const props = defineProps({
     activeLayers: {
         type: Array,
         default: () => []
+    },
+    groundStations: {
+        type: Array,
+        default: () => []
     }
 });
 
@@ -22,6 +26,7 @@ const globeContainer = ref(null);
 const emit = defineEmits(['select', 'hover', 'surface-click', 'surface-hover', 'satellite-click']);
 let scene, camera, renderer, globe, clouds, controls, starfield;
 let satelliteMarkers = new Map();
+let groundStationMarkers = new Map();
 let orbitPaths = new Map();
 let selectedSatellite = ref(null);
 let hoveredSatellite = ref(null);
@@ -66,6 +71,10 @@ watch(() => props.activeLayers, (layers) => {
     if (riskLayer) {
         riskLayer.visible = layers.includes('RISK_HEATMAP');
     }
+}, { deep: true });
+
+watch(() => props.groundStations, (newStations) => {
+    updateGroundStationMarkers(newStations);
 }, { deep: true });
 
 const initScene = () => {
@@ -176,6 +185,7 @@ const initScene = () => {
     controls.maxDistance = 15;
 
     updateSatelliteMarkers(props.satellites);
+    updateGroundStationMarkers(props.groundStations);
     window.addEventListener('resize', onWindowResize);
     window.addEventListener('mousedown', onMouseDown);
     window.addEventListener('mousemove', onMouseMove);
