@@ -54,13 +54,32 @@ onMounted(() => {
                 metrics.value = e.data;
             });
 
+        // Batch Satellite Updates (L1 Performance)
         window.Echo.channel('satellites.live')
-            .listen('.satellite.updated', (e) => {
-                const index = satellites.value.findIndex(s => s.id === e.data.id);
+            .listen('.batch.updated', (e) => {
+                if (e.satellites && Array.isArray(e.satellites)) {
+                    // Bulk update the satellites array
+                    e.satellites.forEach(updatedSat => {
+                        const index = satellites.value.findIndex(s => s.id === updatedSat.id);
+                        if (index !== -1) {
+                            // Merge update while preserving reactive reference
+                            Object.assign(satellites.value[index], updatedSat);
+                            
+                            // If this is the selected satellite, sync the panel
+                            if (selectedSatellite.value && selectedSatellite.value.id === updatedSat.id) {
+                                Object.assign(selectedSatellite.value, updatedSat);
+                            }
+                        } else {
+                            satellites.value.push(updatedSat);
+                        }
+                    });
+                }
+            })
+            .listen('SatelliteUpdated', (e) => {
+                // Fallback for legacy individual updates
+                const index = satellites.value.findIndex(s => s.id === e.satellite.id);
                 if (index !== -1) {
-                    satellites.value[index] = { ...satellites.value[index], ...e.data };
-                } else {
-                    satellites.value.push(e.data);
+                    Object.assign(satellites.value[index], e.trackData);
                 }
             });
     }
