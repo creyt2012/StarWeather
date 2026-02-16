@@ -35,7 +35,7 @@ class SatelliteManagementController extends Controller
 
     public function store(Request $request)
     {
-        if (!$request->user()->isOperator()) {
+        if (!$request->user()?->isOperator()) {
             abort(403, 'Unauthorized mission deployment');
         }
 
