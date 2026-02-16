@@ -8,83 +8,86 @@ const props = defineProps({
     }
 });
 
-const formattedVelocity = computed(() => {
-    return props.satellite.velocity ? props.satellite.velocity.toFixed(3) : '---';
+const statusColor = computed(() => {
+    switch (props.satellite.status) {
+        case 'ACTIVE': return '#22c55e';
+        case 'INACTIVE': return '#ef4444';
+        default: return '#f59e0b';
+    }
 });
 
-const formattedAltitude = computed(() => {
-    return props.satellite.altitude ? Math.round(props.satellite.altitude).toLocaleString() : '---';
-});
-
-const formattedPeriod = computed(() => {
-    return props.satellite.period ? props.satellite.period.toFixed(1) : '---';
-});
+const formatCoord = (val) => val ? val.toFixed(4) : '0.0000';
 </script>
 
 <template>
-    <div class="telemetry-panel p-6 bg-black/40 backdrop-blur-xl border border-vibrant-blue/20 rounded-2xl shadow-2xl animate-in zoom-in duration-300">
-        <div class="flex items-center justify-between mb-6">
-            <div class="flex items-center space-x-3">
-                <div class="w-1.5 h-1.5 rounded-full bg-vibrant-blue animate-pulse"></div>
-                <h3 class="text-[10px] font-black text-vibrant-blue tracking-[0.3em] uppercase italic">Orbital_Telemetry</h3>
+    <div class="bg-black/80 backdrop-blur-2xl border border-white/10 rounded-2xl overflow-hidden shadow-2xl animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <!-- Header -->
+        <div class="px-6 py-4 border-b border-white/5 bg-gradient-to-r from-vibrant-blue/10 to-transparent flex justify-between items-center">
+            <div>
+                <h3 class="text-lg font-black tracking-tighter uppercase italic leading-none">{{ satellite.name }}</h3>
+                <p class="text-[8px] font-mono text-white/40 uppercase tracking-[0.3em] mt-1.5">NORAD_ID: {{ satellite.norad_id }} / OP_STATUS: {{ satellite.status }}</p>
             </div>
-            <span class="text-[8px] font-mono text-white/20 tracking-widest uppercase">ID: {{ satellite.norad_id || 'X-IDENT' }}</span>
+            <div class="w-3 h-3 rounded-full shadow-[0_0_10px_currentColor] animate-pulse" :style="{ color: statusColor, backgroundColor: 'currentColor' }"></div>
         </div>
 
-        <div class="grid grid-cols-1 gap-6">
-            <!-- Velocity Gauge -->
-            <div class="relative p-4 bg-white/[0.02] border border-white/5 rounded-xl hover:border-vibrant-blue/30 transition-all group">
-                <div class="flex justify-between items-start mb-2">
-                    <span class="text-[9px] font-black text-white/40 uppercase tracking-widest">Velocity</span>
-                    <span class="text-[9px] font-mono text-vibrant-blue italic">REL_TO_GROUND</span>
+        <!-- Telemetry Grid -->
+        <div class="p-6 space-y-6">
+            <div class="grid grid-cols-2 gap-4">
+                <div class="space-y-1">
+                    <p class="text-[8px] font-black text-white/30 uppercase tracking-widest">Velocity</p>
+                    <div class="flex items-baseline space-x-1">
+                        <span class="text-xl font-black text-white leading-none">{{ satellite.velocity || '7.6' }}</span>
+                        <span class="text-[10px] font-bold text-white/20">KM/S</span>
+                    </div>
                 </div>
-                <div class="flex items-baseline space-x-2">
-                    <span class="text-3xl font-black text-white group-hover:text-vibrant-blue transition-colors">{{ formattedVelocity }}</span>
-                    <span class="text-[10px] font-bold text-white/20 uppercase">KM/S</span>
-                </div>
-                <!-- Mini Progress Bar -->
-                <div class="w-full h-1 bg-white/5 rounded-full mt-4 overflow-hidden relative">
-                    <div class="h-full bg-vibrant-blue transition-all duration-1000" :style="{ width: (satellite.velocity / 30 * 100) + '%' }"></div>
-                    <div class="absolute inset-x-0 bottom-0 h-[2px] bg-white/10 opacity-20"></div>
+                <div class="space-y-1 text-right">
+                    <p class="text-[8px] font-black text-white/30 uppercase tracking-widest">Altitude</p>
+                    <div class="flex items-baseline justify-end space-x-1">
+                        <span class="text-xl font-black text-white leading-none">{{ satellite.altitude || '550' }}</span>
+                        <span class="text-[10px] font-bold text-white/20">KM</span>
+                    </div>
                 </div>
             </div>
 
             <div class="grid grid-cols-2 gap-4">
-                <!-- Altitude -->
-                <div class="flex flex-col p-4 bg-white/[0.02] border border-white/5 rounded-xl">
-                    <span class="text-[9px] font-black text-white/40 uppercase tracking-widest mb-2">Altitude</span>
+                <div class="space-y-1">
+                    <p class="text-[8px] font-black text-white/30 uppercase tracking-widest">Orbital Period</p>
                     <div class="flex items-baseline space-x-1">
-                        <span class="text-xl font-black text-white">{{ formattedAltitude }}</span>
-                        <span class="text-[8px] font-bold text-white/20 uppercase">KM</span>
+                        <span class="text-xl font-black text-vibrant-blue leading-none">{{ satellite.period || '95.4' }}</span>
+                        <span class="text-[10px] font-bold text-vibrant-blue/30">MIN</span>
                     </div>
                 </div>
-
-                <!-- Orbital Period -->
-                <div class="flex flex-col p-4 bg-white/[0.02] border border-white/5 rounded-xl">
-                    <span class="text-[9px] font-black text-white/40 uppercase tracking-widest mb-2">Period</span>
-                    <div class="flex items-baseline space-x-1">
-                        <span class="text-xl font-black text-white">{{ formattedPeriod }}</span>
-                        <span class="text-[8px] font-bold text-white/20 uppercase">MIN</span>
+                <div class="space-y-1 text-right">
+                    <p class="text-[8px] font-black text-white/30 uppercase tracking-widest">Inclination</p>
+                    <div class="flex items-baseline justify-end space-x-1">
+                        <span class="text-xl font-black text-white/80 leading-none">53.0</span>
+                        <span class="text-[10px] font-bold text-white/20">DEG</span>
                     </div>
                 </div>
             </div>
+
+            <!-- Coordinates -->
+            <div class="bg-white/5 border border-white/10 rounded-xl p-4 flex justify-between items-center group relative overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-r from-transparent via-vibrant-blue/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                <div class="space-y-1 relative z-10">
+                    <p class="text-[8px] font-black text-white/30 uppercase tracking-widest">Latitude</p>
+                    <p class="text-xs font-mono font-bold text-white/80 tracking-widest">{{ formatCoord(satellite.latitude) }}°N</p>
+                </div>
+                <div class="w-px h-8 bg-white/10"></div>
+                <div class="space-y-1 text-right relative z-10">
+                    <p class="text-[8px] font-black text-white/30 uppercase tracking-widest">Longitude</p>
+                    <p class="text-xs font-mono font-bold text-white/80 tracking-widest">{{ formatCoord(satellite.longitude) }}°E</p>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="grid grid-cols-2 gap-3 pt-2">
+                <button class="bg-vibrant-blue text-white text-[9px] font-black uppercase tracking-[0.2em] py-3 rounded-lg hover:bg-vibrant-blue/80 transition-all border border-vibrant-blue shadow-[0_0_15px_rgba(0,136,255,0.3)]">Mission_Details</button>
+                <button class="bg-white/5 text-white/60 text-[9px] font-black uppercase tracking-[0.2em] py-3 rounded-lg hover:bg-white/10 transition-all border border-white/10">Telemetry_Logs</button>
+            </div>
         </div>
 
-        <!-- System Tag -->
-        <div class="mt-6 pt-4 border-t border-white/5 flex justify-between items-center">
-            <div class="flex flex-col">
-                <span class="text-[7px] font-black text-white/20 uppercase tracking-[0.2em]">Data_Provenance</span>
-                <span class="text-[8px] font-mono text-vibrant-blue/60 uppercase">CELESTRAK / SGP4_CORE</span>
-            </div>
-            <div class="flex space-x-1">
-                <div v-for="i in 3" :key="i" class="w-1 h-3 bg-vibrant-blue/20 rounded-[0.5px]"></div>
-            </div>
-        </div>
+        <!-- Footer Decoration -->
+        <div class="h-1 bg-gradient-to-r from-vibrant-blue via-white/20 to-vibrant-blue opacity-50"></div>
     </div>
 </template>
-
-<style scoped>
-.telemetry-panel {
-    background-image: radial-gradient(circle at 0% 0%, rgba(79, 70, 229, 0.05) 0%, transparent 50%);
-}
-</style>

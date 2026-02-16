@@ -35,6 +35,7 @@ let hoveredSurface = ref(null); // Restore for tooltips
 let selectedLocation = ref(null); // { lat, lng, x, y, province, district, commune }
 let heatmapData = ref([]);
 let riskLayer = null;
+let radarLayer = null;
 let gridLayer = null;
 let scanLine = null;
 
@@ -54,6 +55,7 @@ onMounted(() => {
     initScene();
     animate();
     fetchHeatmap();
+    setupEchoListeners();
 });
 
 onUnmounted(() => {
@@ -70,6 +72,9 @@ watch(() => props.satellites, (newSats) => {
 watch(() => props.activeLayers, (layers) => {
     if (riskLayer) {
         riskLayer.visible = layers.includes('RISK_HEATMAP');
+    }
+    if (radarLayer) {
+        radarLayer.visible = layers.includes('RADAR_REFLECTIVITY');
     }
 }, { deep: true });
 
@@ -280,6 +285,19 @@ const createTacticalGrid = () => {
     });
     gridLayer = new THREE.Mesh(gridGeo, gridMat);
     scene.add(gridLayer);
+
+    // Initialize Empty Radar Layer
+    const radarGeo = new THREE.BufferGeometry();
+    const radarMat = new THREE.PointsMaterial({
+        size: 0.03,
+        vertexColors: true,
+        transparent: true,
+        opacity: 0.8,
+        blending: THREE.AdditiveBlending
+    });
+    radarLayer = new THREE.Points(radarGeo, radarMat);
+    radarLayer.visible = props.activeLayers.includes('RADAR_REFLECTIVITY');
+    scene.add(radarLayer);
 };
 
 const createVerticalLineTexture = () => {
@@ -320,6 +338,43 @@ const onKeyDown = (e) => {
             break;
     }
     controls.update();
+};
+
+const setupEchoListeners = () => {
+    if (window.Echo) {
+        window.Echo.channel('weather-intelligence')
+            .listen('.radar.updated', (e) => {
+                updateRadarLayer(e.data);
+            });
+    }
+};
+
+const updateRadarLayer = (points) => {
+    if (!radarLayer) return;
+
+    const positions = [];
+    const colors = [];
+    
+    points.forEach(p => {
+        const radius = 1.015; // Slightly above surface
+        const pos = calcPosFromLatLng(p.latitude, p.longitude, radius);
+        positions.push(pos.x, pos.y, pos.z);
+
+        // Color mapping from dBZ/Intensity
+        // Cold (Green/Blue) to Hot (Red/Magenta)
+        const color = new THREE.Color();
+        if (p.dbz < 20) color.setHex(0x22c55e);      // Green
+        else if (p.dbz < 40) color.setHex(0xeab308); // Yellow
+        else if (p.dbz < 55) color.setHex(0xef4444); // Red
+        else color.setHex(0xd946ef);                // Magenta (Extreme)
+        
+        colors.push(color.r, color.g, color.b);
+    });
+
+    radarLayer.geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+    radarLayer.geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+    radarLayer.geometry.attributes.position.needsUpdate = true;
+    radarLayer.geometry.attributes.color.needsUpdate = true;
 };
 
 const getWeatherAt = (lat, lng) => {

@@ -14,8 +14,11 @@ class SatellitePropagateJob implements ShouldQueue
 {
     use Queueable;
 
-    public function handle(SatelliteEngine $engine, \App\Repositories\StateRepository $stateRepo): void
-    {
+    public function handle(
+        SatelliteEngine $engine,
+        \App\Engines\Satellite\ConjunctionEngine $conjunctionEngine,
+        \App\Repositories\StateRepository $stateRepo
+    ): void {
         $satellites = Satellite::where('status', 'ACTIVE')->get();
         $batchData = [];
 
@@ -57,6 +60,9 @@ class SatellitePropagateJob implements ShouldQueue
         // 4. Batch Broadcast for high performance
         if (!empty($batchData)) {
             event(new \App\Events\SatelliteBatchUpdated($batchData));
+
+            // 5. Orbital Conjunction Analysis
+            $conjunctionEngine->analyze($batchData);
         }
     }
 }

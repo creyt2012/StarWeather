@@ -21,7 +21,7 @@ const selectedLocation = ref(null);
 const selectedSatellite = ref(null);
 const satellites = ref([]);
 const groundStations = ref([]); // Added groundStations ref
-const activeLayers = ref(['COMMUNICATION', 'NAVIGATION', 'STATION', 'SCIENTIFIC', 'WEATHER', 'SPACE_DEBRIS', 'RISK_HEATMAP']);
+const activeLayers = ref(['COMMUNICATION', 'NAVIGATION', 'STATION', 'SCIENTIFIC', 'WEATHER', 'SPACE_DEBRIS', 'RISK_HEATMAP', 'RADAR_REFLECTIVITY']);
 const now = ref(new Date());
 
 const filteredSatellites = computed(() => {
@@ -138,8 +138,9 @@ const fetchGroundStations = async () => {
 };
 
 const handleSurfaceClick = async (data) => {
-    selectedLocation.value = { ...data, history: [] };
+    selectedLocation.value = { ...data, history: [], forecast: [] };
     
+    // Fetch History
     try {
         const response = await fetch(`/api/v1/weather/history?lat=${data.lat}&lng=${data.lng}`, {
             headers: { 'X-API-KEY': 'vetinh_dev_key_123' }
@@ -155,6 +156,19 @@ const handleSurfaceClick = async (data) => {
         }
     } catch (e) {
         console.error('Failed to fetch location history:', e);
+    }
+
+    // Fetch Forecast (Phase 25)
+    try {
+        const response = await fetch(`/api/v1/weather/forecast?lat=${data.lat}&lng=${data.lng}`, {
+            headers: { 'X-API-KEY': 'vetinh_dev_key_123' }
+        });
+        const json = await response.json();
+        if (json.status === 'success') {
+            selectedLocation.value.forecast = json.data;
+        }
+    } catch (e) {
+        console.error('Failed to fetch forecast:', e);
     }
 };
 </script>
@@ -278,6 +292,32 @@ const handleSurfaceClick = async (data) => {
                             </div>
                         </div>
 
+                        <!-- NWP Forecast Timeline (Phase 25) -->
+                        <div class="mt-12 space-y-6">
+                            <h3 class="text-[10px] font-black text-vibrant-blue uppercase tracking-[0.5em] flex items-center">
+                                <span class="w-4 h-px bg-vibrant-blue/30 mr-4"></span>
+                                NWP_GFS_FORECAST_48H
+                            </h3>
+                            <div class="flex space-x-3 overflow-x-auto pb-4 custom-scrollbar">
+                                <div v-for="item in selectedLocation.forecast" :key="item.time" 
+                                     class="flex-shrink-0 w-24 p-4 bg-white/[0.02] border border-white/5 rounded-2xl flex flex-col items-center space-y-3 hover:bg-vibrant-blue/5 hover:border-vibrant-blue/20 transition-all">
+                                    <span class="text-[8px] font-black text-white/40 uppercase">{{ item.display_time }}</span>
+                                    <div class="flex flex-col items-center">
+                                        <span class="text-sm font-black text-white">{{ Math.round(item.metrics.temperature) }}°</span>
+                                        <div class="h-8 w-1 flex items-end bg-white/5 rounded-full mt-2">
+                                            <div class="w-full bg-vibrant-blue/40 rounded-full" :style="{ height: (item.metrics.temperature * 2) + '%' }"></div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-1">
+                                        <svg class="w-3 h-3 text-vibrant-green/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                        </svg>
+                                        <span class="text-[9px] font-black text-vibrant-green/80">{{ Math.round(item.metrics.wind_speed) }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Secondary Metrics (Detailed List) -->
                         <div class="space-y-4 mt-10">
                             <h3 class="text-[10px] font-black text-white/20 uppercase tracking-[0.5em] mb-6 flex items-center">
@@ -348,6 +388,7 @@ const handleSurfaceClick = async (data) => {
                     { id: 'NAVIGATION', label: 'GPS', icon: 'M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z' },
                     { id: 'SCIENTIFIC', label: 'SCIENT', icon: 'M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.183.244l-.28.14a2 2 0 01-2.983-1.882v-2.43a2 2 0 01.468-1.285l3.946-4.654A2 2 0 017.51 5H16.49a2 2 0 011.492.673l3.946 4.654a2 2 0 01.468 1.285v2.43a2 2 0 01-2.983 1.882l-.28-.14z' },
                     { id: 'WEATHER', label: 'METEO', icon: 'M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z' },
+                    { id: 'RADAR_REFLECTIVITY', label: 'RADAR', icon: 'M13 10V3L4 14h7v7l9-11h-7z' },
                     { id: 'SPACE_DEBRIS', label: 'DEBRIS', icon: 'M13 10V3L4 14h7v7l9-11h-7z' }
                 ]" :key="layer.id"
                         @click="toggleLayer(layer.id)"

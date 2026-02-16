@@ -5,9 +5,13 @@ use Inertia\Inertia;
 
 Route::get('/', function () {
     return Inertia::render('Dashboard');
-});
+})->name('home');
 
-Route::middleware(['auth'])->prefix('admin')->group(function () {
+Route::get('/login', function () {
+    return redirect()->route('home');
+})->name('login');
+
+Route::prefix('admin')->group(function () {
     // Dashboard
     Route::get('/', [\App\Http\Controllers\Admin\AdminDashboardController::class, 'index'])->name('admin.dashboard');
 
@@ -17,9 +21,23 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::put('/satellites/{satellite}', [\App\Http\Controllers\Admin\SatelliteManagementController::class, 'update'])->name('admin.satellites.update');
     Route::delete('/satellites/{satellite}', [\App\Http\Controllers\Admin\SatelliteManagementController::class, 'destroy'])->name('admin.satellites.destroy');
 
+    // Ground Stations (NEW)
+    Route::get('/ground-stations', [\App\Http\Controllers\Admin\GroundStationController::class, 'index'])->name('admin.ground-stations.index');
+    Route::post('/ground-stations', [\App\Http\Controllers\Admin\GroundStationController::class, 'store'])->name('admin.ground-stations.store');
+    Route::put('/ground-stations/{station}', [\App\Http\Controllers\Admin\GroundStationController::class, 'update'])->name('admin.ground-stations.update');
+    Route::delete('/ground-stations/{station}', [\App\Http\Controllers\Admin\GroundStationController::class, 'destroy'])->name('admin.ground-stations.destroy');
+
     // Mission Control
     Route::get('/mission-control', function () {
-        return Inertia::render('Admin/MissionControl'); })->name('admin.mission-control');
+        return Inertia::render('Admin/MissionControl');
+    })->name('admin.mission-control');
+
+    // Alert & Notification Settings
+    Route::get('/alerts/settings', [\App\Http\Controllers\Admin\AlertSettingsController::class, 'index'])->name('admin.alerts.settings');
+    Route::post('/alerts/settings', [\App\Http\Controllers\Admin\AlertSettingsController::class, 'update'])->name('admin.alerts.update');
+
+    // Alert Rules (Condition Engine) (NEW)
+    Route::get('/alerts/rules', [\App\Http\Controllers\Admin\AlertRuleController::class, 'index'])->name('admin.alerts.rules');
 
     // Billing
     Route::get('/billing', [\App\Http\Controllers\Admin\BillingController::class, 'index'])->name('admin.billing');
@@ -35,4 +53,7 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::post('/users', [\App\Http\Controllers\Admin\UserManagementController::class, 'store'])->name('admin.users.store');
     Route::put('/users/{user}', [\App\Http\Controllers\Admin\UserManagementController::class, 'update'])->name('admin.users.update');
     Route::delete('/users/{user}', [\App\Http\Controllers\Admin\UserManagementController::class, 'destroy'])->name('admin.users.destroy');
+
+    // System Health (SLA) (NEW)
+    Route::get('/system/health', [\App\Http\Controllers\Admin\SystemHealthController::class, 'index'])->name('admin.system.health');
 });

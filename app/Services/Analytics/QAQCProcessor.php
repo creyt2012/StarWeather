@@ -9,6 +9,49 @@ class QAQCProcessor
     /**
      * Validate and clean weather data.
      */
+    /**
+     * Spatial Consistency Check: Compare with neighboring stations.
+     */
+    public function validateSpatialConsistency(array $data, array $neighbors): array
+    {
+        if (empty($neighbors)) {
+            return array_merge($data, ['spatial_check' => 'skipped']);
+        }
+
+        $params = ['temperature', 'pressure', 'humidity'];
+        $flags = $data['qa_flags'] ?? [];
+        $quality = $data['quality_score'] ?? 100;
+
+        foreach ($params as $param) {
+            if (!isset($data[$param]))
+                continue;
+
+            $neighborValues = collect($neighbors)->pluck($param)->filter()->all();
+            if (empty($neighborValues))
+                continue;
+
+            $average = array_sum($neighborValues) / count($neighborValues);
+            $deviation = abs($data[$param] - $average);
+
+            // Enterprise Thresholds:
+            // Temp > 5°C diff from neighbors = suspicious
+            // Pressure > 3hPa diff = suspicious
+            $threshold = ($param === 'temperature') ? 5 : (($param === 'pressure') ? 3 : 20);
+
+            if ($deviation > $threshold) {
+                $quality -= 15;
+                $flags[] = "SPATIAL_ANOMALY_" . strtoupper($param);
+            }
+        }
+
+        return array_merge($data, [
+            'quality_score' => max(0, $quality),
+            'qa_flags' => array_unique($flags),
+            'is_valid' => $quality >= 60,
+            'spatial_check' => 'completed'
+        ]);
+    }
+
     public function process(array $data): array
     {
         $quality = 100;

@@ -43,9 +43,25 @@ class GroundIngestJob implements ShouldQueue
 
             $processed = $qaqc->process($rawData);
 
+            // 3. Advanced Spatial Consistency (EPIC 2)
+            $neighbors = WeatherMetric::where('captured_at', '>', now()->subMinutes(60))
+                ->where('station_id', '!=', $station->id)
+                ->where('latitude', '>', $station->latitude - 5)
+                ->where('latitude', '<', $station->latitude + 5)
+                ->where('longitude', '>', $station->longitude - 5)
+                ->where('longitude', '<', $station->longitude + 5)
+                ->get()
+                ->toArray();
+
+            $processed = $qaqc->validateSpatialConsistency($processed, $neighbors);
+
             if ($processed['is_valid']) {
-                $processed['data_sources'] = ['qa_flags' => $processed['qa_flags'], 'quality' => $processed['quality_score']];
-                unset($processed['is_valid'], $processed['qa_flags'], $processed['quality_score']);
+                $processed['data_sources'] = [
+                    'qa_flags' => $processed['qa_flags'],
+                    'quality' => $processed['quality_score'],
+                    'spatial_check' => $processed['spatial_check']
+                ];
+                unset($processed['is_valid'], $processed['qa_flags'], $processed['quality_score'], $processed['spatial_check']);
                 WeatherMetric::create($processed);
             } else {
                 Log::warning("QA/QC Rejected data from station {$station->code}: " . implode(', ', $processed['qa_flags']));

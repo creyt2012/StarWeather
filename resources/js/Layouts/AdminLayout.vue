@@ -4,11 +4,31 @@ import { ref } from 'vue';
 
 const isSidebarOpen = ref(true);
 
-const navItems = [
-    { name: 'Dashboard', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6', route: 'admin.dashboard' },
-    { name: 'Satellites', icon: 'M12 19l9 2-9-18-9 18 9-2zm0 0v-8', route: 'admin.satellites.index' },
-    { name: 'API Management', icon: 'M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z', route: 'admin.apikeys.index' },
-    { name: 'User Control', icon: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z', route: 'admin.users.index' },
+const navigation = [
+    {
+        title: 'TACTICAL_INTELLIGENCE',
+        items: [
+            { name: 'Global_Dashboard', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6', route: 'admin.dashboard' },
+            { name: 'Orbital_Assets', icon: 'M12 19l9 2-9-18-9 18 9-2zm0 0v-8', route: 'admin.satellites.index' },
+            { name: 'Ground_Stations', icon: 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4', route: 'admin.ground-stations.index' },
+        ]
+    },
+    {
+        title: 'MISSION_OPERATIONS',
+        items: [
+            { name: 'Mission_Control', icon: 'M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z', route: 'admin.mission-control' },
+            { name: 'Alert_Config', icon: 'M13 10V3L4 14h7v7l9-11h-7z', route: 'admin.alerts.settings' },
+            { name: 'Condition_Rules', icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4', route: 'admin.alerts.rules' },
+        ]
+    },
+    {
+        title: 'CORE_INFRASTRUCTURE',
+        items: [
+            { name: 'API_Management', icon: 'M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z', route: 'admin.apikeys.index' },
+            { name: 'User_Control', icon: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z', route: 'admin.users.index' },
+            { name: 'SLA_Monitoring', icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z', route: 'admin.system.health' },
+        ]
+    }
 ];
 
 const isActive = (routeName) => {
@@ -32,25 +52,30 @@ const isActive = (routeName) => {
             </div>
 
             <!-- Navigation -->
-            <nav class="flex-1 p-6 space-y-2 mt-4">
-                <Link v-for="item in navItems" :key="item.name" :href="route(item.route)" 
-                    :class="[
-                        isActive(item.route) ? 'bg-vibrant-blue/10 border-vibrant-blue/30 text-white' : 'text-white/40 hover:text-white hover:bg-white/5 border-transparent'
-                    ]"
-                    class="flex items-center space-x-4 px-6 py-4 border transition-all duration-300 group overflow-hidden relative">
-                    
-                    <!-- Hover/Active Glow -->
-                    <div v-if="isActive(item.route)" class="absolute left-0 top-0 bottom-0 w-1 bg-vibrant-blue shadow-[5px_0_15px_#0088ff]"></div>
-                    
-                    <svg class="w-5 h-5 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="item.icon" />
-                    </svg>
-                    
-                    <span class="text-[11px] font-black uppercase tracking-[0.2em] transition-all">{{ item.name }}</span>
-                    
-                    <!-- HUD Scanline (Decoration) -->
-                    <div class="absolute inset-0 bg-gradient-to-r from-transparent via-vibrant-blue/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
-                </Link>
+            <nav class="flex-1 p-6 space-y-8 mt-4 overflow-y-auto custom-scrollbar">
+                <div v-for="section in navigation" :key="section.title" class="space-y-3">
+                    <p class="text-[8px] font-black text-white/20 uppercase tracking-[0.4em] px-6 italic">{{ section.title }}</p>
+                    <div class="space-y-1">
+                        <Link v-for="item in section.items" :key="item.name" :href="route(item.route)" 
+                            :class="[
+                                isActive(item.route) ? 'bg-vibrant-blue/10 border-vibrant-blue/30 text-white' : 'text-white/40 hover:text-white hover:bg-white/5 border-transparent'
+                            ]"
+                            class="flex items-center space-x-4 px-6 py-3 border transition-all duration-300 group overflow-hidden relative">
+                            
+                            <!-- Hover/Active Glow -->
+                            <div v-if="isActive(item.route)" class="absolute left-0 top-0 bottom-0 w-1 bg-vibrant-blue shadow-[5px_0_15px_#0088ff]"></div>
+                            
+                            <svg class="w-4 h-4 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="item.icon" />
+                            </svg>
+                            
+                            <span class="text-[10px] font-black uppercase tracking-[0.2em] transition-all">{{ item.name }}</span>
+                            
+                            <!-- HUD Scanline (Decoration) -->
+                            <div class="absolute inset-0 bg-gradient-to-r from-transparent via-vibrant-blue/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                        </Link>
+                    </div>
+                </div>
             </nav>
 
             <!-- Bottom Info -->

@@ -11,7 +11,8 @@ const props = defineProps({
     satellite_distribution: Object,
     usage_trend: Object,
     recent_keys: Array,
-    recent_logs: Array
+    recent_logs: Array,
+    sla_metrics: Object
 });
 
 const formatTime = (dateStr) => {
@@ -171,6 +172,33 @@ onMounted(() => {
                             <p class="text-[9px] font-black text-white/30 uppercase tracking-[.4em] mb-6">Asset_Readiness_Index</p>
                             <div class="h-40">
                                 <canvas ref="statusChartRef"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- System SLA Monitoring (Phase 1/6 Core) -->
+                        <div class="bg-[#08080C] border border-white/5 p-6">
+                            <p class="text-[9px] font-black text-vibrant-blue uppercase tracking-[.4em] mb-6">Service_Level_Agreements</p>
+                            <div class="space-y-4">
+                                <div v-for="(metric, service) in sla_metrics.current" :key="service" 
+                                     class="p-4 bg-white/[0.01] border border-white/5 hover:bg-white/[0.03] transition-all">
+                                    <div class="flex justify-between items-start mb-2">
+                                        <div>
+                                            <p class="text-[10px] font-black text-white uppercase tracking-widest">{{ service }}</p>
+                                            <p class="text-[8px] font-mono text-white/30">{{ metric.status === 'operational' ? 'ONLINE' : 'DEGRADED' }}</p>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-xs font-black" :class="metric.status === 'operational' ? 'text-vibrant-green' : 'text-red-500'">
+                                                {{ Math.round(sla_metrics.uptime_24h[service] || 100) }}% <span class="text-[8px] text-white/20">UP</span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-3">
+                                        <div class="flex-1 h-1 bg-white/5 rounded-full overflow-hidden">
+                                            <div class="h-full bg-vibrant-blue transition-all" :style="{ width: (Math.min(100, (100 / (metric.latency_ms + 1)) * 50)) + '%' }"></div>
+                                        </div>
+                                        <span class="text-[9px] font-mono text-white/40 tabular-nums">{{ Math.round(metric.latency_ms) }}ms</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 

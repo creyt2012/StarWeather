@@ -120,4 +120,75 @@ class WeatherController extends Controller
             'data' => $stations
         ]);
     }
+
+    /**
+     * Get 48h forecast for a specific location.
+     */
+    public function forecast(Request $request): JsonResponse
+    {
+        $lat = (float) $request->get('lat');
+        $lng = (float) $request->get('lng');
+
+        // Find nearest forecast point (simplified)
+        // In a real system, we would use spatial extensions like PostGIS
+        $forecasts = \App\Models\ForecastMetric::where('latitude', '>', $lat - 2)
+            ->where('latitude', '<', $lat + 2)
+            ->where('longitude', '>', $lng - 2)
+            ->where('longitude', '<', $lng + 2)
+            ->orderBy('forecast_time', 'asc')
+            ->get()
+            ->groupBy(fn($f) => $f->forecast_time->toIso8601String());
+
+        $formatted = [];
+        foreach ($forecasts as $time => $params) {
+            $formatted[] = [
+                'time' => $time,
+                'display_time' => \Carbon\Carbon::parse($time)->format('D H:i'),
+                'metrics' => $params->pluck('value', 'parameter')
+            ];
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $formatted
+        ]);
+    }
+
+    /**
+     * Get 30-day trends for a specific location.
+     */
+    public function trends(Request $request): JsonResponse
+    {
+        $lat = (float) $request->get('lat');
+        $lng = (float) $request->get('lng');
+        $days = (int) $request->get('days', 30);
+
+        $summaries = \App\Models\DailyWeatherSummary::where('latitude', '>', $lat - 2)
+            ->where('latitude', '<', $lat + 2)
+            ->where('longitude', '>', $lng - 2)
+            ->where('longitude', '<', $lng + 2)
+            ->where('date', '>=', now()->subDays($days))
+            ->orderBy('date', 'asc')
+            ->get()
+            ->groupBy('date');
+
+        $formatted = [];
+        foreach ($summaries as $date => $metrics) {
+            $formatted[] = [
+                'date' => $date,
+                'metrics' => $metrics->mapWithKeys(fn($m) => [
+                    $m->parameter => [
+                        'avg' => $m->avg_value,
+                        'min' => $m->min_value,
+                        'max' => $m->max_value
+                    ]
+                ])
+            ];
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $formatted
+        ]);
+    }
 }

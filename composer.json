@@ -13,7 +13,7 @@
         "laravel/reverb": "^1.0",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.9",
-        "maatwebsite/excel": "*",
+        "maatwebsite/excel": "^3.1",
         "tightenco/ziggy": "^2.6"
     },
     "require-dev": {

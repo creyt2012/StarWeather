@@ -36,12 +36,12 @@ class MissionControlService
         try {
             switch ($file->type) {
                 case 'EXCEL_WEATHER':
-                    // Dispatch ExcelIngestionJob::dispatch($file);
-                    Log::info("Dispatching ExcelIngestionJob for file ID: {$file->id}");
+                    \App\Jobs\ExcelIngestionJob::dispatch($file);
+                    Log::info("Dispatched ExcelIngestionJob for file ID: {$file->id}");
                     break;
                 case 'GEOJSON_RISK':
-                    // Dispatch GeoJsonIngestionJob::dispatch($file);
-                    Log::info("Dispatching GeoJsonIngestionJob for file ID: {$file->id}");
+                    \App\Jobs\GeoJsonIngestionJob::dispatch($file);
+                    Log::info("Dispatched GeoJsonIngestionJob for file ID: {$file->id}");
                     break;
                 default:
                     throw new \Exception("Unsupported mission file type: {$file->type}");
