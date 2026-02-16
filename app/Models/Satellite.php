@@ -16,6 +16,15 @@ class Satellite extends Model
         'tle_line2',
         'type',
         'status',
+        'api_config',
+        'data_source',
+        'source_url',
+        'dataset_name',
+        'priority',
+    ];
+
+    protected $casts = [
+        'api_config' => 'array',
     ];
 
     public function tracks()
