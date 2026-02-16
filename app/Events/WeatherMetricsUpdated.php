@@ -22,9 +22,13 @@ class WeatherMetricsUpdated implements ShouldBroadcast
         $this->data = [
             'timestamp' => $metric->captured_at,
             'cloud_coverage' => $metric->cloud_coverage,
+            'cloud_density' => $metric->cloud_density,
             'rain_intensity' => $metric->rain_intensity,
-            'risk_score' => $riskData['score'],
-            'risk_level' => $riskData['level'],
+            'pressure' => $metric->pressure,
+            'risk_score' => $metric->risk_score,
+            'risk_level' => $metric->risk_level,
+            'confidence_score' => $metric->confidence_score,
+            'provenance' => $metric->provenance,
             'image_url' => $metric->metadata['image_url'] ?? null,
         ];
     }
