@@ -15,8 +15,10 @@ let scene, camera, renderer, globe, clouds, controls, starfield;
 let satelliteMarkers = new Map();
 let orbitPaths = new Map();
 let selectedSatellite = ref(null);
+let hoveredSatellite = ref(null);
+let toolTipPos = ref({ x: 0, y: 0 });
 
-const emit = defineEmits(['select']);
+const emit = defineEmits(['select', 'hover']);
 
 // Color Map for Categories
 const CATEGORY_COLORS = {
@@ -38,6 +40,7 @@ onUnmounted(() => {
     if (renderer) renderer.dispose();
     window.removeEventListener('resize', onWindowResize);
     window.removeEventListener('mousedown', onMouseDown);
+    window.removeEventListener('mousemove', onMouseMove);
 });
 
 watch(() => props.satellites, (newSats) => {
@@ -138,6 +141,7 @@ const initScene = () => {
     updateSatelliteMarkers(props.satellites);
     window.addEventListener('resize', onWindowResize);
     window.addEventListener('mousedown', onMouseDown);
+    window.addEventListener('mousemove', onMouseMove);
     window.addEventListener('keydown', onKeyDown);
 };
 
@@ -168,6 +172,45 @@ const onKeyDown = (e) => {
     controls.update();
 };
 
+const onMouseMove = (event) => {
+    const rect = renderer.domElement.getBoundingClientRect();
+    const mouse = new THREE.Vector2(
+        ((event.clientX - rect.left) / rect.width) * 2 - 1,
+        -((event.clientY - rect.top) / rect.height) * 2 + 1
+    );
+
+    const raycaster = new THREE.Raycaster();
+    raycaster.params.Points.threshold = 0.1;
+    raycaster.setFromCamera(mouse, camera);
+
+    const intersects = raycaster.intersectObjects(Array.from(satelliteMarkers.values()));
+    
+    if (intersects.length > 0) {
+        const marker = intersects[0].object;
+        for (let [id, m] of satelliteMarkers) {
+            if (m === marker) {
+                const sat = props.satellites.find(s => s.id === id);
+                hoveredSatellite.value = sat;
+                toolTipPos.value = { x: event.clientX, y: event.clientY };
+                emit('hover', sat);
+                
+                // Visual feedback on marker
+                m.scale.set(1.5, 1.5, 1.5);
+                break;
+            }
+        }
+    } else {
+        if (hoveredSatellite.value) {
+            // Reset scales
+            for (let m of satelliteMarkers.values()) {
+                m.scale.set(1, 1, 1);
+            }
+        }
+        hoveredSatellite.value = null;
+        emit('hover', null);
+    }
+};
+
 const updateSatelliteMarkers = (sats) => {
     const satIds = new Set(sats.map(s => s.id));
     
@@ -192,11 +235,15 @@ const updateSatelliteMarkers = (sats) => {
         // 1. Update/Add Marker
         let marker = satelliteMarkers.get(sat.id);
         if (!marker) {
-            const markerGeo = new THREE.SphereGeometry(0.012, 12, 12);
-            const markerMat = new THREE.MeshBasicMaterial({ color: color });
+            const markerGeo = new THREE.SphereGeometry(0.02, 16, 16); // Increased size
+            const markerMat = new THREE.MeshBasicMaterial({ 
+                color: color,
+                transparent: true,
+                opacity: 0.9
+            });
             marker = new THREE.Mesh(markerGeo, markerMat);
             
-            // Core Glow
+            // Core Glow (Bigger)
             const spriteMat = new THREE.SpriteMaterial({
                 map: createGlowTexture(color),
                 color: color,
@@ -204,7 +251,7 @@ const updateSatelliteMarkers = (sats) => {
                 blending: THREE.AdditiveBlending
             });
             const sprite = new THREE.Sprite(spriteMat);
-            sprite.scale.set(0.08, 0.08, 1);
+            sprite.scale.set(0.12, 0.12, 1);
             marker.add(sprite);
 
             scene.add(marker);
