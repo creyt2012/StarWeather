@@ -669,18 +669,10 @@ const animate = () => {
             </div>
         </div>
 
-        <!-- Selection Info (Minimal HUD) -->
-        <div v-if="selectedSatellite" class="absolute top-1/2 left-8 -translate-y-1/2 glass p-4 rounded-xl border-l-4 border-vibrant-blue z-20 w-48 animate-in fade-in slide-in-from-left duration-300">
-            <h4 class="text-[10px] font-black text-vibrant-blue uppercase tracking-widest mb-1">{{ selectedSatellite.type }}</h4>
-            <p class="text-xs font-bold text-white mb-2">{{ selectedSatellite.name }}</p>
-            <div class="space-y-1 text-[9px] font-mono text-white/50">
-                <div class="flex justify-between"><span>ALT:</span> <span>{{ Math.round(selectedSatellite.altitude) }}km</span></div>
-                <div class="flex justify-between"><span>VEL:</span> <span>{{ Math.round(selectedSatellite.velocity) }}k/s</span></div>
-                <div class="flex justify-between pt-1 mt-1 border-t border-white/5 text-vibrant-blue/70">
-                    <span>SOURCE:</span> <span>LIVE API</span>
-                </div>
-            </div>
-        </div>
+        <!-- Selection Info (Minimal HUD) - Hidden in favor of SatelliteTelemetryPanel -->
+        <!-- <div v-if="selectedSatellite" class="absolute top-1/2 left-8 -translate-y-1/2 glass p-4 rounded-xl border-l-4 border-vibrant-blue z-20 w-48 animate-in fade-in slide-in-from-left duration-300">
+            ...
+        </div> -->
 
         <!-- Hover Tooltip -->
         <div v-if="hoveredSatellite || hoveredSurface" 

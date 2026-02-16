@@ -107,3 +107,10 @@ remove the file manually to continue.
 To https://github.com/creyt2012/vetinh.git
    6202c24..b35b6ca  main -> main
 error: could not lock config file .git/config: File exists
+On branch main
+Your branch is ahead of 'origin/main' by 1 commit.
+  (use "git push" to publish your local commits)
+
+nothing to commit, working tree clean
+To https://github.com/creyt2012/vetinh.git
+   b35b6ca..050dd37  main -> main
