@@ -19,9 +19,10 @@ class AlertSettingsController extends Controller
         return Inertia::render('Admin/Alerts/Settings', [
             'settings' => $tenant->settings['notifications'] ?? [
                 'channels' => [
-                    'telegram' => ['enabled' => false, 'chat_id' => ''],
+                    'telegram' => ['enabled' => false, 'chat_id' => '', 'bot_token' => ''],
                     'slack' => ['enabled' => false, 'webhook_url' => ''],
-                    'zalo' => ['enabled' => false, 'phone_number' => ''],
+                    'zalo' => ['enabled' => false, 'oa_id' => '', 'template_id' => ''],
+                    'web_push' => ['enabled' => false, 'endpoint' => ''],
                 ],
                 'thresholds' => [
                     'critical_risk_score' => 80,
