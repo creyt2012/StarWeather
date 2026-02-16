@@ -309,15 +309,6 @@ const route = window.route;
     background: rgba(0, 136, 255, 0.5);
 }
 </style>
-    </div>
-</template>
-
-<style scoped>
-.font-outfit { font-family: 'Outfit', sans-serif; }
-.font-inter { font-family: 'Inter', sans-serif; }
-.text-vibrant-blue { color: #0088ff; }
-.bg-vibrant-blue { background-color: #0088ff; }
-.border-vibrant-blue { border-color: #0088ff; }
 .text-vibrant-green { color: #00ffaa; }
 .border-vibrant-green { border-color: #00ffaa; }
 </style>
