@@ -20,6 +20,7 @@ const metrics = ref({
 const selectedLocation = ref(null); 
 const selectedSatellite = ref(null);
 const satellites = ref([]);
+const groundStations = ref([]); // Added groundStations ref
 const activeLayers = ref(['COMMUNICATION', 'NAVIGATION', 'STATION', 'SCIENTIFIC', 'WEATHER', 'SPACE_DEBRIS', 'RISK_HEATMAP']);
 const now = ref(new Date());
 
