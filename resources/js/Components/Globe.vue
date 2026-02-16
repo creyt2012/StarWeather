@@ -262,15 +262,15 @@ const updateSatelliteMarkers = (sats) => {
         // 1. Update/Add Marker
         let marker = satelliteMarkers.get(sat.id);
         if (!marker) {
-            const markerGeo = new THREE.SphereGeometry(0.02, 16, 16); // Increased size
+            const markerGeo = new THREE.SphereGeometry(0.04, 16, 16); // Increased for easier raycasting
             const markerMat = new THREE.MeshBasicMaterial({ 
                 color: color,
                 transparent: true,
-                opacity: 0.9
+                opacity: 0 // Invisible but clickable/hoverable core
             });
             marker = new THREE.Mesh(markerGeo, markerMat);
             
-            // Core Glow (Bigger)
+            // Visual Sprite (The part users see)
             const spriteMat = new THREE.SpriteMaterial({
                 map: createGlowTexture(color),
                 color: color,
@@ -278,7 +278,7 @@ const updateSatelliteMarkers = (sats) => {
                 blending: THREE.AdditiveBlending
             });
             const sprite = new THREE.Sprite(spriteMat);
-            sprite.scale.set(0.12, 0.12, 1);
+            sprite.scale.set(0.15, 0.15, 1);
             marker.add(sprite);
 
             scene.add(marker);
