@@ -146,3 +146,17 @@ remove the file manually to continue.
 To https://github.com/creyt2012/vetinh.git
  ! [remote rejected] main -> main (cannot lock ref 'refs/heads/main': is at cd3bdd06227082018a2912afbd9d82a011ca777b but expected 023826720eab9e4e3c33e0a1707943c03f9fe03c)
 error: failed to push some refs to 'https://github.com/creyt2012/vetinh.git'
+On branch main
+Your branch is ahead of 'origin/main' by 1 commit.
+  (use "git push" to publish your local commits)
+
+nothing to commit, working tree clean
+To https://github.com/creyt2012/vetinh.git
+   cd3bdd0..cfc7e1f  main -> main
+fatal: Unable to create '/Users/creytdeveloper/Documents/vetinh/.git/index.lock': File exists.
+
+Another git process seems to be running in this repository, e.g.
+an editor opened by 'git commit'. Please make sure all processes
+are terminated then try again. If it still fails, a git process
+may have crashed in this repository earlier:
+remove the file manually to continue.
