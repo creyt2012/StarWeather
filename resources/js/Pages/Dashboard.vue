@@ -13,7 +13,7 @@ const metrics = ref({
 });
 
 const satellites = ref([]);
-const activeLayers = ref(['COMMUNICATION', 'WEATHER', 'STATION', 'OBSERVATION', 'NAVIGATION']);
+const activeLayers = ref(['COMMUNICATION', 'NAVIGATION', 'STATION', 'SCIENTIFIC', 'WEATHER', 'SPACE_DEBRIS']);
 
 const filteredSatellites = computed(() => {
     return satellites.value.filter(s => activeLayers.value.includes(s.type));
