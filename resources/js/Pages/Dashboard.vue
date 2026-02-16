@@ -16,6 +16,8 @@ const metrics = ref({
     image_url: null
 });
 
+const selectedLocation = ref(null); // { lat, lng, temp, pressure, humidity, windSpeed, windDir }
+
 const satellites = ref([]);
 const activeLayers = ref(['COMMUNICATION', 'NAVIGATION', 'STATION', 'SCIENTIFIC', 'WEATHER', 'SPACE_DEBRIS']);
 
@@ -87,6 +89,10 @@ const fetchLiveSatellites = async () => {
     } catch (e) {
         console.error('Failed to fetch satellites:', e);
     }
+};
+
+const handleSurfaceClick = (data) => {
+    selectedLocation.value = data;
 };
 </script>
 
@@ -167,7 +173,7 @@ const fetchLiveSatellites = async () => {
 
         <!-- 2. Central Globe Area -->
         <main class="flex-1 relative">
-            <Globe :satellites="filteredSatellites" :weatherMetrics="metrics" />
+            <Globe :satellites="filteredSatellites" :weatherMetrics="metrics" @surface-click="handleSurfaceClick" />
 
             <!-- Top Search / HUD -->
             <div class="absolute top-8 left-1/2 -translate-x-1/2 w-[400px] z-30">
@@ -367,6 +373,99 @@ const fetchLiveSatellites = async () => {
                 </div>
             </div>
         </main>
+
+        <!-- 3. Professional Weather Detail Drawer (Windy Style) -->
+        <transition name="slide-right">
+            <aside v-if="selectedLocation" class="fixed top-8 bottom-8 right-8 w-96 glass z-50 rounded-2xl border-l-2 border-vibrant-blue p-8 flex flex-col space-y-8 animate-in slide-in-from-right duration-500 overflow-y-auto">
+                <div class="flex items-center justify-between">
+                    <div class="flex flex-col">
+                        <h2 class="text-xl font-black italic tracking-tighter uppercase leading-none text-white">Location Intel</h2>
+                        <span class="text-[9px] text-white/30 uppercase tracking-[0.3em] font-bold mt-1">Atmospheric Deep Scan</span>
+                    </div>
+                    <button @click="selectedLocation = null" class="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center transition">
+                        <svg class="w-4 h-4 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Coordinates & Map Context -->
+                <div class="p-4 bg-white/5 rounded-2xl border border-white/5 space-y-3">
+                    <div class="flex justify-between items-center">
+                        <div class="flex flex-col">
+                            <span class="text-[8px] text-white/20 uppercase font-bold">Latitude</span>
+                            <span class="text-xs font-mono font-bold">{{ selectedLocation.lat.toFixed(4) }}°</span>
+                        </div>
+                        <div class="flex flex-col text-right">
+                            <span class="text-[8px] text-white/20 uppercase font-bold">Longitude</span>
+                            <span class="text-xs font-mono font-bold">{{ selectedLocation.lng.toFixed(4) }}°</span>
+                        </div>
+                    </div>
+                    <div class="h-1 bg-white/5 rounded-full overflow-hidden">
+                        <div class="h-full bg-vibrant-blue w-full animate-pulse"></div>
+                    </div>
+                </div>
+
+                <!-- Main Metrics Grid -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="glass p-5 rounded-2xl border border-white/5 space-y-2 group hover:border-vibrant-blue/30 transition">
+                        <p class="text-[9px] text-white/30 uppercase font-black">Temperature</p>
+                        <div class="flex items-baseline space-x-1">
+                            <span class="text-3xl font-black font-outfit text-white group-hover:scale-110 transition-transform inline-block">{{ selectedLocation.temp }}</span>
+                            <span class="text-sm text-white/20">°C</span>
+                        </div>
+                        <div class="text-[8px] text-vibrant-green font-bold uppercase tracking-tight">Rising Trend +0.2</div>
+                    </div>
+                    <div class="glass p-5 rounded-2xl border border-white/5 space-y-2 group hover:border-vibrant-green/30 transition">
+                        <p class="text-[9px] text-white/30 uppercase font-black">Wind Speed</p>
+                        <div class="flex items-baseline space-x-1">
+                            <span class="text-3xl font-black font-outfit text-vibrant-green group-hover:scale-110 transition-transform inline-block">{{ selectedLocation.windSpeed }}</span>
+                            <span class="text-sm text-white/20">km/h</span>
+                        </div>
+                        <div class="text-[8px] text-white/40 font-bold uppercase tracking-tight">Vector: {{ selectedLocation.windDir }}°</div>
+                    </div>
+                </div>
+
+                <!-- Professional Data Table -->
+                <div class="space-y-4">
+                    <h3 class="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">Atmospheric Constants</h3>
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between p-3 bg-white/5 border border-white/5 rounded-xl">
+                            <span class="text-[11px] font-bold text-white/60">Air Pressure</span>
+                            <span class="text-xs font-mono font-bold text-white">{{ selectedLocation.pressure }} hPa</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-white/5 border border-white/5 rounded-xl">
+                            <span class="text-[11px] font-bold text-white/60">Relative Humidity</span>
+                            <span class="text-xs font-mono font-bold text-vibrant-blue">{{ selectedLocation.humidity }}%</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-white/5 border border-white/5 rounded-xl">
+                            <span class="text-[11px] font-bold text-white/60">Dew Point</span>
+                            <span class="text-xs font-mono font-bold text-white">{{ Math.round(selectedLocation.temp * 0.8) }}°C</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Simulation/History Chart Placeholder -->
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">24H Pressure Logic</h3>
+                        <span class="text-[8px] text-vibrant-blue font-black uppercase">Live Computation</span>
+                    </div>
+                    <div class="h-32 bg-white/5 rounded-2xl border border-white/5 flex items-end p-4 space-x-1 group">
+                        <div v-for="i in 24" :key="i" 
+                             class="flex-1 bg-vibrant-blue/20 rounded-t-sm group-hover:bg-vibrant-blue/40 transition-all duration-500"
+                             :style="{ height: (30 + Math.random() * 70) + '%' }"></div>
+                    </div>
+                </div>
+
+                <div class="flex-1"></div>
+
+                <!-- Action Button -->
+                <button class="w-full bg-vibrant-blue hover:bg-vibrant-blue-dark text-white p-4 rounded-xl font-black uppercase tracking-widest text-xs shadow-[0_10px_30px_rgba(79,70,229,0.3)] transition group">
+                    <span class="group-hover:tracking-[0.3em] transition-all">Generate Intel Report</span>
+                </button>
+            </aside>
+        </transition>
     </div>
 </template>
 
