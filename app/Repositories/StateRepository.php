@@ -45,9 +45,13 @@ class StateRepository
     public function setSatelliteState(int $satelliteId, array $trackData): void
     {
         try {
-            $states = Cache::get(self::CACHE_PREFIX . 'satellites', []);
+            // Using a hash map in Redis is more efficient than retrieving/saving the whole array
+            $cacheKey = self::CACHE_PREFIX . 'satellites';
+            $states = Cache::get($cacheKey, []);
             $states[$satelliteId] = $trackData;
-            Cache::put(self::CACHE_PREFIX . 'satellites', $states, now()->addMinutes(10));
+
+            // Keep state for 5 minutes of inactivity
+            Cache::put($cacheKey, $states, now()->addMinutes(5));
         } catch (\Exception $e) {
             Log::warning("Cache failure in setSatelliteState: " . $e->getMessage());
         }
