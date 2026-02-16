@@ -6,6 +6,8 @@ use App\Models\GroundStation;
 use App\Models\WeatherMetric;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
+use App\Services\Analytics\QAQCProcessor;
+use Illuminate\Support\Facades\Log;
 
 class GroundIngestJob implements ShouldQueue
 {
@@ -14,7 +16,7 @@ class GroundIngestJob implements ShouldQueue
     /**
      * Execute the job to ingest or simulate data from ground stations.
      */
-    public function handle(): void
+    public function handle(QAQCProcessor $qaqc): void
     {
         $stations = GroundStation::where('status', 'ONLINE')->get();
 
@@ -22,7 +24,7 @@ class GroundIngestJob implements ShouldQueue
             // Rough simulation based on latitude
             $tempBase = $station->latitude > 15 ? 20 : 28;
 
-            WeatherMetric::create([
+            $rawData = [
                 'station_id' => $station->id,
                 'latitude' => $station->latitude,
                 'longitude' => $station->longitude,
@@ -37,7 +39,17 @@ class GroundIngestJob implements ShouldQueue
                 'wind_direction' => ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'][rand(0, 7)],
                 'source' => 'GROUND_SENSOR_SIM',
                 'captured_at' => now(),
-            ]);
+            ];
+
+            $processed = $qaqc->process($rawData);
+
+            if ($processed['is_valid']) {
+                $processed['data_sources'] = ['qa_flags' => $processed['qa_flags'], 'quality' => $processed['quality_score']];
+                unset($processed['is_valid'], $processed['qa_flags'], $processed['quality_score']);
+                WeatherMetric::create($processed);
+            } else {
+                Log::warning("QA/QC Rejected data from station {$station->code}: " . implode(', ', $processed['qa_flags']));
+            }
         }
     }
 }
