@@ -120,8 +120,20 @@ const handleSurfaceClick = async (data) => {
 <template>
     <Head title="Vetinh | Orbital Intelligence" />
 
-    <div class="h-screen w-screen bg-black overflow-hidden font-sans selection:bg-vibrant-blue/30 relative text-white">
-        <!-- 1. Global Viewport (The Globe) -->
+    <div class="min-h-screen bg-[#020408] text-white selection:bg-vibrant-blue/30 overflow-hidden font-sans">
+        <!-- 1. TACTICAL HUD FRAME (Brackets & Borders) -->
+        <div class="fixed inset-0 pointer-events-none z-[60] border-[1px] border-white/5 mx-4 my-4 rounded-3xl">
+            <!-- Corner Brackets -->
+            <div class="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-vibrant-blue/40 rounded-tl-2xl"></div>
+            <div class="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-vibrant-blue/40 rounded-tr-2xl"></div>
+            <div class="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 border-vibrant-blue/40 rounded-bl-2xl"></div>
+            <div class="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-vibrant-blue/40 rounded-br-2xl"></div>
+            
+            <!-- HUD Scanning Line -->
+            <div class="absolute inset-x-0 h-px bg-gradient-to-r from-transparent via-vibrant-blue/10 to-transparent top-1/4 animate-pulse"></div>
+        </div>
+
+        <!-- 2. CORE GLOBE VIEW (Full Screen Background) -->
         <Globe 
             :satellites="filteredSatellites"
             :weatherMetrics="metrics"
@@ -129,175 +141,190 @@ const handleSurfaceClick = async (data) => {
             @surface-click="handleSurfaceClick"
         />
 
-        <!-- 2. Cinematic Minimalist Overlay Layer -->
-        <div class="absolute inset-0 pointer-events-none">
-            
-            <!-- A. Top Branding & Search Island -->
-            <div class="absolute top-8 left-8 right-8 flex justify-between items-start pointer-events-auto">
-                <div class="group flex items-center space-x-4 bg-black/20 backdrop-blur-2xl p-2 pr-6 rounded-full border border-white/5 shadow-2xl hover:border-vibrant-blue/20 transition-all duration-500">
-                    <div class="w-10 h-10 rounded-full bg-vibrant-blue flex items-center justify-center shadow-lg shadow-vibrant-blue/40">
-                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9-9H3m9 9L3 5m0 0l4 4m-4-4l4-4"/></svg>
-                    </div>
+        <!-- 3. TOP TELEMETRY STRIP -->
+        <header class="fixed top-12 left-16 right-16 z-50 flex justify-between items-start pointer-events-none">
+            <div class="flex flex-col space-y-1 pointer-events-auto">
+                <div class="flex items-center space-x-3">
+                    <div class="w-2 h-10 bg-vibrant-blue shadow-[0_0_15px_#4f46e5]"></div>
                     <div>
-                        <h1 class="text-sm font-black tracking-widest text-white leading-none">VETINH <span class="text-vibrant-blue/60 italic font-medium">OS</span></h1>
-                        <p class="text-[8px] text-white/30 uppercase font-bold tracking-[0.2em] mt-0.5">Orbital Intelligence Hub</p>
+                        <h1 class="text-2xl font-black tracking-[0.3em] uppercase leading-none italic">STARWEATHER</h1>
+                        <p class="text-[9px] font-mono text-white/40 tracking-[0.5em] mt-1.5 uppercase">Orbital Intelligence / tactical_os_v1.3</p>
                     </div>
-                </div>
-
-                <div class="hidden md:flex items-center bg-black/40 backdrop-blur-3xl border border-white/10 rounded-2xl px-4 py-2 space-x-3 w-80 group hover:w-96 transition-all duration-700 shadow-2xl">
-                    <svg class="w-4 h-4 text-white/20 group-hover:text-vibrant-blue transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                    <input type="text" placeholder="Search Orbitals..." class="bg-transparent border-none text-[11px] text-white/80 placeholder:text-white/20 focus:ring-0 w-full font-medium">
-                    <span class="text-[8px] text-white/20 font-black border border-white/10 px-1.5 py-0.5 rounded uppercase">cmd+k</span>
                 </div>
             </div>
 
-            <!-- B. Floating Intelligence Card (Location Intel) -->
-            <transition name="cinematic-pop">
-                <div v-if="selectedLocation" 
-                     class="absolute top-24 right-8 w-[400px] pointer-events-auto">
-                    <div class="backdrop-blur-3xl bg-black/40 rounded-[3rem] border border-white/10 shadow-[0_32px_128px_-16px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col max-h-[calc(100vh-200px)] group/card">
-                        
-                        <!-- Premium Header -->
-                        <div class="p-8 pb-4 flex items-center justify-between border-b border-white/5">
-                            <div class="flex items-center space-x-4">
-                                <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-vibrant-blue to-indigo-600 flex items-center justify-center shadow-lg shadow-vibrant-blue/20">
-                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 21l-8.228-9.904A17.963 17.963 0 014 22m4-19l4 4m0 0l4-4m-4 4v12"/></svg>
-                                </div>
-                                <div>
-                                    <h2 class="text-sm font-black tracking-[0.2em] text-white uppercase italic">
-                                        <span v-if="selectedLocation.province">{{ selectedLocation.province }}</span>
-                                        <span v-else>Location</span>
-                                        <span class="text-vibrant-blue"> Intel</span>
-                                    </h2>
-                                    <p class="text-[9px] text-white/30 uppercase mt-0.5 font-mono">
-                                        <span v-if="selectedLocation.district" class="text-vibrant-blue/60">{{ selectedLocation.district }} / {{ selectedLocation.commune }} • </span>
-                                        {{ selectedLocation.lat.toFixed(4) }}°N / {{ selectedLocation.lng.toFixed(4) }}°E
-                                    </p>
-                                </div>
-                            </div>
-                            <button @click="selectedLocation = null" class="w-10 h-10 rounded-full bg-white/5 hover:bg-white/15 flex items-center justify-center transition-all duration-300">
-                                <svg class="w-5 h-5 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"/></svg>
-                            </button>
-                        </div>
-
-                        <!-- Data Scroll Area -->
-                        <div class="flex-1 overflow-y-auto p-8 space-y-8 no-scrollbar">
-                            <!-- Hero Metrics -->
-                            <div class="flex justify-between items-center bg-white/[0.03] p-8 rounded-[2.5rem] border border-white/5 group-hover/card:border-white/10 transition-colors duration-500">
-                                <div class="space-y-1">
-                                    <span class="text-[10px] text-white/30 uppercase font-black tracking-widest leading-none">Air Temp</span>
-                                    <div class="flex items-baseline space-x-1">
-                                        <span class="text-6xl font-black text-white leading-none tracking-tighter">{{ selectedLocation.temp }}°</span>
-                                        <span class="text-xl font-bold text-white/20">C</span>
-                                    </div>
-                                </div>
-                                <div class="h-16 w-px bg-white/10 mx-4"></div>
-                                <div class="space-y-1 text-right">
-                                    <span class="text-[10px] text-vibrant-green font-black uppercase tracking-widest leading-none">Wind Power</span>
-                                    <div class="flex items-baseline space-x-1 justify-end">
-                                        <span class="text-4xl font-black text-vibrant-green leading-none">{{ selectedLocation.windSpeed }}</span>
-                                        <span class="text-sm font-bold text-white/20 uppercase tracking-tighter">kmh</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Atmospheric Grid -->
-                            <div class="grid grid-cols-2 gap-4">
-                                <div v-for="(val, label) in { 
-                                    'Pressure': selectedLocation.pressure + ' hPa',
-                                    'Humidity': selectedLocation.humidity + '%',
-                                    'UV Index': selectedLocation.uvIndex,
-                                    'Precip': selectedLocation.precip + ' mm',
-                                    'Visibility': selectedLocation.visibility + ' km',
-                                    'Clouds': selectedLocation.clouds + '%'
-                                }" :key="label" 
-                                     class="p-5 bg-white/[0.02] border border-white/5 rounded-3xl flex flex-col space-y-1 hover:bg-white/[0.05] transition-all duration-300 group/item">
-                                    <span class="text-[9px] text-white/20 uppercase font-black tracking-widest group-hover/item:text-vibrant-blue transition-colors">{{ label }}</span>
-                                    <span class="text-sm font-mono font-bold text-white/90">{{ val }}</span>
-                                </div>
-                            </div>
-
-                            <!-- 24H Logic Waveform -->
-                            <div class="space-y-4">
-                                <div class="flex items-center justify-between px-2">
-                                    <span class="text-[10px] font-black text-white/20 uppercase tracking-widest">Atmospheric Waveform</span>
-                                    <div class="flex space-x-1">
-                                        <div v-for="i in 3" :key="i" class="w-1.5 h-1.5 rounded-full bg-vibrant-blue/40 animate-pulse"></div>
-                                    </div>
-                                </div>
-                                <div class="h-24 flex items-end justify-between p-6 bg-black/40 rounded-[2rem] border border-white/5 outline outline-1 outline-white/5">
-                                    <div v-for="(point, idx) in (selectedLocation.history || Array(24).fill({pressure: 1013}))" :key="idx" 
-                                         class="w-1.5 bg-vibrant-blue/30 rounded-full hover:bg-vibrant-blue transition-all duration-500"
-                                         :style="{ height: (point.pressure ? (point.pressure - 980) / 60 * 100 : 20) + '%' }">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Footer Action -->
-                        <div class="p-8 pt-2">
-                            <button class="w-full bg-vibrant-blue text-white py-5 rounded-[2rem] text-[11px] font-black uppercase tracking-[0.4em] overflow-hidden group/btn relative">
-                                <div class="absolute inset-0 bg-white/20 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-500"></div>
-                                <span class="relative">Transmit Intelligence</span>
-                            </button>
-                        </div>
-                    </div>
+            <!-- SYSTEM PERFORMANCE -->
+            <div class="flex space-x-12 pointer-events-auto bg-black/40 backdrop-blur-xl border border-white/10 px-8 py-4 rounded-2xl shadow-2xl">
+                <div v-for="(val, label) in { 'Uptime': '99.98%', 'Latency': '12ms', 'Sync': 'LIVE' }" :key="label" class="flex flex-col items-end">
+                    <span class="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">{{ label }}</span>
+                    <span class="text-lg font-mono text-vibrant-blue font-bold tracking-tighter">{{ val }}</span>
                 </div>
-            </transition>
+                <div class="flex flex-col items-end pl-4 border-l border-white/10">
+                    <span class="text-[8px] font-black text-white/30 uppercase tracking-widest mb-1">Clock</span>
+                    <span class="text-lg font-mono text-white/80 font-bold tracking-tighter">{{ now.toLocaleTimeString() }}</span>
+                </div>
+            </div>
+        </header>
 
-            <!-- C. Cinematic Orbital Dock (Bottom Center) -->
-            <div class="absolute bottom-10 left-1/2 -translate-x-1/2 pointer-events-auto group/dock scale-110">
-                <div class="flex items-end space-x-2 p-3 bg-black/20 backdrop-blur-3xl rounded-[3rem] border border-white/10 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.6)] group-hover/dock:bg-black/40 transition-all duration-700 active:scale-[0.98]">
-                    
-                    <!-- App Launcher Icons (Pseudo Side-bar replacements) -->
-                    <div class="flex items-center space-x-1 px-3 border-r border-white/10 mr-2">
-                        <button v-for="icon in ['box', 'layers', 'activity']" :key="icon" 
-                                class="w-14 h-14 rounded-2xl hover:bg-white/10 flex items-center justify-center transition-all duration-300 hover:scale-110 group/icon overflow-hidden">
-                            <div class="w-7 h-7 text-white/40 group-hover/icon:text-white transition-colors">
-                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path v-if="icon === 'box'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                                    <path v-if="icon === 'layers'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                                    <path v-if="icon === 'activity'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+        <!-- 4. SECTOR INTELLIGENCE CONSOLE (Integrated Right Panel) -->
+        <aside class="fixed right-12 top-40 bottom-40 w-[420px] z-50 animate-in fade-in slide-in-from-right duration-700">
+            <div class="h-full flex flex-col bg-black/60 backdrop-blur-2xl border border-white/5 rounded-3xl overflow-hidden shadow-[0_0_100px_rgba(0,0,0,0.8)]">
+                <!-- Header Tab Section -->
+                <div class="flex border-b border-white/10 bg-white/5">
+                    <button class="flex-1 py-5 text-[10px] font-black tracking-[0.3em] uppercase border-b-2 border-vibrant-blue text-vibrant-blue bg-vibrant-blue/5">LOCATION_INTEL</button>
+                    <button class="flex-1 py-5 text-[10px] font-black tracking-[0.2em] uppercase border-b-2 border-transparent text-white/20 hover:text-white/40 transition-colors">SPECTRAL_FLUX</button>
+                </div>
+
+                <!-- Scrollable Content -->
+                <div class="flex-1 overflow-y-auto p-10 space-y-10 custom-scrollbar overflow-x-hidden">
+                    <div v-if="selectedLocation">
+                        <!-- Location ID Strip -->
+                        <div class="flex flex-col space-y-3 mb-8">
+                            <div class="flex items-center space-x-2">
+                                <span class="px-2 py-0.5 bg-vibrant-blue text-black text-[10px] font-black rounded uppercase">Sector {{ Math.floor(selectedLocation.lat) }}</span>
+                                <div class="w-1.5 h-1.5 rounded-full bg-vibrant-blue animate-ping"></div>
+                                <span class="text-[10px] font-mono text-vibrant-blue/60 tracking-wider">{{ selectedLocation.lat.toFixed(6) }}N / {{ selectedLocation.lng.toFixed(6) }}E</span>
+                            </div>
+                            <h2 class="text-4xl font-black text-white uppercase tracking-tighter leading-none py-2">
+                                {{ selectedLocation.province || 'MARITIME_ZONE' }}
+                            </h2>
+                            <p class="text-[11px] text-white/30 uppercase font-black tracking-[0.4em] border-l-2 border-vibrant-blue pl-4">
+                                {{ selectedLocation.district ? `${selectedLocation.district} // ${selectedLocation.commune}` : 'NEURAL_LINK_ACTIVE' }}
+                            </p>
+                        </div>
+
+                        <!-- Real-time Telemetry Grid -->
+                        <div class="grid grid-cols-2 gap-5">
+                            <!-- Temperature Card -->
+                            <div class="flex flex-col p-6 bg-white/[0.03] border border-white/5 rounded-2xl group hover:border-vibrant-blue/30 transition-all">
+                                <span class="text-[9px] font-black text-white/20 uppercase mb-3 tracking-widest group-hover:text-vibrant-blue/50">Core_Thermal</span>
+                                <div class="flex items-baseline space-x-2">
+                                    <span class="text-4xl font-black">{{ selectedLocation.temp }}</span>
+                                    <span class="text-sm font-bold text-white/20">°C</span>
+                                </div>
+                                <!-- Sparkline -->
+                                <div class="h-8 mt-4 flex items-end space-x-1 outline outline-1 outline-white/5 p-1 rounded">
+                                    <div v-for="i in 15" :key="i" :style="{ height: (30 + Math.random() * 70) + '%' }" class="flex-1 bg-vibrant-blue/20 rounded-t-[1px]"></div>
+                                </div>
+                            </div>
+
+                            <!-- Wind Velocity -->
+                            <div class="flex flex-col p-6 bg-white/[0.03] border border-white/5 rounded-2xl">
+                                <span class="text-[9px] font-black text-white/20 uppercase mb-3 tracking-widest">Kinetic_Force</span>
+                                <div class="flex items-baseline space-x-2">
+                                    <span class="text-4xl font-black text-vibrant-green">{{ selectedLocation.windSpeed }}</span>
+                                    <span class="text-sm font-bold text-vibrant-green/40">KMH</span>
+                                </div>
+                                <div class="text-[9px] font-mono text-vibrant-green/60 mt-2 uppercase tracking-tighter italic">GUSTS: {{ selectedLocation.windGusts }} K/S</div>
+                            </div>
+                        </div>
+
+                        <!-- Secondary Metrics (Detailed List) -->
+                        <div class="space-y-4 mt-10">
+                            <h3 class="text-[10px] font-black text-white/20 uppercase tracking-[0.5em] mb-6 flex items-center">
+                                <span class="w-4 h-px bg-white/10 mr-4"></span>
+                                Atmospheric_Readout
+                            </h3>
+                            <div v-for="(val, label) in { 
+                                'Pressure': selectedLocation.pressure + ' hPa',
+                                'Humidity': selectedLocation.humidity + '%',
+                                'UV Index': selectedLocation.uvIndex,
+                                'Visibility': selectedLocation.visibility + ' km',
+                                'Cloud Density': selectedLocation.clouds + '%',
+                                'Dew Point': selectedLocation.dewPoint + '°'
+                            }" :key="label" 
+                                 class="flex items-center justify-between p-4 border border-white/5 bg-white/[0.01] hover:bg-white/[0.03] transition-all cursor-default rounded-xl">
+                                <span class="text-[11px] text-white/40 uppercase font-mono tracking-tighter">{{ label }}</span>
+                                <div class="flex items-center space-x-4">
+                                    <span class="text-sm font-black text-white tracking-widest">{{ val }}</span>
+                                    <div class="w-16 h-1 bg-white/5 rounded-full overflow-hidden">
+                                        <div class="h-full bg-vibrant-blue/40" :style="{ width: '70%' }"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- TRANSMIT BUTTON -->
+                        <div class="mt-12">
+                            <button @click="transmitIntel" 
+                                    class="w-full py-5 bg-vibrant-blue hover:bg-vibrant-blue/80 text-black text-[12px] font-black uppercase tracking-[0.4em] transition-all flex items-center justify-center space-x-3 rounded-2xl shadow-[0_10px_30px_rgba(79,70,229,0.3)]">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M8 12h.01M12 12h.01M16 12h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
+                                <span>INITIALIZE_TRANSMIT</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- EMPTY STATE -->
+                    <div v-else class="h-full flex flex-col items-center justify-center text-center space-y-8 py-32 opacity-40">
+                        <div class="relative">
+                            <div class="w-24 h-24 rounded-full border-2 border-dashed border-vibrant-blue/20 animate-spin-slow"></div>
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <div class="w-4 h-4 bg-vibrant-blue shadow-[0_0_20px_#4f46e5] rounded-sm"></div>
                             </div>
-                        </button>
-                    </div>
-
-                    <!-- Layers Toggles (The actual logic items) -->
-                    <div class="flex items-center space-x-2 pr-3">
-                        <button v-for="layer in ['COMMUNICATION', 'NAVIGATION', 'STATION', 'SCIENTIFIC', 'WEATHER', 'SPACE_DEBRIS', 'RISK_HEATMAP']" 
-                                :key="layer" 
-                                class="h-14 px-5 rounded-2xl flex items-center space-x-4 transition-all duration-300 group/layer overflow-hidden"
-                                :class="[activeLayers.includes(layer) ? (layer === 'RISK_HEATMAP' ? 'bg-red-600 shadow-lg shadow-red-600/30' : 'bg-vibrant-blue shadow-lg shadow-vibrant-blue/30') : 'bg-white/5 hover:bg-white/10 shadow-none']"
-                                @click="toggleLayer(layer)">
-                            <span :class="[activeLayers.includes(layer) ? 'bg-white' : 'bg-white/20']" class="w-2 h-2 rounded-full transition-colors"></span>
-                            <span class="text-[10px] font-black uppercase tracking-[0.2em]" :class="[activeLayers.includes(layer) ? 'text-white' : 'text-white/40 group-hover/layer:text-white/80']">
-                                {{ layer === 'RISK_HEATMAP' ? 'RISK MAP' : layer.toLowerCase().replace('_', ' ') }}
-                            </span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- D. Cinematic HUD Gauges (Corners) -->
-            <div class="absolute bottom-8 left-8 p-8 bg-black/20 backdrop-blur-2xl rounded-[3rem] border border-white/5 flex items-center space-x-8 shadow-2xl pointer-events-auto shadow-vibrant-blue/5">
-                <div class="flex flex-col">
-                    <span class="text-[9px] text-white/20 uppercase font-black tracking-widest leading-none">Global Scan Health</span>
-                    <div class="flex items-center space-x-4 mt-2">
-                        <span class="text-xs font-black text-vibrant-green uppercase">Optimal</span>
-                        <div class="flex space-x-1">
-                            <div v-for="i in 5" :key="i" class="w-1.5 h-4 rounded-full" :class="[i < 5 ? 'bg-vibrant-green/80' : 'bg-white/10 animate-pulse']"></div>
+                        </div>
+                        <div>
+                            <p class="text-[12px] font-black text-white uppercase tracking-[0.6em]">System Standby</p>
+                            <p class="text-[9px] font-mono text-vibrant-blue/40 uppercase mt-2 tracking-widest">Select Sector on Globe to Begin Analysis</p>
                         </div>
                     </div>
                 </div>
-                <div class="w-px h-10 bg-white/10"></div>
-                <div class="flex flex-col">
-                    <span class="text-[9px] text-white/20 uppercase font-black tracking-widest leading-none">System Sync</span>
-                    <span class="text-[11px] font-mono font-bold text-white/80 mt-2 uppercase">{{ now.toLocaleTimeString() }}</span>
+            </div>
+        </aside>
+
+        <!-- 5. TACTICAL ORBITAL DOCK (Bottom Integrated) -->
+        <nav class="fixed bottom-12 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center">
+            <!-- Coordinates Readout -->
+            <div class="mb-6 flex items-center space-x-4">
+                <div class="text-[10px] font-mono text-vibrant-blue/80 bg-black/60 px-6 py-2 rounded-full border border-vibrant-blue/30 backdrop-blur-xl shadow-2xl">
+                    <span class="opacity-40 uppercase mr-2 tracking-widest font-black text-[8px]">Scan_Coord:</span>
+                    16.047079°N | 108.206230°E
                 </div>
             </div>
 
-        </div>
+            <div class="flex items-center space-x-1 px-4 py-3 bg-black/60 backdrop-blur-3xl rounded-[2.5rem] border border-white/10 shadow-[0_30px_100px_rgba(0,0,0,0.8)]">
+                <button v-for="layer in [
+                    { id: 'COMMUNICATION', label: 'COMMS', icon: 'M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z' },
+                    { id: 'NAVIGATION', label: 'GPS', icon: 'M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z' },
+                    { id: 'SCIENTIFIC', label: 'SCIENT', icon: 'M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.183.244l-.28.14a2 2 0 01-2.983-1.882v-2.43a2 2 0 01.468-1.285l3.946-4.654A2 2 0 017.51 5H16.49a2 2 0 011.492.673l3.946 4.654a2 2 0 01.468 1.285v2.43a2 2 0 01-2.983 1.882l-.28-.14z' },
+                    { id: 'WEATHER', label: 'METEO', icon: 'M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z' },
+                    { id: 'SPACE_DEBRIS', label: 'DEBRIS', icon: 'M13 10V3L4 14h7v7l9-11h-7z' }
+                ]" :key="layer.id"
+                        @click="toggleLayer(layer.id)"
+                        class="group relative flex flex-col items-center justify-center w-20 h-20 rounded-3xl transition-all duration-500"
+                        :class="activeLayers.includes(layer.id) ? 'bg-vibrant-blue/20 scale-95' : 'hover:bg-white/5'">
+                    
+                    <svg class="w-7 h-7 mb-2 transition-transform group-hover:scale-110" 
+                         :class="activeLayers.includes(layer.id) ? 'text-vibrant-blue' : 'text-white/20'"
+                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="layer.icon" />
+                    </svg>
+                    <span class="text-[8px] font-black uppercase tracking-widest leading-none"
+                          :class="activeLayers.includes(layer.id) ? 'text-vibrant-blue' : 'text-white/10'">
+                        {{ layer.label }}
+                    </span>
+
+                    <!-- Active Indicator -->
+                    <div v-if="activeLayers.includes(layer.id)" 
+                         class="absolute top-2 right-2 w-2 h-2 bg-vibrant-blue rounded-full shadow-[0_0_10px_#4f46e5]"></div>
+                </button>
+
+                <div class="w-px h-10 bg-white/10 mx-4"></div>
+
+                <!-- Global Threat Toggle -->
+                <button @click="toggleLayer('RISK_HEATMAP')"
+                        class="flex flex-col items-center justify-center px-10 h-20 rounded-3xl transition-all duration-500 group overflow-hidden relative"
+                        :class="activeLayers.includes('RISK_HEATMAP') ? 'bg-red-600/20' : 'bg-white/5 hover:bg-white/10'">
+                    <span class="text-[8px] font-black text-white/20 uppercase tracking-widest leading-none mb-2">Threat_Level</span>
+                    <span class="text-[12px] font-black uppercase tracking-[0.2em]"
+                          :class="activeLayers.includes('RISK_HEATMAP') ? 'text-red-500 underline underline-offset-4 decoration-2' : 'text-white/40 group-hover:text-white'">
+                          RISK MAP
+                    </span>
+                    <div v-if="activeLayers.includes('RISK_HEATMAP')" class="absolute top-0 right-0 w-full h-[2px] bg-red-600 animate-pulse"></div>
+                </button>
+            </div>
+        </nav>
     </div>
 </template>
 
