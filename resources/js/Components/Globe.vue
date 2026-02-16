@@ -19,7 +19,7 @@ const props = defineProps({
 });
 
 const globeContainer = ref(null);
-const emit = defineEmits(['select', 'hover', 'surface-click', 'surface-hover']);
+const emit = defineEmits(['select', 'hover', 'surface-click', 'surface-hover', 'satellite-click']);
 let scene, camera, renderer, globe, clouds, controls, starfield;
 let satelliteMarkers = new Map();
 let orbitPaths = new Map();
