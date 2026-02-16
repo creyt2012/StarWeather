@@ -17,11 +17,31 @@ class User extends Authenticatable
      *
      * @var list<string>
      */
+    const ROLE_SUPER_ADMIN = 'SUPER_ADMIN';
+    const ROLE_MISSION_OPERATOR = 'MISSION_OPERATOR';
+    const ROLE_INTEL_SPECTATOR = 'INTEL_SPECTATOR';
+
     protected $fillable = [
         'name',
         'email',
         'password',
+        'role',
     ];
+
+    public function isAdmin()
+    {
+        return $this->role === self::ROLE_SUPER_ADMIN;
+    }
+
+    public function isOperator()
+    {
+        return in_array($this->role, [self::ROLE_SUPER_ADMIN, self::ROLE_MISSION_OPERATOR]);
+    }
+
+    public function isSpectator()
+    {
+        return $this->role === self::ROLE_INTEL_SPECTATOR;
+    }
 
     /**
      * The attributes that should be hidden for serialization.
