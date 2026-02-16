@@ -547,6 +547,14 @@ const onMouseDown = (event) => {
             }
         }
     } else {
+        // Check for Ground Stations
+        const gsIntersects = raycaster.intersectObjects(Array.from(groundStationMarkers.values()));
+        if (gsIntersects.length > 0) {
+            const station = gsIntersects[0].object.userData.station;
+            emit('select', { type: 'ground_station', ...station });
+            return;
+        }
+
         // Check for surface click
         const sphereIntersects = raycaster.intersectObject(globe);
         if (sphereIntersects.length > 0) {
@@ -618,6 +626,52 @@ const resetPaths = () => {
     }
 };
 
+const updateGroundStationMarkers = (stations) => {
+    if (!scene) return;
+    
+    const stationIds = new Set(stations.map(s => s.id));
+    for (const [id, marker] of groundStationMarkers.entries()) {
+        if (!stationIds.has(id)) {
+            scene.remove(marker);
+            if (marker.pulse) scene.remove(marker.pulse);
+            groundStationMarkers.delete(id);
+        }
+    }
+
+    stations.forEach(station => {
+        let marker = groundStationMarkers.get(station.id);
+        const pos = calcPosFromLatLng(station.latitude, station.longitude, 1.001);
+
+        if (!marker) {
+            const geometry = new THREE.ConeGeometry(0.012, 0.03, 4);
+            const material = new THREE.MeshBasicMaterial({ 
+                color: station.type === 'MISSION_CONTROL' ? 0xff4f46 : 0x00f3ff,
+                wireframe: true 
+            });
+            marker = new THREE.Mesh(geometry, material);
+            marker.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), pos.clone().normalize());
+            marker.userData = { type: 'ground_station', station };
+            scene.add(marker);
+            groundStationMarkers.set(station.id, marker);
+
+            const pulseGeo = new THREE.RingGeometry(0.01, 0.035, 32);
+            const pulseMat = new THREE.MeshBasicMaterial({ 
+                color: marker.material.color, 
+                transparent: true, 
+                opacity: 0.6, 
+                side: THREE.DoubleSide 
+            });
+            const pulse = new THREE.Mesh(pulseGeo, pulseMat);
+            pulse.position.copy(pos.clone().multiplyScalar(1.002));
+            pulse.quaternion.copy(marker.quaternion);
+            pulse.rotateX(Math.PI / 2);
+            scene.add(pulse);
+            marker.pulse = pulse;
+        }
+        marker.position.copy(pos);
+    });
+};
+
 const onWindowResize = () => {
     camera.aspect = globeContainer.value.clientWidth / globeContainer.value.clientHeight;
     camera.updateProjectionMatrix();
@@ -632,6 +686,18 @@ const animate = () => {
     if (gridLayer) gridLayer.rotation.y += 0.0001;
     if (starfield) starfield.rotation.y -= 0.00005;
     
+    // Animate Ground Station Pulses
+    groundStationMarkers.forEach(marker => {
+        if (marker.pulse) {
+            marker.pulse.scale.addScalar(0.012);
+            marker.pulse.material.opacity -= 0.008;
+            if (marker.pulse.material.opacity <= 0) {
+                marker.pulse.scale.set(1, 1, 1);
+                marker.pulse.material.opacity = 0.6;
+            }
+        }
+    });
+
     // Rotate Scan Line
     if (scanLine) scanLine.rotation.y += 0.005;
     
