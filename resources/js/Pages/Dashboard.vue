@@ -120,6 +120,7 @@ const handleSurfaceClick = async (data) => {
         <Globe 
             :satellites="filteredSatellites"
             :weatherMetrics="metrics"
+            :activeLayers="activeLayers"
             @surface-click="handleSurfaceClick"
         />
 
