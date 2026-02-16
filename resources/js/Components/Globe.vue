@@ -21,8 +21,10 @@ let satelliteMarkers = new Map();
 let orbitPaths = new Map();
 let selectedSatellite = ref(null);
 let hoveredSatellite = ref(null);
-let hoveredSurface = ref(null); // { lat, lng }
 let toolTipPos = ref({ x: 0, y: 0 });
+let selectedLocation = ref(null); // { lat, lng, x, y, province, district, commune }
+let heatmapData = ref([]);
+let riskLayer = null;
 
 
 // Color Map for Categories
@@ -39,6 +41,7 @@ const CATEGORY_COLORS = {
 onMounted(() => {
     initScene();
     animate();
+    fetchHeatmap();
 });
 
 onUnmounted(() => {
@@ -148,6 +151,58 @@ const initScene = () => {
     window.addEventListener('mousedown', onMouseDown);
     window.addEventListener('mousemove', onMouseMove);
     window.addEventListener('keydown', onKeyDown);
+};
+
+const fetchHeatmap = async () => {
+    try {
+        const response = await fetch('/api/v1/weather/heatmap', {
+            headers: { 'X-API-KEY': 'STAR-7788-X' } // Using the established demo key
+        });
+        const result = await response.json();
+        if (result.status === 'success') {
+            heatmapData.value = result.data;
+            renderRiskHeatmap();
+        }
+    } catch (e) {
+        console.error("Failed to fetch heatmap", e);
+    }
+};
+
+const renderRiskHeatmap = () => {
+    if (!globe) return;
+    
+    const canvas = document.createElement('canvas');
+    canvas.width = 2048; canvas.height = 1024;
+    const ctx = canvas.getContext('2d');
+    
+    // Transparent base
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    heatmapData.value.forEach(point => {
+        const x = (point.lng + 180) * (canvas.width / 360);
+        const y = (90 - point.lat) * (canvas.height / 180);
+        
+        const radial = ctx.createRadialGradient(x, y, 0, x, y, 15);
+        let color = point.score > 70 ? '255, 0, 0' : (point.score > 40 ? '255, 255, 0' : '0, 255, 0');
+        radial.addColorStop(0, `rgba(${color}, ${point.score / 150})`);
+        radial.addColorStop(1, `rgba(${color}, 0)`);
+        
+        ctx.fillStyle = radial;
+        ctx.fillRect(x - 20, y - 20, 40, 40);
+    });
+    
+    const texture = new THREE.CanvasTexture(canvas);
+    const riskGeo = new THREE.SphereGeometry(1.01, 128, 128);
+    const riskMat = new THREE.MeshBasicMaterial({ 
+        map: texture, 
+        transparent: true, 
+        opacity: 0.6,
+        blending: THREE.AdditiveBlending 
+    });
+    
+    if (riskLayer) scene.remove(riskLayer);
+    riskLayer = new THREE.Mesh(riskGeo, riskMat);
+    scene.add(riskLayer);
 };
 
 const onKeyDown = (e) => {
@@ -407,13 +462,49 @@ const onMouseDown = (event) => {
             const lat = Math.asin(point.y) * (180 / Math.PI);
             const lng = Math.atan2(point.z, -point.x) * (180 / Math.PI);
             const weather = getWeatherAt(lat, lng);
-            emit('surface-click', { lat, lng, ...weather });
+            
+            // Resolve Location Intel
+            fetchLocationIntel(lat, lng, weather);
         } else {
             selectedSatellite.value = null;
+            selectedLocation.value = null;
             emit('select', null);
             resetPaths();
         }
     }
+};
+
+const fetchLocationIntel = async (lat, lng, weather) => {
+    try {
+        const response = await fetch(`/api/v1/weather/history?lat=${lat}&lng=${lng}`, {
+            headers: { 'X-API-KEY': 'STAR-7788-X' }
+        });
+        const result = await response.json();
+        if (result.status === 'success') {
+            const meta = result.meta;
+            selectedLocation.value = {
+                lat, lng,
+                province: meta.location.province,
+                district: meta.location.district,
+                commune: meta.location.commune,
+                weather
+            };
+            emit('surface-click', { ...selectedLocation.value, ...weather });
+        }
+    } catch (e) {
+        selectedLocation.value = { lat, lng, weather };
+        emit('surface-click', { lat, lng, ...weather });
+    }
+};
+
+const getProjectedPosition = (lat, lng) => {
+    const pos = calcPosFromLatLng(lat, lng, 1);
+    const vector = pos.project(camera);
+    return {
+        x: (vector.x * 0.5 + 0.5) * globeContainer.value.clientWidth,
+        y: -(vector.y * 0.5 - 0.5) * globeContainer.value.clientHeight,
+        z: vector.z
+    };
 };
 
 const highlightPath = (id) => {
@@ -441,8 +532,17 @@ const animate = () => {
     requestAnimationFrame(animate);
     if (clouds) clouds.rotation.y += 0.0003;
     if (globe) globe.rotation.y += 0.0001;
+    if (riskLayer) riskLayer.rotation.y += 0.0001;
     if (starfield) starfield.rotation.y -= 0.00005;
     
+    // Update Leader Line projected position
+    if (selectedLocation.value) {
+        const projected = getProjectedPosition(selectedLocation.value.lat, selectedLocation.value.lng);
+        selectedLocation.value.screenX = projected.x;
+        selectedLocation.value.screenY = projected.y;
+        selectedLocation.value.isVisible = projected.z < 1;
+    }
+
     controls.update();
     renderer.render(scene, camera);
 };
@@ -450,6 +550,22 @@ const animate = () => {
 
 <template>
     <div ref="globeContainer" class="w-full h-full relative cursor-crosshair overflow-hidden">
+        <!-- SVG Leader Lines Overlay -->
+        <svg v-if="selectedLocation && selectedLocation.isVisible" class="absolute inset-0 w-full h-full pointer-events-none z-30">
+            <defs>
+                <linearGradient id="pointerGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" style="stop-color:rgba(79, 70, 229, 0.4); stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:rgba(79, 70, 229, 0); stop-opacity:0" />
+                </linearGradient>
+            </defs>
+            <!-- Leader Line -->
+            <path :d="`M ${selectedLocation.screenX} ${selectedLocation.screenY} L ${selectedLocation.screenX + 100} ${selectedLocation.screenY - 50}`" 
+                  stroke="url(#pointerGrad)" stroke-width="2" fill="none" class="animate-pulse" />
+            <!-- Anchor Dot -->
+            <circle :cx="selectedLocation.screenX" :cy="selectedLocation.screenY" r="4" fill="#4f46e5" class="shadow-lg shadow-indigo-500/50" />
+            <circle :cx="selectedLocation.screenX" :cy="selectedLocation.screenY" r="8" fill="none" stroke="#4f46e5" stroke-width="1" class="animate-ping" />
+        </svg>
+
         <!-- Floating HUD Element -->
         <div class="absolute bottom-6 left-6 z-10 pointer-events-none">
             <div class="flex flex-col space-y-1">
