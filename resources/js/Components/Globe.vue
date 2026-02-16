@@ -270,8 +270,7 @@ const getWeatherAt = (lat, lng) => {
         clouds: Math.round(n1 * 100),
         dewPoint: Math.round(temp * 0.8)
     };
-};
-
+const onMouseMove = (event) => {
     const rect = renderer.domElement.getBoundingClientRect();
     const mouse = new THREE.Vector2(
         ((event.clientX - rect.left) / rect.width) * 2 - 1,
