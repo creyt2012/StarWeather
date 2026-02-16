@@ -329,25 +329,25 @@ const handleSurfaceClick = async (data) => {
 </template>
 
 <style scoped>
-.cinematic-pop-enter-active, .cinematic-pop-leave-active {
-  transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+.custom-scrollbar::-webkit-scrollbar {
+    width: 3px;
 }
-.cinematic-pop-enter-from, .cinematic-pop-leave-to {
-  opacity: 0;
-  transform: scale(0.9) translateY(40px);
-  filter: blur(20px);
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
 }
-
-.no-scrollbar::-webkit-scrollbar {
-    display: none;
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(79, 70, 229, 0.4);
+    border-radius: 10px;
 }
-.no-scrollbar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(79, 70, 229, 0.7);
 }
 
-.search-glow:focus-within {
-    box-shadow: 0 0 30px rgba(79, 70, 229, 0.2);
-    border-color: rgba(79, 70, 229, 0.4);
+@keyframes spin-slow {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+.animate-spin-slow {
+    animation: spin-slow 20s linear infinite;
 }
 </style>
