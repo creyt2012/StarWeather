@@ -386,158 +386,161 @@ const handleSurfaceClick = async (data) => {
             </div>
         </main>
 
-        <!-- 3. Professional Weather Detail Drawer (Windy Style) -->
+        <!-- 3. Professional Weather Detail Drawer (Premium Overhaul) -->
         <transition name="slide-right">
-            <aside v-if="selectedLocation" class="fixed top-8 bottom-8 right-8 w-96 glass z-50 rounded-2xl border-l-2 border-vibrant-blue p-8 flex flex-col space-y-8 animate-in slide-in-from-right duration-500 overflow-y-auto">
-                <div class="flex items-center justify-between">
-                    <div class="flex flex-col">
-                        <h2 class="text-xl font-black italic tracking-tighter uppercase leading-none text-white">Location Intel</h2>
-                        <span class="text-[9px] text-white/30 uppercase tracking-[0.3em] font-bold mt-1">Atmospheric Deep Scan</span>
+            <aside v-if="selectedLocation" 
+                   class="fixed top-6 bottom-6 right-6 w-[420px] backdrop-blur-3xl bg-black/40 z-50 rounded-[2.5rem] border border-white/10 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.6)] flex flex-col overflow-hidden animate-in slide-in-from-right duration-700 ease-out">
+                
+                <!-- Header: Premium Identity -->
+                <div class="p-8 pb-4 flex items-center justify-between">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-vibrant-blue to-indigo-600 flex items-center justify-center shadow-lg shadow-vibrant-blue/20">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 002 2 2 2 0 012 2v.656c0 .53.21 1.039.586 1.414l.439.439M9.172 9.172a4 4 0 015.656 0M9 10a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 01-1 1h-2a1 1 0 01-1-1v-2z" />
+                            </svg>
+                        </div>
+                        <div class="flex flex-col">
+                            <h2 class="text-2xl font-black tracking-tight text-white leading-tight">LOCATION <span class="text-vibrant-blue italic">INTEL</span></h2>
+                            <div class="flex items-center space-x-2">
+                                <span class="w-1.5 h-1.5 rounded-full bg-vibrant-green animate-pulse"></span>
+                                <span class="text-[10px] text-white/40 uppercase font-black tracking-[0.2em]">Deep Scan Active</span>
+                            </div>
+                        </div>
                     </div>
-                    <button @click="selectedLocation = null" class="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center transition">
-                        <svg class="w-4 h-4 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <button @click="selectedLocation = null" class="group p-3 rounded-full hover:bg-white/10 transition-all duration-300">
+                        <svg class="w-5 h-5 text-white/30 group-hover:text-white group-hover:rotate-90 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
                 </div>
 
-                <!-- Coordinates & Map Context -->
-                <div class="p-4 bg-white/5 rounded-2xl border border-white/5 space-y-3">
-                    <div class="flex justify-between items-center">
-                        <div class="flex flex-col">
-                            <span class="text-[8px] text-white/20 uppercase font-bold">Latitude</span>
-                            <span class="text-xs font-mono font-bold">{{ selectedLocation.lat.toFixed(4) }}°</span>
-                        </div>
-                        <div class="flex flex-col text-right">
-                            <span class="text-[8px] text-white/20 uppercase font-bold">Longitude</span>
-                            <span class="text-xs font-mono font-bold">{{ selectedLocation.lng.toFixed(4) }}°</span>
-                        </div>
-                    </div>
-                    <div class="h-1 bg-white/5 rounded-full overflow-hidden">
-                        <div class="h-full bg-vibrant-blue w-full animate-pulse"></div>
-                    </div>
-                </div>
-
-                <!-- Main Analytics Grid (Dense 2x2) -->
-                <div class="grid grid-cols-2 gap-3">
-                    <div class="glass p-4 rounded-xl border border-white/5 space-y-1 hover:border-vibrant-blue/30 transition">
-                        <p class="text-[8px] text-white/30 uppercase font-black">Air Temperature</p>
-                        <div class="flex items-baseline space-x-1">
-                            <span class="text-2xl font-black text-white">{{ selectedLocation.temp }}°</span>
-                        </div>
-                        <p class="text-[7px] text-white/20 font-bold uppercase tracking-tighter">Feels like {{ selectedLocation.temp - 2 }}°C</p>
-                    </div>
-                    <div class="glass p-4 rounded-xl border border-white/5 space-y-1 hover:border-vibrant-green/30 transition">
-                        <p class="text-[8px] text-white/30 uppercase font-black">Wind / Gusts</p>
-                        <div class="flex items-baseline space-x-1">
-                            <span class="text-2xl font-black text-vibrant-green">{{ selectedLocation.windSpeed }}</span>
-                            <span class="text-xs text-vibrant-green/50">/</span>
-                            <span class="text-lg font-bold text-vibrant-green/70">{{ selectedLocation.windGusts }}</span>
-                        </div>
-                        <p class="text-[7px] text-white/20 font-bold uppercase tracking-tighter">Vector: {{ selectedLocation.windDir }}° SE</p>
-                    </div>
-                    <div class="glass p-4 rounded-xl border border-white/5 space-y-1 hover:border-vibrant-blue/30 transition">
-                        <p class="text-[8px] text-white/30 uppercase font-black">Visibility</p>
-                        <div class="flex items-baseline space-x-1">
-                            <span class="text-2xl font-black text-white">{{ selectedLocation.visibility }}</span>
-                            <span class="text-xs text-white/20 ml-1">km</span>
-                        </div>
-                        <div class="px-1.5 py-0.5 bg-vibrant-green/10 rounded-sm inline-block border border-vibrant-green/20">
-                            <span class="text-[6px] text-vibrant-green font-black uppercase">Optimal</span>
-                        </div>
-                    </div>
-                    <div class="glass p-4 rounded-xl border border-white/5 space-y-1 hover:border-vibrant-blue/30 transition">
-                        <p class="text-[8px] text-white/30 uppercase font-black">UV Index</p>
-                        <div class="flex items-baseline space-x-1">
-                            <span class="text-2xl font-black text-white">{{ selectedLocation.uvIndex }}</span>
-                        </div>
-                        <div class="px-1.5 py-0.5 bg-yellow-500/10 rounded-sm inline-block border border-yellow-500/20">
-                            <span class="text-[6px] text-yellow-500 font-black uppercase">{{ selectedLocation.uvIndex > 5 ? 'High Risk' : 'Moderate' }}</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 7-Day Prediction Strip (Windy Style) -->
-                <div class="space-y-3">
-                    <div class="flex items-center justify-between">
-                        <h3 class="text-[9px] font-black text-white/40 uppercase tracking-[0.2em]">7-Day Forecast</h3>
-                        <span class="text-[7px] text-white/20 font-black uppercase tracking-widest leading-none">Global Sector Sync</span>
-                    </div>
-                    <div class="flex justify-between items-center p-4 bg-white/5 rounded-2xl border border-white/5 overflow-x-auto no-scrollbar space-x-4">
-                        <div v-for="day in ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']" :key="day" class="flex flex-col items-center space-y-2 min-w-[40px]">
-                            <span class="text-[8px] font-black text-white/30">{{ day }}</span>
-                            <div class="w-6 h-6 rounded-lg bg-vibrant-blue/10 flex items-center justify-center text-vibrant-blue">
-                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-                                </svg>
+                <div class="flex-1 overflow-y-auto px-8 pb-8 space-y-8 no-scrollbar">
+                    
+                    <!-- Coordinates Card -->
+                    <div class="relative group">
+                        <div class="absolute -inset-0.5 bg-gradient-to-r from-vibrant-blue/20 to-transparent rounded-3xl blur opacity-0 group-hover:opacity-100 transition duration-500"></div>
+                        <div class="relative p-5 bg-white/5 rounded-3xl border border-white/5 flex items-center justify-between">
+                            <div class="space-y-1">
+                                <p class="text-[9px] text-vibrant-blue font-black uppercase tracking-widest">Global Coordinates</p>
+                                <div class="flex items-center space-x-3">
+                                    <span class="text-lg font-mono font-bold text-white">{{ selectedLocation.lat.toFixed(4) }}°N</span>
+                                    <span class="w-1 h-1 rounded-full bg-white/20"></span>
+                                    <span class="text-lg font-mono font-bold text-white">{{ selectedLocation.lng.toFixed(4) }}°E</span>
+                                </div>
                             </div>
-                            <span class="text-[10px] font-black text-white">{{ Math.round(selectedLocation.temp + (Math.random() * 4 - 2)) }}°</span>
+                            <div class="w-10 h-10 rounded-full bg-vibrant-blue/10 border border-vibrant-blue/20 flex items-center justify-center">
+                                <svg class="w-4 h-4 text-vibrant-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Secondary Intelligence Table -->
-                <div class="space-y-3">
-                    <h3 class="text-[9px] font-black text-white/40 uppercase tracking-[0.2em]">Atmospheric Deep Table</h3>
-                    <div class="grid grid-cols-2 gap-2">
-                        <div class="flex items-center justify-between p-2.5 bg-white/5 border border-white/5 rounded-xl">
-                            <span class="text-[9px] font-bold text-white/40">Rel. Humidity</span>
-                            <span class="text-[10px] font-mono font-bold text-white">{{ selectedLocation.humidity }}%</span>
+                    <!-- Core Metrics: Hyper-Grid -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <!-- Temp Card -->
+                        <div class="p-6 rounded-[2rem] bg-gradient-to-br from-white/5 to-transparent border border-white/10 space-y-4 hover:border-vibrant-blue/40 transition-all duration-500">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[9px] text-white/30 uppercase font-black tracking-widest">Air Temp</span>
+                                <svg class="w-4 h-4 text-vibrant-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                            </div>
+                            <div class="flex items-end space-x-1">
+                                <span class="text-4xl font-black text-white leading-none">{{ selectedLocation.temp }}°</span>
+                                <span class="text-sm font-bold text-white/30 mb-1">C</span>
+                            </div>
+                            <p class="text-[10px] text-vibrant-green font-bold">Stable Trend ↗ +0.4</p>
                         </div>
-                        <div class="flex items-center justify-between p-2.5 bg-white/5 border border-white/5 rounded-xl">
-                            <span class="text-[9px] font-bold text-white/40">Precipitation</span>
-                            <span class="text-[10px] font-mono font-bold text-vibrant-blue">{{ selectedLocation.precip }} mm</span>
-                        </div>
-                        <div class="flex items-center justify-between p-2.5 bg-white/5 border border-white/5 rounded-xl">
-                            <span class="text-[9px] font-bold text-white/40">Cloud Cover</span>
-                            <span class="text-[10px] font-mono font-bold text-white">{{ selectedLocation.clouds }}%</span>
-                        </div>
-                        <div class="flex items-center justify-between p-2.5 bg-white/5 border border-white/5 rounded-xl">
-                            <span class="text-[9px] font-bold text-white/40">Dew Point</span>
-                            <span class="text-[10px] font-mono font-bold text-white">{{ selectedLocation.dewPoint }}°C</span>
+                        
+                        <!-- Wind Card -->
+                        <div class="p-6 rounded-[2rem] bg-gradient-to-br from-white/5 to-transparent border border-white/10 space-y-4 hover:border-vibrant-green/40 transition-all duration-500">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[9px] text-white/30 uppercase font-black tracking-widest">Wind Speed</span>
+                                <svg class="w-4 h-4 text-vibrant-green" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                            </div>
+                            <div class="flex items-end space-x-1">
+                                <span class="text-4xl font-black text-white leading-none text-vibrant-green">{{ selectedLocation.windSpeed }}</span>
+                                <span class="text-sm font-bold text-white/30 mb-1">km/h</span>
+                            </div>
+                            <p class="text-[10px] text-white/40 font-bold uppercase tracking-tight">Gusts: {{ selectedLocation.windGusts }} km/h</p>
                         </div>
                     </div>
-                </div>
 
-                <!-- Simulation Chart -->
-                <div class="space-y-3">
-                    <div class="flex items-center justify-between">
-                        <h3 class="text-[9px] font-black text-white/40 uppercase tracking-[0.2em]">24H Pressure Logic</h3>
-                        <div class="flex items-center space-x-1">
-                            <span class="w-1.5 h-1.5 rounded-full bg-vibrant-blue animate-pulse"></span>
-                            <span class="text-[8px] text-vibrant-blue font-black uppercase">Live Computation</span>
+                    <!-- Secondary Intelligence Layout -->
+                    <div class="space-y-4">
+                        <h3 class="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] pl-2">Atmospheric Multi-Scanner</h3>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div v-for="(val, label) in { 
+                                'Pressure': selectedLocation.pressure + ' hPa',
+                                'Humidity': selectedLocation.humidity + '%',
+                                'Visibility': selectedLocation.visibility + ' km',
+                                'UV Index': selectedLocation.uvIndex,
+                                'Precip': selectedLocation.precip + ' mm',
+                                'Clouds': selectedLocation.clouds + '%'
+                            }" :key="label" 
+                                 class="p-4 bg-white/[0.03] border border-white/5 rounded-2xl flex flex-col space-y-1 hover:bg-white/[0.06] transition duration-300">
+                                <span class="text-[8px] text-white/40 uppercase font-bold tracking-tight">{{ label }}</span>
+                                <span class="text-xs font-mono font-bold text-white">{{ val }}</span>
+                            </div>
                         </div>
                     </div>
-                    <div class="h-24 bg-white/5 rounded-2xl border border-white/5 flex items-end p-4 space-x-1 group">
-                        <template v-if="selectedLocation.history && selectedLocation.history.length > 0">
-                            <div v-for="(point, idx) in selectedLocation.history" :key="idx" 
-                                 class="flex-1 bg-vibrant-blue/20 rounded-t-sm group-hover:bg-vibrant-blue/40 transition-all duration-500 relative group/bar"
-                                 :style="{ height: ((point.pressure - 980) / 60 * 100) + '%' }">
-                                 <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover/bar:block glass px-2 py-1 rounded text-[8px] whitespace-nowrap z-50 pointer-events-none">
-                                     {{ point.time }}: {{ point.pressure.toFixed(1) }} hPa
+
+                    <!-- Forecast: Premium Timeline -->
+                    <div class="space-y-4 mt-8">
+                        <div class="flex items-center justify-between pl-2">
+                            <h3 class="text-[10px] font-black text-white/20 uppercase tracking-[0.3em]">7-Day Predictive Scan</h3>
+                            <span class="px-2 py-0.5 bg-indigo-500/10 border border-indigo-500/20 rounded text-[7px] text-indigo-400 font-black uppercase">Alpha AI</span>
+                        </div>
+                        <div class="p-5 bg-white/[0.03] border border-white/5 rounded-[2rem] flex justify-between items-center group/forecast overflow-x-auto no-scrollbar">
+                            <div v-for="day in ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN']" :key="day" 
+                                 class="flex flex-col items-center space-y-3 min-w-[40px] px-2 py-3 rounded-xl hover:bg-white/5 transition-all duration-500 group/day cursor-default">
+                                <span class="text-[8px] font-black text-white/20 group-hover/day:text-white/60 transition-colors">{{ day }}</span>
+                                <div class="w-8 h-8 rounded-full bg-vibrant-blue/10 flex items-center justify-center text-vibrant-blue group-hover/day:scale-110 group-hover/day:bg-vibrant-blue transition-all duration-300 group-hover/day:text-white">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                                    </svg>
+                                </div>
+                                <span class="text-xs font-black text-white">{{ Math.round(selectedLocation.temp + (Math.random() * 4 - 2)) }}°</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chart: High-Fidelity Logic -->
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between pl-2">
+                            <h3 class="text-[10px] font-black text-white/20 uppercase tracking-[0.3em]">24H Dynamic Pressure</h3>
+                            <div class="flex items-center space-x-2">
+                                <div class="w-1 h-1 rounded-full bg-vibrant-blue shadow-[0_0_5px_#4f46e5]"></div>
+                                <span class="text-[7px] text-vibrant-blue font-black uppercase tracking-widest">Live Feed</span>
+                            </div>
+                        </div>
+                        <div class="h-28 flex items-end justify-between p-6 bg-white/[0.03] border border-white/5 rounded-[2.5rem] relative group/chart">
+                            <div v-for="(point, idx) in (selectedLocation.history || Array(24).fill({pressure: 1013}))" :key="idx" 
+                                 class="w-1.5 bg-vibrant-blue/20 rounded-full hover:bg-vibrant-blue transition-all duration-500 cursor-pointer relative group/bar"
+                                 :style="{ height: (point.pressure ? (point.pressure - 980) / 60 * 100 : 20) + '%' }">
+                                 <!-- Bar Tooltip -->
+                                 <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover/bar:block backdrop-blur-md bg-white/10 border border-white/10 px-2 py-1 rounded-lg text-[8px] text-white font-mono whitespace-nowrap z-50">
+                                     {{ point.time || '00:00' }}: {{ point.pressure?.toFixed(1) }} hPa
                                  </div>
                             </div>
-                        </template>
-                        <template v-else>
-                            <div v-for="i in 24" :key="i" class="flex-1 bg-white/5 rounded-t-sm animate-pulse" :style="{ height: '20%' }"></div>
-                        </template>
+                        </div>
                     </div>
-                </div>
 
-                <!-- Footer Summary (SaaS Professionalism) -->
-                <div class="px-6 py-4 bg-vibrant-blue/10 border-t border-b border-vibrant-blue/20 rounded-xl">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-2 h-2 rounded-full bg-vibrant-green shadow-[0_0_8px_#10b981]"></div>
-                        <span class="text-[9px] font-black text-white uppercase tracking-widest">Environment: Stable</span>
-                        <div class="flex-1"></div>
-                        <span class="text-[8px] font-mono text-white/40 italic">STATION: INTEL-09</span>
+                    <!-- Action Area -->
+                    <div class="pt-4 space-y-4">
+                        <div class="p-5 bg-gradient-to-r from-vibrant-blue/10 to-indigo-500/10 rounded-3xl border border-white/10 flex items-center space-x-4">
+                            <div class="w-8 h-8 rounded-full bg-vibrant-green/10 flex items-center justify-center">
+                                <div class="w-2 h-2 rounded-full bg-vibrant-green shadow-[0_0_8px_#10b981]"></div>
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="text-[9px] font-black text-white uppercase tracking-widest leading-none">Intelligence Status: OPTIMAL</span>
+                                <span class="text-[7px] text-white/30 uppercase mt-1 tracking-tighter">Sensor Fusion Verified @ Station Intel-09</span>
+                            </div>
+                        </div>
+                        <button class="w-full relative group overflow-hidden py-5 rounded-[2rem] bg-vibrant-blue text-white shadow-[0_20px_40px_-10px_rgba(79,70,229,0.4)] transition-all hover:scale-[1.02] active:scale-[0.98]">
+                            <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                            <span class="relative text-[10px] font-black uppercase tracking-[0.3em]">Generate Global PDF Intel</span>
+                        </button>
                     </div>
-                </div>
 
-                <!-- Action Button -->
-                <button class="w-full bg-vibrant-blue hover:bg-vibrant-blue-dark text-white p-4 rounded-xl font-black uppercase tracking-widest text-xs shadow-[0_10px_30px_rgba(79,70,229,0.3)] transition group">
-                    <span class="group-hover:tracking-[0.3em] transition-all">Download PDF Intel Report</span>
-                </button>
+                </div>
             </aside>
         </transition>
     </div>
