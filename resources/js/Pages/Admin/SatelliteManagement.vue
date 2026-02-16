@@ -309,6 +309,3 @@ const route = window.route;
     background: rgba(0, 136, 255, 0.5);
 }
 </style>
-.text-vibrant-green { color: #00ffaa; }
-.border-vibrant-green { border-color: #00ffaa; }
-</style>
