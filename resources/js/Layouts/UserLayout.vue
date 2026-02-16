@@ -30,7 +30,7 @@ const isActive = (route) => {
 
             <!-- Desktop Nav -->
             <nav class="hidden md:flex space-x-12">
-                <Link v-for="item in navigation" :key="item.name" :href="'#'" 
+                <Link v-for="item in navigation" :key="item.name" :href="route(item.route)" 
                     class="text-[10px] font-black uppercase tracking-[0.2em] transition-all hover:text-vibrant-blue flex items-center space-x-2 opacity-60 hover:opacity-100">
                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="item.icon" />
