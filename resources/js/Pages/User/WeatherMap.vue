@@ -8,6 +8,9 @@ import axios from 'axios';
 const globeContainer = ref(null);
 const activeLayer = ref('clouds');
 const activeStorms = ref([]);
+const selectedPoint = ref(null);
+const pointData = ref(null);
+const isLoadingPoint = ref(false);
 
 const layers = [
     { id: 'clouds', name: 'CLOUD_DENSITY', color: 'vibrant-blue' },
@@ -49,7 +52,23 @@ onMounted(async () => {
         .labelText(d => d.name)
         .labelSize(1.5)
         .labelColor(() => '#ef4444')
-        .labelResolution(2);
+        .labelResolution(2)
+        .onGlobeClick(async ({ lat, lng }) => {
+            selectedPoint.value = { lat, lng };
+            isLoadingPoint.value = true;
+            pointData.value = null;
+
+            try {
+                const response = await axios.get('/api/v1/weather/point-info', {
+                    params: { lat, lng }
+                });
+                pointData.value = response.data.data;
+                isLoadingPoint.value = false;
+            } catch (e) {
+                console.error('Failed to fetch point intelligence', e);
+                isLoadingPoint.value = false;
+            }
+        });
 
     world.controls().autoRotate = true;
     world.controls().autoRotateSpeed = 0.5;
