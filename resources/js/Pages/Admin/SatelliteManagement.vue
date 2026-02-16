@@ -137,56 +137,141 @@ const route = window.route;
 <template>
     <AdminLayout>
         <template #header>SATELLITE_ASSET_INVENTORY</template>
-        <Head title="Mission Control - Backend Administration" />
+        <Head title="Mission Control - Orbital Assets" />
         
-        <div class="flex justify-between items-center mb-10">
-            <div>
-                <p class="text-vibrant-blue font-black tracking-[.2em] text-[10px] uppercase mb-1">Orbital_Fleet_Status</p>
-                <h3 class="text-3xl font-black font-outfit uppercase tracking-tighter italic">ACTIVE_ASSETS</h3>
-            </div>
-            <button @click="showAddModal = true" class="px-8 py-4 bg-vibrant-blue text-black hover:bg-white transition uppercase text-[10px] font-black tracking-[0.3em] shadow-[0_0_30px_rgba(0,136,255,0.3)]">Deploy_New_Asset</button>
-        </div>
-
-        <!-- Inventory Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div v-for="sat in satellites" :key="sat.id" 
-                class="group relative bg-[#08080C] border border-white/5 p-8 hover:border-vibrant-blue/50 transition-all duration-700 overflow-hidden shadow-2xl">
-                
-                <div class="relative z-10">
-                    <div class="flex justify-between items-start mb-6">
-                        <div>
-                            <p class="text-[10px] text-vibrant-blue font-black mb-1 opacity-60">ID: {{ sat.norad_id }} • P: {{ sat.priority }}</p>
-                            <h3 class="text-2xl font-black uppercase italic tracking-tight text-white group-hover:text-vibrant-blue transition-colors">{{ sat.name }}</h3>
+        <div class="relative min-h-[calc(100vh-120px)]">
+            <!-- Header actions -->
+            <div class="flex justify-between items-center mb-8">
+                <div>
+                    <h3 class="text-3xl font-black font-outfit uppercase tracking-tighter italic">ORBITAL_FLEET_STATUS</h3>
+                    <div class="flex items-center space-x-4 mt-2">
+                        <div class="flex items-center space-x-1.5 pt-1">
+                            <div class="w-2 h-2 rounded-full bg-vibrant-green animate-pulse"></div>
+                            <span class="text-[9px] font-black uppercase text-white/40 tracking-widest">Global_Signal_Stability: 98.4%</span>
                         </div>
-                        <span :class="{
-                            'bg-vibrant-green/10 text-vibrant-green border-vibrant-green/30': sat.status === 'ACTIVE',
-                            'bg-red-500/10 text-red-500 border-red-500/30': sat.status !== 'ACTIVE'
-                        }" class="px-3 py-1 border text-[9px] font-black uppercase tracking-widest">
-                            {{ sat.status }}
-                        </span>
-                    </div>
-
-                    <div class="space-y-4 mb-8">
-                        <div class="flex justify-between border-b border-white/5 pb-2">
-                            <span class="text-[9px] text-white/30 uppercase font-bold tracking-widest">Source_Origin</span>
-                            <span class="text-[10px] font-mono font-bold text-white/80 uppercase">{{ sat.data_source || 'UNCATEGORIZED' }}</span>
-                        </div>
-                        <div class="flex justify-between border-b border-white/5 pb-2">
-                            <span class="text-[9px] text-white/30 uppercase font-bold tracking-widest">Dataset_ID</span>
-                            <span class="text-[10px] font-mono font-bold text-white/80 lowercase truncate max-w-[150px]">{{ sat.dataset_name || 'nil' }}</span>
-                        </div>
-                    </div>
-
-                    <div class="flex items-center space-x-2 pt-2">
-                        <button @click="openEdit(sat)" class="flex-1 py-3 text-[9px] font-black uppercase tracking-[0.2em] bg-white/5 hover:bg-vibrant-blue hover:text-black transition-all duration-300">ADMIN_CONFIG</button>
-                        <button @click="deleteSat(sat.id)" class="px-5 py-3 text-[10px] font-black uppercase text-red-500/40 hover:text-red-500 hover:bg-red-500/10 transition-all font-mono">X</button>
                     </div>
                 </div>
-
-                <!-- HUD Decorative elements -->
-                <div class="absolute top-0 right-0 w-16 h-[2px] bg-vibrant-blue/20 group-hover:bg-vibrant-blue transition-colors"></div>
-                <div class="absolute top-0 right-0 w-[2px] h-16 bg-vibrant-blue/20 group-hover:bg-vibrant-blue transition-colors"></div>
+                <button @click="showAddModal = true" class="px-8 py-4 bg-vibrant-blue text-black hover:bg-white transition-all uppercase text-[10px] font-black tracking-[0.3em] shadow-[0_0_30px_rgba(0,136,255,0.3)]">Deploy_New_Asset</button>
             </div>
+
+            <!-- Enhanced Inventory Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div v-for="sat in satellites" :key="sat.id" 
+                    @click="selectSatellite(sat)"
+                    :class="selectedSatellite?.id === sat.id ? 'border-vibrant-blue shadow-[0_0_30px_rgba(0,136,255,0.15)] bg-vibrant-blue/5' : 'border-white/5 hover:border-vibrant-blue/30 bg-[#08080C]'"
+                    class="group relative border p-6 transition-all duration-500 cursor-pointer overflow-hidden">
+                    
+                    <div class="relative z-10">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="w-10 h-10 border border-white/10 rounded-lg flex items-center justify-center bg-white/[0.02] group-hover:border-vibrant-blue/50 transition-colors">
+                                <svg class="w-5 h-5 text-white/20 group-hover:text-vibrant-blue transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <span class="text-[8px] font-black uppercase tracking-[0.3em] px-2 py-0.5 border border-white/10 text-white/30 rounded">{{ sat.type }}</span>
+                        </div>
+
+                        <h3 class="text-lg font-black uppercase italic tracking-tight text-white group-hover:text-vibrant-blue transition-colors mb-4">{{ sat.name }}</h3>
+                        
+                        <div class="grid grid-cols-2 gap-2 mb-6 text-[9px] font-mono">
+                            <div class="p-2 bg-white/[0.02] border border-white/5">
+                                <p class="text-white/20 uppercase mb-0.5">Altitude</p>
+                                <p class="text-white/80">{{ sat.telemetry.altitude }}</p>
+                            </div>
+                            <div class="p-2 bg-white/[0.02] border border-white/5">
+                                <p class="text-white/20 uppercase mb-0.5">Signal</p>
+                                <p class="text-vibrant-green">{{ sat.telemetry.signal }}</p>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-between items-center text-[8px] font-black uppercase tracking-widest pt-2 border-t border-white/5">
+                            <span class="text-white/20">Status:</span>
+                            <span :class="sat.status === 'ACTIVE' ? 'text-vibrant-green' : 'text-red-500'">{{ sat.status }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Scanline pulse -->
+                    <div class="absolute inset-0 bg-gradient-to-b from-transparent via-vibrant-blue/5 to-transparent h-12 -translate-y-full group-hover:animate-scan-fast pointer-events-none opacity-50"></div>
+                </div>
+            </div>
+
+            <!-- Mission Intelligence Drawer -->
+            <transition name="drawer">
+                <div v-if="selectedSatellite" class="fixed top-0 right-0 w-[450px] h-screen bg-[#040408] border-l border-white/10 z-[100] shadow-[-20px_0_50px_rgba(0,0,0,1)] flex flex-col">
+                    <!-- Drawer Header -->
+                    <div class="p-8 border-b border-white/10 flex justify-between items-center bg-vibrant-blue/[0.03]">
+                        <div>
+                            <p class="text-[9px] font-black text-vibrant-blue uppercase tracking-[0.5em] mb-1">Asset_Deep_Intelligence</p>
+                            <h2 class="text-2xl font-black uppercase italic tracking-tighter">{{ selectedSatellite.name }}</h2>
+                        </div>
+                        <button @click="selectedSatellite = null" class="w-10 h-10 border border-white/10 hover:bg-white/10 flex items-center justify-center transition-all">
+                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                        </button>
+                    </div>
+
+                    <div class="flex-1 overflow-y-auto custom-scrollbar p-8 space-y-10">
+                        <!-- Ground Track Map -->
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center">
+                                <h4 class="text-[10px] font-black uppercase tracking-[0.4em] text-white/40">LIVE_GROUND_TRACK</h4>
+                                <span class="px-2 py-0.5 bg-red-500/10 text-red-500 text-[8px] font-black uppercase inline-flex items-center">
+                                    <div class="w-1 h-1 bg-red-500 rounded-full mr-1.5 animate-pulse"></div>
+                                    REC_01_NAV
+                                </span>
+                            </div>
+                            <div class="h-48 bg-black border border-white/10 relative overflow-hidden group">
+                                <div ref="mapContainer" class="w-full h-full z-0 grayscale invert opacity-80 brightness-[0.7]"></div>
+                                <!-- HUD Overlay for map -->
+                                <div class="absolute top-2 left-2 z-10 pointer-events-none space-y-1">
+                                    <p class="text-[8px] font-mono text-vibrant-blue">LAT: 12.4592</p>
+                                    <p class="text-[8px] font-mono text-vibrant-blue">LNG: 107.2910</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Telemetry Grid -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <div v-for="(val, key) in { Altitude: selectedSatellite.telemetry.altitude, Velocity: selectedSatellite.telemetry.velocity, Signal: selectedSatellite.telemetry.signal, Temp: selectedSatellite.telemetry.temp }" :key="key" 
+                                class="p-4 border border-white/5 bg-white/[0.01]">
+                                <p class="text-[8px] font-black text-white/30 uppercase tracking-[.3em] mb-1">{{ key }}</p>
+                                <p class="text-sm font-black text-white tabular-nums">{{ val }}</p>
+                            </div>
+                        </div>
+
+                        <!-- TLE Analysis -->
+                        <div class="space-y-4">
+                             <h4 class="text-[10px] font-black uppercase tracking-[0.4em] text-white/40">TLE_PROPAGATION_STRING</h4>
+                             <div class="bg-black p-4 border border-white/10 font-mono text-[10px] leading-relaxed space-y-1 group">
+                                <p class="text-white/80 break-all"><span class="text-vibrant-blue font-bold">1_</span>{{ selectedSatellite.tle_line1 }}</p>
+                                <p class="text-white/80 break-all"><span class="text-vibrant-blue font-bold">2_</span>{{ selectedSatellite.tle_line2 }}</p>
+                                <div class="mt-4 pt-4 border-t border-white/5 grid grid-cols-2 gap-2 text-[8px] uppercase font-black tracking-widest opacity-40 group-hover:opacity-100 transition-opacity">
+                                    <p>EPOCH: 24047.8174</p>
+                                    <p>INCLINATION: 53.21</p>
+                                    <p>RAAN: 247.19</p>
+                                    <p>MEAN_ANOM: 112.92</p>
+                                </div>
+                             </div>
+                        </div>
+
+                        <!-- Sensor Registry -->
+                        <div class="space-y-4">
+                             <h4 class="text-[10px] font-black uppercase tracking-[0.4em] text-white/40">SENSOR_UNIT_REGISTRY</h4>
+                             <div class="space-y-2">
+                                <div v-for="sensor in selectedSatellite.telemetry.sensors" :key="sensor.name" class="flex justify-between items-center p-3 border border-white/5 bg-white/[0.01]">
+                                    <span class="text-[9px] font-bold text-white/60 tracking-wider">{{ sensor.name }}</span>
+                                    <span :class="sensor.status === 'ONLINE' ? 'text-vibrant-green' : 'text-white/20'" class="text-[8px] font-black uppercase tracking-widest italic">{{ sensor.status }}</span>
+                                </div>
+                             </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="pt-6 space-y-3">
+                            <button @click="openEdit(selectedSatellite)" class="w-full py-4 bg-white text-black text-[10px] font-black uppercase tracking-[.3em] hover:bg-vibrant-blue transition-all">Reconfigure_Mission</button>
+                            <button @click="deleteSat(selectedSatellite.id)" class="w-full py-3 border border-red-500/20 text-red-500/60 hover:text-red-500 hover:bg-red-500/10 text-[9px] font-black uppercase tracking-[.2em] transition-all">Deactivate_Asset</button>
+                        </div>
+                    </div>
+                </div>
+            </transition>
         </div>
 
         <!-- Edit Modal (Mission Config) -->
