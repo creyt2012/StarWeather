@@ -10,6 +10,7 @@ Route::middleware(['auth.api_key', \App\Http\Middleware\CheckApiKeyLimits::class
 
     // Satellites
     Route::get('/satellites/live', [SatelliteController::class, 'index']);
+    Route::get('/health', [\App\Http\Controllers\Api\V1\HealthController::class, 'check']);
 
     // Weather
     Route::get('/weather/latest', [WeatherController::class, 'latest']);

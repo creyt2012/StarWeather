@@ -129,3 +129,15 @@ an editor opened by 'git commit'. Please make sure all processes
 are terminated then try again. If it still fails, a git process
 may have crashed in this repository earlier:
 remove the file manually to continue.
+[main 0238267] Auto-sync: app/Repositories/StateRepository.php (2026-02-17 05:04:09)
+ 4 files changed, 92 insertions(+), 2 deletions(-)
+ create mode 100644 app/Http/Controllers/Api/V1/HealthController.php
+To https://github.com/creyt2012/vetinh.git
+   6e87e16..0238267  main -> main
+fatal: Unable to create '/Users/creytdeveloper/Documents/vetinh/.git/index.lock': File exists.
+
+Another git process seems to be running in this repository, e.g.
+an editor opened by 'git commit'. Please make sure all processes
+are terminated then try again. If it still fails, a git process
+may have crashed in this repository earlier:
+remove the file manually to continue.
