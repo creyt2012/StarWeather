@@ -17,6 +17,14 @@ class PaymentController extends Controller
         $this->paymentManager = $paymentManager;
     }
 
+    public function plans()
+    {
+        return response()->json([
+            'status' => 'success',
+            'data' => Plan::where('is_active', true)->get()
+        ]);
+    }
+
     public function checkout(Request $request)
     {
         $request->validate([
