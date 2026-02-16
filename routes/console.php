@@ -9,3 +9,4 @@ use App\Jobs\GroundIngestJob;
 Schedule::job(new HimawariIngestJob)->everyTenMinutes();
 Schedule::job(new SatellitePropagateJob)->everyFiveSeconds();
 Schedule::job(new GroundIngestJob)->everyMinute();
+Schedule::job(new \App\Jobs\AlertMonitorJob)->everyMinute();
