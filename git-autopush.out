@@ -68,3 +68,11 @@ remove the file manually to continue.
 To https://github.com/creyt2012/vetinh.git
    c15e0ee..a2462fe  main -> main
 error: could not lock config file .git/config: File exists
+On branch main
+Your branch is ahead of 'origin/main' by 1 commit.
+  (use "git push" to publish your local commits)
+
+nothing to commit, working tree clean
+To https://github.com/creyt2012/vetinh.git
+ ! [remote rejected] main -> main (cannot lock ref 'refs/heads/main': is at 11c23eab70bcefe9761992feeb1bb949160e4be4 but expected a2462fee7d372de7ac71529537a0a3ecc38a0efb)
+error: failed to push some refs to 'https://github.com/creyt2012/vetinh.git'
