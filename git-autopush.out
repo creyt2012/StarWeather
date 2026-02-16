@@ -203,3 +203,15 @@ an editor opened by 'git commit'. Please make sure all processes
 are terminated then try again. If it still fails, a git process
 may have crashed in this repository earlier:
 remove the file manually to continue.
+[main c4802f3] Auto-sync: database/migrations/2026_02_16_221433_create_billing_tables.php (2026-02-17 05:14:54)
+ 3 files changed, 54 insertions(+), 4 deletions(-)
+To https://github.com/creyt2012/vetinh.git
+ ! [remote rejected] main -> main (cannot lock ref 'refs/heads/main': is at c4802f37016c70016f7d693435f434cdd8060960 but expected c6cd9b408f190111e4cbc7bc6da565a37e0e742d)
+error: failed to push some refs to 'https://github.com/creyt2012/vetinh.git'
+fatal: Unable to create '/Users/creytdeveloper/Documents/vetinh/.git/index.lock': File exists.
+
+Another git process seems to be running in this repository, e.g.
+an editor opened by 'git commit'. Please make sure all processes
+are terminated then try again. If it still fails, a git process
+may have crashed in this repository earlier:
+remove the file manually to continue.
