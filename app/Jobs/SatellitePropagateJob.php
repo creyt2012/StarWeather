@@ -14,7 +14,7 @@ class SatellitePropagateJob implements ShouldQueue
 {
     use Queueable;
 
-    public function handle(SatelliteEngine $engine): void
+    public function handle(SatelliteEngine $engine, \App\Repositories\StateRepository $stateRepo): void
     {
         $satellites = Satellite::where('status', 'ACTIVE')->get();
 
@@ -27,7 +27,14 @@ class SatellitePropagateJob implements ShouldQueue
                     'tracked_at' => now(),
                 ], $trackData));
 
-                // Broadcast live update
+                // 2. Update L1 Cache
+                $stateRepo->setSatelliteState($satellite->id, array_merge([
+                    'id' => $satellite->id,
+                    'name' => $satellite->name,
+                    'type' => $satellite->type,
+                ], $trackData));
+
+                // 3. Broadcast live update
                 event(new SatelliteUpdated($satellite, $trackData));
 
             } catch (\Exception $e) {
