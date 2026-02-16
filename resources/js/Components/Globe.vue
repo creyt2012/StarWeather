@@ -11,6 +11,10 @@ const props = defineProps({
     weatherMetrics: {
         type: Object,
         default: () => ({})
+    },
+    activeLayers: {
+        type: Array,
+        default: () => []
     }
 });
 
@@ -53,6 +57,12 @@ onUnmounted(() => {
 
 watch(() => props.satellites, (newSats) => {
     updateSatelliteMarkers(newSats);
+}, { deep: true });
+
+watch(() => props.activeLayers, (layers) => {
+    if (riskLayer) {
+        riskLayer.visible = layers.includes('RISK_HEATMAP');
+    }
 }, { deep: true });
 
 const initScene = () => {
