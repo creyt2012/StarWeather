@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Satellite;
 use App\Models\ApiKey;
 use App\Models\User;
+use App\Models\ActivityLog;
 use Inertia\Inertia;
 
 class AdminDashboardController extends Controller
@@ -29,9 +30,10 @@ class AdminDashboardController extends Controller
             // Simulated usage trend for the area chart
             'usage_trend' => [
                 'labels' => ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00', '23:59'],
-                'data' => [12, 45, 67, 89, 45, 90, 120]
+                'data' => [12, 45, 67, 89, 76, 54, 32]
             ],
             'recent_keys' => ApiKey::latest()->take(5)->get(),
+            'recent_logs' => ActivityLog::with('user')->latest()->take(10)->get()
         ]);
     }
 }
