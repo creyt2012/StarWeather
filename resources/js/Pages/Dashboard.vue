@@ -167,7 +167,7 @@ const fetchLiveSatellites = async () => {
 
         <!-- 2. Central Globe Area -->
         <main class="flex-1 relative">
-            <Globe :satellites="filteredSatellites" />
+            <Globe :satellites="filteredSatellites" :weatherMetrics="metrics" />
 
             <!-- Top Search / HUD -->
             <div class="absolute top-8 left-1/2 -translate-x-1/2 w-[400px] z-30">
