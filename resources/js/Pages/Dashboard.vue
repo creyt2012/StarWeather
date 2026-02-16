@@ -144,6 +144,24 @@ const fetchLiveSatellites = async () => {
                     <div class="h-full bg-vibrant-green w-[92%]"></div>
                 </div>
             </div>
+
+                <!-- Sidebar Footer -->
+                <div class="p-6 border-t border-white/5 space-y-3">
+                    <a href="/admin/satellites" class="flex items-center justify-between group p-3 border border-white/10 hover:border-vibrant-blue/50 transition bg-white/[0.02]">
+                        <span class="text-[10px] font-black tracking-widest uppercase text-white/40 group-hover:text-vibrant-blue transition">Admin Panel</span>
+                        <div class="w-1.5 h-1.5 rounded-full bg-vibrant-blue shadow-[0_0_8px_rgba(0,136,255,0.8)]"></div>
+                    </a>
+                    
+                    <div class="flex items-center justify-between p-3 bg-white/[0.02] border border-white/5">
+                        <div class="flex flex-col">
+                            <span class="text-[7px] text-white/20 uppercase font-black">System Status</span>
+                            <span class="text-[10px] font-bold text-vibrant-green tracking-tighter uppercase">Optimal</span>
+                        </div>
+                        <div class="h-1 w-12 bg-white/5 overflow-hidden">
+                            <div class="h-full bg-vibrant-green w-3/4 animate-pulse"></div>
+                        </div>
+                    </div>
+                </div>
         </aside>
 
         <!-- 2. Central Globe Area -->
