@@ -44,6 +44,7 @@ const toggleLayer = (layer) => {
 onMounted(() => {
     fetchLatestMetrics();
     fetchLiveSatellites();
+    fetchGroundStations();
     
     setInterval(() => {
         now.value = new Date();
@@ -122,6 +123,20 @@ const fetchLiveSatellites = async () => {
     }
 };
 
+const fetchGroundStations = async () => {
+    try {
+        const response = await fetch('/api/v1/weather/ground-stations', {
+            headers: { 'X-API-KEY': 'vetinh_dev_key_123' }
+        });
+        const json = await response.json();
+        if (json.status === 'success') {
+            groundStations.value = json.data;
+        }
+    } catch (e) {
+        console.error('Failed to fetch ground stations:', e);
+    }
+};
+
 const handleSurfaceClick = async (data) => {
     selectedLocation.value = { ...data, history: [] };
     
@@ -163,6 +178,7 @@ const handleSurfaceClick = async (data) => {
         <!-- 2. CORE GLOBE VIEW (Full Screen Background) -->
         <Globe 
             :satellites="filteredSatellites"
+            :groundStations="groundStations"
             :weatherMetrics="metrics"
             :activeLayers="activeLayers"
             @surface-click="handleSurfaceClick"
