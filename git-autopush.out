@@ -351,3 +351,11 @@ nothing to commit, working tree clean
 To https://github.com/creyt2012/vetinh.git
  ! [remote rejected] main -> main (cannot lock ref 'refs/heads/main': is at 6eadb2ed6c0608ac92769b4ebd32ddf39120776b but expected 9ee91e601bbadc696d27df5a6a351cd33ff41e24)
 error: failed to push some refs to 'https://github.com/creyt2012/vetinh.git'
+On branch main
+Your branch is ahead of 'origin/main' by 1 commit.
+  (use "git push" to publish your local commits)
+
+nothing to commit, working tree clean
+To https://github.com/creyt2012/vetinh.git
+ ! [remote rejected] main -> main (cannot lock ref 'refs/heads/main': is at 71041e4829d32ef57ae091f1641bfee2cddfad07 but expected 6eadb2ed6c0608ac92769b4ebd32ddf39120776b)
+error: failed to push some refs to 'https://github.com/creyt2012/vetinh.git'
