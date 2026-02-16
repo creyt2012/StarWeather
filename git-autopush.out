@@ -632,3 +632,11 @@ remove the file manually to continue.
  create mode 100644 app/Services/Notifications/NotificationService.php
 To https://github.com/creyt2012/vetinh.git
    36591df..fe0d264  main -> main
+On branch main
+Your branch is ahead of 'origin/main' by 1 commit.
+  (use "git push" to publish your local commits)
+
+nothing to commit, working tree clean
+To https://github.com/creyt2012/vetinh.git
+ ! [remote rejected] main -> main (cannot lock ref 'refs/heads/main': is at 23fcf7db03e722060d32338d7ff933a6d6797aab but expected fe0d264195fc1050cca441c6d7d6c09fba34eff3)
+error: failed to push some refs to 'https://github.com/creyt2012/vetinh.git'
