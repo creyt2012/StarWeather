@@ -1,14 +1,68 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted, nextTick, watch } from 'vue';
 import { useForm, Head } from '@inertiajs/vue3';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 
 const props = defineProps({
     satellites: Array
 });
 
 const editingSatellite = ref(null);
+const selectedSatellite = ref(null);
 const showAddModal = ref(false);
+const mapContainer = ref(null);
+let map = null;
+let orbitLayer = null;
+
+const selectSatellite = async (sat) => {
+    selectedSatellite.value = sat;
+    await nextTick();
+    initMap();
+};
+
+const initMap = () => {
+    if (map) {
+        map.remove();
+        map = null;
+    }
+
+    if (!mapContainer.value) return;
+
+    map = L.map(mapContainer.value, {
+        zoomControl: false,
+        attributionControl: false
+    }).setView([0, 0], 2);
+
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        maxZoom: 19
+    }).addTo(map);
+
+    // Mock orbital path
+    const points = [];
+    for (let i = 0; i <= 360; i += 10) {
+        points.push([
+            30 * Math.sin((i * Math.PI) / 180),
+            i - 180
+        ]);
+    }
+
+    orbitLayer = L.polyline(points, {
+        color: '#0088ff',
+        weight: 1,
+        dashArray: '5, 10',
+        opacity: 0.5
+    }).addTo(map);
+
+    L.circleMarker([0, 0], {
+        radius: 6,
+        fillColor: '#0088ff',
+        color: '#fff',
+        weight: 2,
+        fillOpacity: 1
+    }).addTo(map);
+};
 
 const form = useForm({
     name: '',
@@ -77,7 +131,6 @@ const deleteSat = (id) => {
 const types = ['COMMUNICATION', 'NAVIGATION', 'OBSERVATION', 'SCIENTIFIC', 'SPACE_DEBRIS', 'STATION'];
 const statuses = ['ACTIVE', 'INACTIVE', 'DECOMMISSIONED'];
 
-// Helper for UI
 const route = window.route;
 </script>
 
