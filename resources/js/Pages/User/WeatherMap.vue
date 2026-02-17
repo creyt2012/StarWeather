@@ -312,8 +312,8 @@ const syncGlobeState = () => {
         world.labelsData([...activeStorms.value, ...strategic]);
     }
     
-    // Ground Stations
-    if (groundStations.value.length > 0) {
+    // Ground Stations & Storm Points
+    if (groundStations.value.length > 0 || activeStorms.value.length > 0) {
         world.pointsData([...activeStorms.value, ...groundStations.value.map(s => ({
             ...s,
             pointColor: '#00ff88',
@@ -321,6 +321,9 @@ const syncGlobeState = () => {
             pointAltitude: 0.02,
             isStation: true
         }))]);
+        if (activeStorms.value.length > 0) {
+            world.ringsData(activeStorms.value);
+        }
     }
     
     // Active Meteorological Layer
