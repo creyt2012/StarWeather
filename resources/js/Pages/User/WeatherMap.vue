@@ -206,7 +206,7 @@ const watchZones = ref([]);
 const auroraData = ref([]);
 const riskHeatmapData = ref([]);
 const windParticles = ref([]);
-const modelMode = ref('ECMWF'); // ECMWF, GFS, COMPARE
+const marineData = ref([]);
 const modelMode = ref('ECMWF'); // ECMWF, GFS, COMPARE
 
 const toggleDrawingMode = () => {
@@ -289,6 +289,8 @@ watch(activeLayer, (newLayer) => {
         renderSSTLayer();
     } else if (newLayer === 'wind') {
         toggleWindLayer(true);
+    } else if (newLayer === 'marine') {
+        renderMarineLayer();
     }
 });
 
@@ -366,6 +368,26 @@ const toggleWindLayer = (active) => {
     }
 };
 
+const renderMarineLayer = () => {
+    // Simulating global shipping traffic
+    const vessels = Array.from({ length: 500 }, () => ({
+        lat: (Math.random() - 0.5) * 120,
+        lng: (Math.random() - 0.5) * 360,
+        name: `VESSEL_${Math.floor(Math.random() * 9000 + 1000)}`,
+        type: ['CONTAINER', 'TANKER', 'CARGO'][Math.floor(Math.random() * 3)],
+        speed: (Math.random() * 25).toFixed(1) + ' kn'
+    }));
+    
+    marineData.value = vessels;
+    if (world) {
+        world.pointsData(marineData.value)
+             .pointColor(() => '#00ccff')
+             .pointRadius(0.4)
+             .pointAltitude(0.02)
+             .pointLabel(d => `🚢 ${d.name}\nTYPE: ${d.type}\nSPEED: ${d.speed}`);
+    }
+};
+
 const notifyDrawingStart = () => {
     // Show a temporary tactical alert
     console.log("DRAWING_MODE_ACTIVE: Click on globe to define vertices.");
@@ -436,6 +458,7 @@ const layers = [
     { id: 'sst', name: 'SEA_TEMPERATURE', color: 'orange-500' },
     { id: 'aurora', name: 'AURORA_TRACKING', color: 'green-400' },
     { id: 'risk', name: 'STRATEGIC_RISK', color: 'red-500' },
+    { id: 'marine', name: 'MARINE_TRAFFIC', color: 'blue-400' },
 ];
 
 const viewOptions = [
