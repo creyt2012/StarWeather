@@ -296,7 +296,42 @@ watch(activeLayer, (newLayer) => {
     } else if (newLayer === 'defense') {
         renderDefenseGrid();
     }
+    syncGlobeState();
 });
+
+const syncGlobeState = () => {
+    if (!world) return;
+    
+    console.log('[ENG] SYNCING_ALL_LAYERS_TO_GLOBE');
+    
+    // Satellites & Orbits
+    if (activeSatellites.value.length > 0) {
+        world.customLayerData(activeSatellites.value);
+        syncUnifiedPaths();
+        const strategic = activeSatellites.value.filter(s => s.norad_id === '41836' || s.norad_id === '25544' || s.norad_id === '40267');
+        world.labelsData([...activeStorms.value, ...strategic]);
+    }
+    
+    // Storms
+    if (activeStorms.value.length > 0) {
+        world.ringsData(activeStorms.value);
+        world.pointsData(activeStorms.value);
+    }
+    
+    // Active Meteorological Layer
+    if (activeLayer.value === 'aurora') toggleAurora();
+    else if (activeLayer.value === 'risk') toggleRiskHeatmap();
+    else if (activeLayer.value === 'aqi') renderAQILayer();
+    else if (activeLayer.value === 'ais') renderAisLayer();
+    else if (activeLayer.value === 'sst') renderSSTLayer();
+    else if (activeLayer.value === 'wind') renderWindLayer();
+    else if (activeLayer.value === 'ndvi') renderNdviLayer();
+    else if (activeLayer.value === 'space_weather') renderSpaceWeather();
+    else if (activeLayer.value === 'aviation') renderAviationLayer();
+    else if (activeLayer.value === 'infrastructure') renderInfrastructureLayer();
+    else if (activeLayer.value === 'junk') renderSpaceJunkLayer();
+    else if (activeLayer.value === 'defense') renderDefenseGrid();
+};
 
 const renderSpaceWeather = async () => {
     try {
@@ -689,11 +724,11 @@ const initGlobe = async () => {
         .height(height)
         .showAtmosphere(true)
         .atmosphereColor('#0088ff')
-        .atmosphereDaylightAlpha(0.2)
+        .atmosphereDaylightAlpha(0.3)
         .backgroundColor('#020205')
-        .globeColor('#001a33')
-        .globeImageUrl('//unpkg.com/three-globe@2.31.0/example/img/earth-blue-marble.jpg')
-        .bumpImageUrl('//unpkg.com/three-globe@2.31.0/example/img/earth-topology.png')
+        .globeColor('#010a1a')
+        .globeImageUrl('https://unpkg.com/three-globe@2.31.0/example/img/earth-blue-marble.jpg')
+        .bumpImageUrl('https://unpkg.com/three-globe@2.31.0/example/img/earth-topology.png')
         
         // --- Interactivity ---
         .onPointClick((point, event) => {
@@ -813,22 +848,25 @@ const initGlobe = async () => {
     fetch('https://raw.githubusercontent.com/vasturiano/globe.gl/master/example/datasets/ne_110m_admin_0_countries.geojson')
         .then(res => res.json())
         .then(countries => {
-            world.polygonsData(countries.features);
+            if (world) world.polygonsData(countries.features);
         });
+
+    // Sync all existing state
+    syncGlobeState();
 
     // Initial Fetch (triggered AFTER globe setup)
     try {
         const token = 'vethinh_strategic_internal_token_2026';
-        const [stormRes, satRes, stationRes] = await Promise.all([
+        const [stormRes, satRes] = await Promise.all([
             axios.get(`/api/internal-map/storms?token=${token}`),
-            axios.get(`/api/internal-map/satellites?token=${token}`),
-            axios.get(`/api/internal-map/ground-stations?token=${token}`)
+            axios.get(`/api/internal-map/satellites?token=${token}`)
         ]);
         
         activeStorms.value = stormRes.data;
         activeSatellites.value = satRes.data.data;
-        groundStations.value = stationRes.data.data;
-
+        
+        syncGlobeState();
+        
         // Fetch Radar metadata
         const radarRes = await axios.get('https://api.rainviewer.com/public/weather-maps.json');
         radarTimestamp.value = radarRes.data.radar.past[radarRes.data.radar.past.length - 1].time;
