@@ -292,22 +292,4 @@ class WeatherController extends Controller
             ]);
         });
     }
-                        'launch_date' => $sat->api_config['launch_date'] ?? '2015-10-02',
-                        'operator' => $sat->api_config['operator'] ?? 'International Space Agency',
-                        'mass' => $sat->api_config['mass'] ?? '2,100 KG',
-                        'power' => $sat->api_config['power'] ?? '4.5 KW'
-                    ],
-                    'modules' => $modules,
-                    'path' => $path
-                ];
-            } catch (\Exception $e) {
-                return null;
-            }
-        })->filter()->values();
-
-        return response()->json([
-            'status' => 'success',
-            'data' => $data
-        ]);
-    }
 }
