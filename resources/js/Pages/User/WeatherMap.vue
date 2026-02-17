@@ -19,6 +19,44 @@ const isLoadingPoint = ref(false);
 const showBottomForecast = ref(false);
 const forecastData = ref([]);
 const isLoadingForecast = ref(false);
+const orbitTick = ref(0);
+
+const propagateSatellites = () => {
+    if (activeSatellites.value.length === 0) return;
+    
+    activeSatellites.value = activeSatellites.value.map(sat => {
+        if (!sat.path || sat.path.length < 2) return sat;
+        
+        // Simple linear interpolation along the path
+        const path = sat.path;
+        const totalPoints = path.length;
+        const speed = 0.05; // Orbital speed factor
+        
+        orbitTick.value += speed / 1000;
+        const index = Math.floor(Date.now() / 2000) % totalPoints;
+        const nextIndex = (index + 1) % totalPoints;
+        
+        const currentPos = path[index];
+        const nextPos = path[nextIndex];
+        
+        // Progress between the two points (0 to 1)
+        const progress = (Date.now() % 2000) / 2000;
+        
+        return {
+            ...sat,
+            position: {
+                lat: currentPos[0] + (nextPos[0] - currentPos[0]) * progress,
+                lng: currentPos[1] + (nextPos[1] - currentPos[1]) * progress,
+                alt: currentPos[2] || 0.1
+            }
+        };
+    });
+
+    if (world) {
+        world.customLayerData(activeSatellites.value);
+        syncCommsLinks(); // Update ground station lines
+    }
+};
 
 const fetchForecast = async (lat, lng) => {
     isLoadingForecast.value = true;
@@ -362,6 +400,15 @@ const handleResize = () => {
     };
 
     window.addEventListener('resize', handleResize);
+
+    // Orbital Propagator Loop (Every 100ms for smooth motion)
+    const propagatorId = setInterval(propagateSatellites, 100);
+    
+    // Cleanup
+    return () => {
+        clearInterval(propagatorId);
+        window.removeEventListener('resize', handleResize);
+    };
 });
 
 import L from 'leaflet';
