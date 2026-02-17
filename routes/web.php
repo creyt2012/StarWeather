@@ -11,6 +11,24 @@ Route::get('/weather/map', function () {
     return Inertia::render('User/WeatherMap');
 })->name('weather.map');
 
+// Internal Map Data APIs (Fail-safe Session Auth for Dashboard)
+Route::prefix('api/internal-map')->group(function () {
+    Route::get('/satellites', function () {
+        if (!auth()->check())
+            return response()->json(['error' => 'Session expired. Please refresh.'], 401);
+        return app(\App\Http\Controllers\Api\V1\WeatherController::class)->satellites();
+    });
+    Route::get('/storms', function () {
+        if (!auth()->check())
+            return response()->json(['error' => 'Session expired.'], 401);
+        return \App\Models\Storm::where('status', 'active')->get();
+    });
+});
+
+Route::middleware(['auth', 'verified'])->group(function () {
+    // Admin & Protected routes (already exists below)
+});
+
 Route::get('/alerts', [\App\Http\Controllers\User\AlertController::class, 'index'])->name('alerts.index');
 Route::get('/api-portal', [\App\Http\Controllers\User\ApiKeyController::class, 'index'])->name('apikeys.index');
 Route::get('/api-docs', function () {
