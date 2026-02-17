@@ -24,8 +24,9 @@ const fetchForecast = async (lat, lng) => {
     isLoadingForecast.value = true;
     showBottomForecast.value = true;
     try {
-        const response = await axios.get('/api/v1/weather/forecast', {
-            params: { lat, lng }
+        const token = 'vethinh_strategic_internal_token_2026';
+        const response = await axios.get('/api/internal-map/forecast', {
+            params: { lat, lng, token }
         });
         forecastData.value = response.data.data;
     } catch (e) {
@@ -44,8 +45,9 @@ const handleGlobeClick = async ({ lat, lng }) => {
     fetchForecast(lat, lng);
 
     try {
-        const response = await axios.get('/api/v1/weather/point-info', {
-            params: { lat, lng }
+        const token = 'vethinh_strategic_internal_token_2026';
+        const response = await axios.get('/api/internal-map/point-info', {
+            params: { lat, lng, token }
         });
         pointData.value = response.data.data;
         isLoadingPoint.value = false;
