@@ -15,29 +15,44 @@ const selectedSatellite = ref(null);
 const pointData = ref(null);
 const isLoadingPoint = ref(false);
 
+let world = null;
+
 const layers = [
     { id: 'clouds', name: 'CLOUD_DENSITY', color: 'vibrant-blue' },
     { id: 'precip', name: 'PRECIPITATION', color: 'vibrant-green' },
     { id: 'wind', name: 'WIND_SPEED', color: 'yellow-500' },
 ];
 
-onMounted(async () => {
-    // Parallel Fetching
-    try {
-        const [stormRes, satRes] = await Promise.all([
-            axios.get('/api/v1/map/storms'),
-            axios.get('/api/v1/map/satellites')
-        ]);
-        activeStorms.value = stormRes.data;
-        activeSatellites.value = satRes.data.data;
-    } catch (e) {
-        console.error('Failed to fetch data', e);
-    }
+import { watch } from 'vue';
 
+// Watch for data changes to update the non-reactive globe.gl instance
+watch(activeSatellites, (newSats) => {
+    if (world && newSats.length > 0) {
+        console.log(`Syncing ${newSats.length} satellites to globe`);
+        world.customLayerData(newSats);
+        world.pathsData(newSats.map(s => s.path));
+        
+        // Critical labels for strategic satellites
+        const strategic = newSats.filter(s => s.norad_id === '41836' || s.norad_id === '25544' || s.norad_id === '40267');
+        world.labelsData([...activeStorms.value, ...strategic]);
+    }
+}, { deep: true });
+
+watch(activeStorms, (newStorms) => {
+    if (world && newStorms.length > 0) {
+        world.ringsData(newStorms);
+        world.pointsData(newStorms);
+        // Re-sync labels to include both storms and satellites
+        const strategicSats = activeSatellites.value.filter(s => s.norad_id === '41836' || s.norad_id === '25544' || s.norad_id === '40267');
+        world.labelsData([...newStorms, ...strategicSats]);
+    }
+}, { deep: true });
+
+onMounted(async () => {
     const width = globeContainer.value.offsetWidth;
     const height = globeContainer.value.offsetHeight;
 
-    const world = Globe()
+    world = Globe()
         (globeContainer.value)
         .width(width)
         .height(height)
@@ -46,28 +61,18 @@ onMounted(async () => {
         .backgroundColor('#020205')
         
         // --- Storms Layer ---
-        .ringsData(activeStorms.value)
         .ringColor(() => '#ef4444')
         .ringMaxRadius(5)
         .ringPropagationSpeed(2)
         .ringRepeatPeriod(1000)
-        .pointsData(activeStorms.value)
         .pointColor(() => '#ef4444')
         .pointAltitude(0.01)
         .pointRadius(0.5)
-        .labelsData(activeStorms.value)
-        .labelLat(d => d.latitude)
-        .labelLng(d => d.longitude)
-        .labelText(d => d.name)
-        .labelSize(1.5)
-        .labelColor(() => '#ef4444')
-        .labelResolution(2)
 
         // --- Satellites Layer ---
-        .customLayerData(activeSatellites.value)
         .customThreeObject(d => {
             const isStrategic = d.norad_id === '41836' || d.norad_id === '40267' || d.norad_id === '25544'; 
-            const size = isStrategic ? 1.2 : 0.6;
+            const size = isStrategic ? 1.5 : 0.8; // Larger for visibility
             const color = isStrategic ? '#00ffff' : '#0088ff';
             
             const group = new THREE.Group();
@@ -75,14 +80,20 @@ onMounted(async () => {
             // Core mesh
             const mesh = new THREE.Mesh(
                 new THREE.BoxGeometry(size, size, size),
-                new THREE.MeshPhongMaterial({ color, emissive: color, emissiveIntensity: 0.5 })
+                new THREE.MeshPhongMaterial({ 
+                    color, 
+                    emissive: color, 
+                    emissiveIntensity: 0.8,
+                    transparent: true,
+                    opacity: 0.9
+                })
             );
             group.add(mesh);
 
-            // Glow effect
+            // Enhanced glow effect
             const glowMesh = new THREE.Mesh(
-                new THREE.SphereGeometry(size * 1.5, 16, 16),
-                new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.15 })
+                new THREE.SphereGeometry(size * 2, 16, 16),
+                new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.2 })
             );
             group.add(glowMesh);
 
@@ -90,16 +101,14 @@ onMounted(async () => {
         })
         .customThreeObjectUpdate((obj, d) => {
             const { lat, lng, alt } = d.position;
-            // Scale altitude for visualization: alt is in km, max ~36k km
-            const scaledAlt = Math.min(alt, 1.0) * 0.1; 
+            const scaledAlt = Math.min(alt, 1.0) * 0.15; // Increased scaling for visibility
             Object.assign(obj.position, world.getCoords(lat, lng, scaledAlt + 0.05));
-            obj.lookAt(0, 0, 0); // Always point towards earth
+            obj.lookAt(0, 0, 0); 
         })
         .onCustomLayerClick(d => {
             selectedSatellite.value = d;
-            selectedPoint.value = null; // Close point HUD if satellite is selected
+            selectedPoint.value = null; 
             
-            // Move camera to satellite
             world.pointOfView({ 
                 lat: d.position.lat, 
                 lng: d.position.lng, 
@@ -108,23 +117,24 @@ onMounted(async () => {
         })
 
         // --- Orbit Paths Layer ---
-        .pathsData(activeSatellites.value.map(s => s.path))
-        .pathColor(() => 'rgba(0, 136, 255, 0.25)')
-        .pathDashLength(0.05)
-        .pathDashGap(0.01)
-        .pathDashAnimateTime(60000) // Much slower for realism
-        .pathAltitude(d => d[0][2] * 0.1) // Scaling down altitude for better visualization fit
-        .pathStroke(0.15)
+        .pathColor(() => 'rgba(0, 255, 255, 0.4)') // Brighter orbits
+        .pathDashLength(0.08)
+        .pathDashGap(0.02)
+        .pathDashAnimateTime(30000) 
+        .pathAltitude(d => Math.min(d[0][2], 1.0) * 0.15 + 0.05) 
+        .pathStroke(0.18)
+        .pathPointLat(p => p[0])
+        .pathPointLng(p => p[1])
+        .pathPointAlt(p => p[2] * 0.15) // Consistent scaling
         
-        // --- Satellite Labels ---
-        .labelsData(activeSatellites.value.filter(s => s.norad_id === '41836' || s.norad_id === '25544' || s.norad_id === '40267'))
-        .labelLat(d => d.position.lat)
-        .labelLng(d => d.position.lng)
+        // --- Shared Labels ---
+        .labelLat(d => d.latitude || d.position?.lat)
+        .labelLng(d => d.longitude || d.position?.lng)
         .labelText(d => d.name)
-        .labelSize(1.2)
-        .labelDotRadius(0)
-        .labelColor(() => '#00ffff')
-        .labelAltitude(d => d.position.alt * 0.1 + 0.05)
+        .labelSize(1.5)
+        .labelDotRadius(0.2)
+        .labelColor(d => d.position ? '#00ffff' : '#ef4444')
+        .labelAltitude(d => d.position ? (Math.min(d.position.alt, 1.0) * 0.15 + 0.1) : 0.02)
         
         .onGlobeClick(async ({ lat, lng }) => {
             selectedPoint.value = { lat, lng };
@@ -147,6 +157,18 @@ onMounted(async () => {
     world.controls().autoRotateSpeed = 0.5;
 
     world.pointOfView({ lat: 10, lng: 106, altitude: 2.5 }, 2000);
+
+    // Initial Fetch (triggered AFTER globe setup)
+    try {
+        const [stormRes, satRes] = await Promise.all([
+            axios.get('/api/v1/map/storms'),
+            axios.get('/api/v1/map/satellites')
+        ]);
+        activeStorms.value = stormRes.data;
+        activeSatellites.value = satRes.data.data;
+    } catch (e) {
+        console.error('Failed to fetch data', e);
+    }
 
     const handleResize = () => {
         if (!globeContainer.value) return;
