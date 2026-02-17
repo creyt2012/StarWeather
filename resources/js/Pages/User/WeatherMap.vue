@@ -1353,8 +1353,19 @@ const switchView = (mode) => {
                         </div>
                         <input type="range" min="-48" max="0" step="1" 
                             @input="e => { playbackTime = Date.now() + e.target.value * 3600000; isLive = false; }"
-                            class="w-96 accent-vibrant-blue bg-white/10 h-1 rounded-full cursor-pointer">
-                        <span class="text-[8px] font-black text-white italic">{{ isLive ? 'REALTIME' : new Date(playbackTime).toLocaleString() }}</span>
+                            class="w-64 accent-vibrant-blue bg-white/10 h-1 rounded-full cursor-pointer">
+                        
+                        <!-- Speed Multiplier -->
+                        <div class="flex items-center bg-white/5 rounded-full p-1 border border-white/10">
+                            <button v-for="m in [1, 10, 50, 100]" :key="m" 
+                                @click="timeMultiplier = m"
+                                :class="timeMultiplier === m ? 'bg-white text-black' : 'text-white/40 hover:text-white'"
+                                class="px-2 py-0.5 text-[7px] font-black rounded-full transition-all">
+                                x{{ m }}
+                            </button>
+                        </div>
+
+                        <span class="text-[8px] font-black text-white italic min-w-[120px]">{{ isLive ? 'REALTIME' : new Date(playbackTime).toLocaleString() }}</span>
                     </div>
                 </div>
             </Transition>
