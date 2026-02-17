@@ -224,4 +224,50 @@ class WeatherController extends Controller
             'data' => $formatted
         ]);
     }
+
+    /**
+     * Get all active satellites with current position and orbit path for mapping.
+     */
+    public function satellites(): JsonResponse
+    {
+        $engine = app(\App\Engines\Satellite\SatelliteEngine::class);
+        $satellites = \App\Models\Satellite::where('status', 'ACTIVE')->get();
+
+        $data = $satellites->map(function ($sat) use ($engine) {
+            try {
+                $now = $engine->propagate($sat);
+
+                // Generate orbit path (simplified: 100 points over one period)
+                $path = [];
+                $period = $now['period'] ?? 90; // minutes
+                $interval = $period / 100;
+
+                for ($i = 0; $i < 100; $i++) {
+                    $time = now()->addMinutes($i * $interval);
+                    $pos = $engine->propagate($sat, $time);
+                    $path[] = [$pos['latitude'], $pos['longitude'], $pos['altitude'] / 1000]; // altitude in relative units for globe.gl
+                }
+
+                return [
+                    'id' => $sat->id,
+                    'name' => $sat->name,
+                    'norad_id' => $sat->norad_id,
+                    'type' => $sat->type,
+                    'position' => [
+                        'lat' => $now['latitude'],
+                        'lng' => $now['longitude'],
+                        'alt' => $now['altitude'] / 1000
+                    ],
+                    'path' => $path
+                ];
+            } catch (\Exception $e) {
+                return null;
+            }
+        })->filter()->values();
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $data
+        ]);
+    }
 }
