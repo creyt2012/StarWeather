@@ -665,7 +665,7 @@ watch(showGroundStations, () => {
 
 let frameCounter = 0; // For throttling comms links updates
 
-const initGlobe = () => {
+const initGlobe = async () => {
     if (!globeContainer.value) {
         console.error('GLOBE_CONTAINER_NOT_FOUND');
         return;
@@ -681,14 +681,13 @@ const initGlobe = () => {
         (globeContainer.value)
         .width(width)
         .height(height)
-        .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
-        .bumpImageUrl('https://unpkg.com/three-globe/example/img/earth-topology.png')
-        .backgroundImageUrl('//unpkg.com/three-globe/example/img/night-stars.png')
         .showAtmosphere(true)
         .atmosphereColor('#0088ff')
         .atmosphereDaylightAlpha(0.2)
         .backgroundColor('#020205')
-        .globeColor('rgba(0, 136, 255, 0.1)') // Fallback color
+        .globeColor('#041d31') // Solid tactical blue fallback
+        .globeImageUrl('//unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
+        .bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png')
         
         // --- Interactivity ---
         .onPointClick((point, event) => {
@@ -922,10 +921,12 @@ onMounted(() => {
         window.addEventListener('resize', handleResize);
         animationFrameId = requestAnimationFrame(propagateSatellites);
         
-        // Initial POV
-        if (world) {
-            world.pointOfView({ altitude: 2.5 }, 2000);
-        }
+        // Initial POV Force
+        setTimeout(() => {
+            if (world) {
+                world.pointOfView({ lat: 10, lng: 106, altitude: 2.5 }, 2000);
+            }
+        }, 1000);
     }, 500);
 });
 
