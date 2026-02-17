@@ -291,23 +291,36 @@ const syncGlobeLayers = () => {
     }
 
     // 6. Paths (Wind + Orbits)
-    // Consolidate paths rendering
     const showOrbits = activeLayers.value.includes('satellites');
     const showWind = activeLayers.value.includes('wind');
-    const orbitPaths = showOrbits ? activeSatellites.value.map(s => s.path) : [];
+    
+    // Wrap orbit paths in objects to carry metadata
+    const orbitPaths = showOrbits ? activeSatellites.value.map(s => ({
+        path: s.path,
+        isOrbit: true,
+        norad_id: s.norad_id
+    })) : [];
     
     if (showWind) {
-        generateWindParticles();
+        if (windParticles.value.length === 0) generateWindParticles();
         world.pathsData([...orbitPaths, ...windParticles.value])
-             .pathColor(d => d.norad_id ? 'rgba(0, 136, 255, 0.4)' : 'rgba(255, 255, 255, 0.3)')
-             .pathDashLength(d => d.norad_id ? 0.01 : 0.5)
-             .pathDashAnimateTime(d => d.norad_id ? 0 : 2000)
-             .pathStroke(d => d.norad_id ? 0.3 : 0.15);
+             .pathColor(d => d.isOrbit ? '#00ffff' : 'rgba(255, 255, 255, 0.3)')
+             .pathDashLength(d => d.isOrbit ? 0.1 : 0.4)
+             .pathDashGap(0.01)
+             .pathDashAnimateTime(d => d.isOrbit ? 20000 : 2000)
+             .pathStroke(d => d.isOrbit ? 0.25 : 0.1);
     } else {
         world.pathsData(orbitPaths)
-             .pathColor('rgba(0, 136, 255, 0.4)')
-             .pathStroke(0.3)
-             .pathDashAnimateTime(0);
+             .pathColor(() => '#00ffff')
+             .pathStroke(0.25)
+             .pathDashLength(0.1)
+             .pathDashGap(0.01)
+             .pathDashAnimateTime(20000);
+    }
+    
+    // Ensure rotation is active
+    if (world.controls()) {
+        world.controls().autoRotate = true;
     }
 
     // 7. Custom Layers (Satellites)
@@ -655,8 +668,10 @@ onMounted(async () => {
 
     world = Globe()
         (globeContainer.value)
-        .width(width)
-        .height(height)
+    window.world = world; // Expose for debugging
+    
+    world.width(width)
+         .height(height)
         .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
         .bumpImageUrl('https://unpkg.com/three-globe/example/img/earth-topology.png')
         .backgroundColor('#020205'); // End chaining here
