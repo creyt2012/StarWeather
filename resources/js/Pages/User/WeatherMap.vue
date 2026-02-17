@@ -1523,6 +1523,16 @@ const switchView = (mode) => {
                             class="w-80 accent-vibrant-blue bg-white/10 h-1.5 rounded-full cursor-pointer hover:bg-white/20 transition-colors"
                         >
                     </div>
+
+                    <!-- AI Command Toggle -->
+                    <button 
+                        @click="showCyberCommand = !showCyberCommand"
+                        class="absolute bottom-4 left-8 z-30 bg-vibrant-blue/20 hover:bg-vibrant-blue/40 border border-vibrant-blue/30 p-4 rounded-full transition-all group shadow-[0_0_20px_rgba(0,136,255,0.2)]"
+                    >
+                        <span class="text-xl group-hover:scale-125 transition-transform inline-block">🧠</span>
+                        <div class="absolute -top-1 -right-1 w-3 h-3 bg-vibrant-blue rounded-full animate-ping"></div>
+                        <div class="absolute -top-1 -right-1 w-3 h-3 bg-vibrant-blue rounded-full"></div>
+                    </button>
                 </div>
             </Transition>
 
