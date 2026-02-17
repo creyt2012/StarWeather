@@ -36,19 +36,31 @@ const fetchForecast = async (lat, lng) => {
     }
 };
 
-const handleGlobeClick = async (clickedObj) => {
-    // Globe.gl might pass { lat, lng } directly or an object where we need to extract them
+const handleGlobeClick = async (arg1, arg2, arg3) => {
+    // Globe.gl event dispatching logic:
+    // onGlobeClick: (coords, event) -> coords = { lat, lng }
+    // onPolygonClick: (polygon, event, coords) -> coords = { lat, lng }
+    // onPointClick: (point, event) -> point = { latitude, longitude }
+    // onLabelClick: (label, event) -> label = { latitude, longitude }
+    
     let lat, lng;
     
-    if (clickedObj.lat !== undefined && clickedObj.lng !== undefined) {
-        lat = clickedObj.lat;
-        lng = clickedObj.lng;
-    } else if (clickedObj.latitude !== undefined && clickedObj.longitude !== undefined) {
-        lat = clickedObj.latitude;
-        lng = clickedObj.longitude;
-    } else {
-        // Fallback for some event types or nested objects
-        console.warn('Unknown click object structure', clickedObj);
+    if (arg3 && arg3.lat !== undefined) {
+        // onPolygonClick case
+        lat = arg3.lat;
+        lng = arg3.lng;
+    } else if (arg1 && arg1.lat !== undefined) {
+        // onGlobeClick or custom {lat, lng} case
+        lat = arg1.lat;
+        lng = arg1.lng;
+    } else if (arg1 && arg1.latitude !== undefined) {
+        // onPointClick or onLabelClick case
+        lat = arg1.latitude;
+        lng = arg1.longitude;
+    }
+
+    if (lat === undefined || lng === undefined) {
+        console.warn('Could not resolve coordinates from click', { arg1, arg2, arg3 });
         return;
     }
 
@@ -231,13 +243,11 @@ onMounted(async () => {
         .labelLat(d => d.latitude || d.position?.lat)
         .labelLng(d => d.longitude || d.position?.lng)
         .labelText(d => d.name)
-        .labelSize(1.5)
-        .labelDotRadius(0.2)
-        .labelColor(d => d.position ? '#00ffff' : '#ef4444')
         .labelAltitude(d => d.position ? (Math.min(d.position.alt, 1.0) * 0.15 + 0.1) : 0.02)
         .onGlobeClick(handleGlobeClick)
         .onPolygonClick(handleGlobeClick)
-        .onPointClick(handleGlobeClick);
+        .onPointClick(handleGlobeClick)
+        .onLabelClick(handleGlobeClick);
     world.controls().autoRotate = true;
     world.controls().autoRotateSpeed = 0.5;
 
