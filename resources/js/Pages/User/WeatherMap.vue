@@ -8,6 +8,7 @@ import axios from 'axios';
 const globeContainer = ref(null);
 const activeLayer = ref('clouds');
 const activeStorms = ref([]);
+const activeSatellites = ref([]);
 const selectedPoint = ref(null);
 const pointData = ref(null);
 const isLoadingPoint = ref(false);
@@ -19,12 +20,16 @@ const layers = [
 ];
 
 onMounted(async () => {
-    // Fetch storms
+    // Parallel Fetching
     try {
-        const response = await axios.get('/api/weather/storms');
-        activeStorms.value = response.data;
+        const [stormRes, satRes] = await Promise.all([
+            axios.get('/api/weather/storms'),
+            axios.get('/api/v1/weather/satellites')
+        ]);
+        activeStorms.value = stormRes.data;
+        activeSatellites.value = satRes.data.data;
     } catch (e) {
-        console.error('Failed to fetch storm data', e);
+        console.error('Failed to fetch data', e);
     }
 
     const width = globeContainer.value.offsetWidth;
@@ -37,6 +42,8 @@ onMounted(async () => {
         .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-night.jpg')
         .bumpImageUrl('https://unpkg.com/three-globe/example/img/earth-topology.png')
         .backgroundColor('#020205')
+        
+        // --- Storms Layer ---
         .ringsData(activeStorms.value)
         .ringColor(() => '#ef4444')
         .ringMaxRadius(5)
@@ -53,6 +60,29 @@ onMounted(async () => {
         .labelSize(1.5)
         .labelColor(() => '#ef4444')
         .labelResolution(2)
+
+        // --- Satellites Layer ---
+        .customLayerData(activeSatellites.value)
+        .customThreeObject(d => {
+            const mesh = new THREE.Mesh(
+                new THREE.BoxGeometry(0.5, 0.5, 0.5),
+                new THREE.MeshLambertMaterial({ color: '#0088ff', transparent: true, opacity: 0.9 })
+            );
+            return mesh;
+        })
+        .customThreeObjectUpdate((obj, d) => {
+            Object.assign(obj.position, world.getCoords(d.position.lat, d.position.lng, d.position.alt));
+        })
+
+        // --- Orbit Paths Layer ---
+        .pathsData(activeSatellites.value.map(s => s.path))
+        .pathColor(() => 'rgba(0, 136, 255, 0.2)')
+        .pathDashLength(0.1)
+        .pathDashGap(0.008)
+        .pathDashAnimateTime(12000)
+        .pathAltitude(d => d[0][2]) // Relative altitude from data
+        .pathStroke(0.1)
+        
         .onGlobeClick(async ({ lat, lng }) => {
             selectedPoint.value = { lat, lng };
             isLoadingPoint.value = true;
