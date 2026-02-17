@@ -21,6 +21,7 @@ const forecastData = ref([]);
 const isLoadingForecast = ref(false);
 const orbitTick = ref(0);
 const isPOVMode = ref(false);
+let animationFrameId = null;
 
 const togglePOV = () => {
     isPOVMode.value = !isPOVMode.value;
@@ -642,7 +643,7 @@ const handleResize = () => {
     window.addEventListener('resize', handleResize);
 
     // Orbital Propagator Loop (Using requestAnimationFrame for 60FPS)
-    let animationFrameId = requestAnimationFrame(propagateSatellites);
+    animationFrameId = requestAnimationFrame(propagateSatellites);
     
     // Cleanup
     return () => {
