@@ -4,6 +4,7 @@ namespace App\Engines\Weather;
 
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class HimawariService
 {
