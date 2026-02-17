@@ -3,6 +3,7 @@ import UserLayout from '@/Layouts/UserLayout.vue';
 import { Head } from '@inertiajs/vue3';
 import { onMounted, ref } from 'vue';
 import Globe from 'globe.gl';
+import * as THREE from 'three';
 import axios from 'axios';
 
 const globeContainer = ref(null);
