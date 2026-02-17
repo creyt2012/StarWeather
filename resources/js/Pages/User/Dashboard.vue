@@ -10,6 +10,13 @@ const props = defineProps({
 });
 
 const riskScore = ref(props.storms?.length > 0 ? 68 : 34);
+
+const weatherData = ref({
+    temp: props.metrics?.[0]?.temperature || 24,
+    humidity: props.metrics?.[0]?.humidity || 65,
+    wind: props.metrics?.[0]?.wind_speed || 12,
+    visibility: 95
+});
 </script>
 
 <template>
@@ -35,6 +42,10 @@ const riskScore = ref(props.storms?.length > 0 ? 68 : 34);
                     <!-- Scanner Animation Overlay (Decorative) -->
                     <div class="absolute inset-0 pointer-events-none opacity-20">
                         <div class="w-full h-1 bg-vibrant-blue/20 absolute top-0 animate-[scan_4s_linear_infinite]"></div>
+                        <!-- Background Grid/Map Placeholder -->
+                        <div class="absolute inset-0 flex items-center justify-center opacity-10 grayscale scale-150">
+                             <div class="w-full h-full bg-[url('https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg')] bg-cover opacity-30"></div>
+                        </div>
                     </div>
                     
                     <div class="absolute inset-0 flex items-center justify-center">
