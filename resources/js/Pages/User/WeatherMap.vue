@@ -199,6 +199,69 @@ onMounted(async () => {
 
     window.addEventListener('resize', handleResize);
 });
+
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+
+const initLeaflet = () => {
+    if (map) return;
+    
+    map = L.map(leafletContainer.value, {
+        center: [10, 106],
+        zoom: 3,
+        zoomControl: false,
+        attributionControl: false,
+        backgroundColor: '#050508'
+    });
+
+    // High-Detail Satellite (Esri)
+    const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        maxZoom: 19
+    });
+
+    // Detailed Boundaries & Labels
+    const labelLayer = L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner-labels/{z}/{x}/{y}{r}.png', {
+        opacity: 0.7
+    });
+
+    // Windy-style Topo/Dark
+    const darkLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        maxZoom: 20
+    });
+
+    // Initial layer based on mode
+    if (viewMode.value === 'SATELLITE') {
+        satelliteLayer.addTo(map);
+        labelLayer.addTo(map);
+    } else {
+        darkLayer.addTo(map);
+    }
+
+    // Storage for switching
+    map._satelliteLayer = satelliteLayer;
+    map._labelLayer = labelLayer;
+    map._darkLayer = darkLayer;
+};
+
+const switchView = (mode) => {
+    viewMode.value = mode;
+    
+    if (mode !== 'GLOBE') {
+        setTimeout(() => {
+            initLeaflet();
+            map.invalidateSize();
+            
+            // Switch layers
+            map.eachLayer(l => map.removeLayer(l));
+            if (mode === 'SATELLITE') {
+                map._satelliteLayer.addTo(map);
+                map._labelLayer.addTo(map);
+            } else {
+                map._darkLayer.addTo(map);
+            }
+        }, 100);
+    }
+};
 </script>
 
 <template>
