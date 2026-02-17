@@ -5,7 +5,6 @@ import { onMounted, ref } from 'vue';
 import Globe from 'globe.gl';
 import * as THREE from 'three';
 import axios from 'axios';
-import AisVesselHUD from '@/Components/AisVesselHUD.vue';
 
 const globeContainer = ref(null);
 const leafletContainer = ref(null);
@@ -22,8 +21,6 @@ const forecastData = ref([]);
 const isLoadingForecast = ref(false);
 const orbitTick = ref(0);
 const isPOVMode = ref(false);
-const timeOffset = ref(0); // Offset in minutes
-const selectedVessel = ref(null);
 let animationFrameId = null;
 
 const togglePOV = () => {
@@ -41,7 +38,7 @@ const togglePOV = () => {
 const propagateSatellites = () => {
     if (activeSatellites.value.length === 0) return;
     
-    const now = Date.now() - (timeOffset.value * 60 * 1000);
+    const now = Date.now();
     activeSatellites.value = activeSatellites.value.map(sat => {
         if (!sat.path || sat.path.length < 2) return sat;
         
@@ -80,10 +77,7 @@ const propagateSatellites = () => {
 
     if (world) {
         world.customLayerData(activeSatellites.value);
-        // Only sync comms links every 10 frames to save CPU
-        if (Math.floor(now / 100) % 2 === 0) {
-            syncCommsLinks();
-        }
+        syncCommsLinks();
     }
     
     if (animationFrameId !== null) {
@@ -262,8 +256,6 @@ watch(activeLayer, (newLayer) => {
         world.ringsData([]);
         world.heatmapsData([]);
         world.hexBinPointsData([]);
-        currentWindPaths.value = []; // Reset wind on layer change
-        syncUnifiedPaths();
     }
     stopLightningSimulation();
     showLightning.value = false;
@@ -275,89 +267,10 @@ watch(activeLayer, (newLayer) => {
         toggleRiskHeatmap();
     } else if (newLayer === 'aqi') {
         renderAQILayer();
-    } else if (newLayer === 'ais') {
-        renderAisLayer();
     } else if (newLayer === 'sst') {
         renderSSTLayer();
-    } else if (newLayer === 'wind') {
-        renderWindLayer();
-    } else if (newLayer === 'ndvi') {
-        renderNdviLayer();
     }
 });
-
-const renderNdviLayer = () => {
-    // Simulating Vegetation Health (Global green zones)
-    const points = Array.from({ length: 400 }, () => ({
-        lat: (Math.random() - 0.5) * 120, // Focus on land areas roughly
-        lng: (Math.random() - 0.5) * 360,
-        value: 0.2 + Math.random() * 0.8 // NDVI range 0 to 1
-    }));
-    
-    if (world) {
-        world.hexBinPointsData(points)
-             .hexBinResolution(4)
-             .hexTopColor(d => {
-                 const avg = d.sumWeight / d.points.length;
-                 if (avg > 0.7) return '#15803d'; // Healthy Forest
-                 if (avg > 0.4) return '#4ade80'; // Grassland
-                 return '#fde047'; // Sparse/Dry
-             })
-             .hexSideColor(() => 'rgba(0, 255, 0, 0.05)')
-             .hexBinMerge(true);
-    }
-};
-
-const renderWindLayer = () => {
-    // Creating a global wind particle system via pathsData
-    const particleCount = 200;
-    const windPaths = Array.from({ length: particleCount }, () => {
-        const startLat = (Math.random() - 0.5) * 160;
-        const startLng = (Math.random() - 0.5) * 360;
-        const segments = 5;
-        const path = [];
-        for (let i = 0; i < segments; i++) {
-            // Wind flows mostly West to East at some latitudes
-            const latVar = Math.sin(startLat * Math.PI / 180) * 10;
-            path.push([
-                startLat + (Math.random() - 0.5) * 2,
-                startLng + (i * 5) + (Math.random() * 2)
-            ]);
-        }
-        return {
-            path,
-            color: ['#4ade80', '#22c55e', '#16a34a'][Math.floor(Math.random() * 3)],
-            width: 0.5 + Math.random() * 1.5
-        };
-    });
-
-    if (world) {
-        currentWindPaths.value = windPaths;
-        syncUnifiedPaths();
-    }
-};
-
-const currentWindPaths = ref([]);
-
-const syncUnifiedPaths = () => {
-    if (!world) return;
-    
-    const satPaths = activeSatellites.value.map(s => ({
-        path: s.path,
-        color: '#0088ff',
-        width: 0.5,
-        isSat: true
-    }));
-
-    const combined = [...satPaths, ...currentWindPaths.value];
-    
-    world.pathsData(combined)
-         .pathColor(d => d.color)
-         .pathDashLength(d => d.isSat ? 0 : 0.4)
-         .pathDashGap(d => d.isSat ? 0 : 0.1)
-         .pathDashAnimateTime(d => d.isSat ? 0 : 2000)
-         .pathStroke(d => d.isSat ? 0.5 : (d.width || 1));
-};
 
 const renderAQILayer = () => {
     // Simulating AQI hotspots (e.g. Asia/India/China)
@@ -393,32 +306,6 @@ const renderSSTLayer = () => {
             opacity: 0.5,
             colorInterpolator: t => `interpolateWarm(${t})`
         }]);
-    }
-};
-
-const renderAisLayer = () => {
-    // Simulating major shipping routes (e.g. Malacca, Suez, Panama)
-    const vesselCount = 100;
-    const vessels = Array.from({ length: vesselCount }, () => ({
-        lat: (Math.random() - 0.5) * 40, // Mostly mid-latitudes for trade
-        lng: (Math.random() - 0.5) * 360,
-        name: `VESSEL_${Math.floor(Math.random() * 90000 + 10000)}`,
-        type: ['CARGO', 'TANKER', 'CONTAINER'][Math.floor(Math.random() * 3)],
-        status: 'UNDERWAY'
-    }));
-    
-    if (world) {
-        world.pointsData(vessels)
-             .pointColor(() => '#2dd4bf') // Teal for AIS
-             .pointAltitude(0.01)
-             .pointRadius(0.5)
-             .pointLabel(d => `
-                <div class="bg-black/90 p-3 border border-teal-500/30 backdrop-blur-md">
-                    <p class="text-[8px] font-black text-teal-400 uppercase mb-1">MARITIME_UNIT</p>
-                    <h4 class="text-xs font-black text-white italic">${d.name}</h4>
-                    <p class="text-[7px] text-white/40 mt-1">TYPE: ${d.type} | STATUS: ${d.status}</p>
-                </div>
-             `);
     }
 };
 
@@ -492,8 +379,6 @@ const layers = [
     { id: 'sst', name: 'SEA_TEMPERATURE', color: 'orange-500' },
     { id: 'aurora', name: 'AURORA_TRACKING', color: 'green-400' },
     { id: 'risk', name: 'STRATEGIC_RISK', color: 'red-500' },
-    { id: 'ais', name: 'MARITIME_AIS', color: 'teal-400' },
-    { id: 'ndvi', name: 'VEGETATION_HEALTH', color: 'green-600' },
 ];
 
 const viewOptions = [
@@ -509,7 +394,7 @@ watch(activeSatellites, (newSats) => {
     if (world && newSats.length > 0) {
         console.log(`Syncing ${newSats.length} satellites to globe`);
         world.customLayerData(newSats);
-        syncUnifiedPaths(); 
+        world.pathsData(newSats.map(s => s.path));
         
         // Critical labels for strategic satellites
         const strategic = newSats.filter(s => s.norad_id === '41836' || s.norad_id === '25544' || s.norad_id === '40267');
@@ -533,11 +418,7 @@ watch(showGroundStations, () => {
     syncLeafletMarkers();
 });
 
-let frameCounter = 0; // For throttling comms links updates
-
-const initGlobe = async () => {
-    if (!globeContainer.value) return;
-
+onMounted(async () => {
     const width = globeContainer.value.offsetWidth;
     const height = globeContainer.value.offsetHeight;
 
@@ -547,25 +428,9 @@ const initGlobe = async () => {
         .height(height)
         .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
         .bumpImageUrl('https://unpkg.com/three-globe/example/img/earth-topology.png')
-        .backgroundImageUrl('//unpkg.com/three-globe/example/img/night-stars.png')
-        .showAtmosphere(true)
-        .atmosphereColor('#0088ff')
-        .atmosphereDaylightAlpha(0.1)
         .backgroundColor('#020205')
         
-        // --- Interactivity ---
-        .onPointClick((point, event) => {
-            if (point.name && (point.name.startsWith('VESSEL_') || point.type)) {
-                selectedVessel.value = point;
-                selectedSatellite.value = null;
-                selectedPoint.value = null;
-            } else {
-                handleGlobeClick(point, event);
-            }
-        })
-        .onGlobeClick(handleGlobeClick)
-        .onPolygonClick(handleGlobeClick)
-        .onLabelClick(handleGlobeClick)
+        // --- Boundaries Layer ---
         .lineHoverPrecision(0)
         .polygonCapColor(() => 'rgba(0, 136, 255, 0.05)')
         .polygonSideColor(() => 'rgba(0, 136, 255, 0.02)')
@@ -714,13 +579,13 @@ const initGlobe = async () => {
     } catch (e) {
         console.error('Failed to fetch data', e);
     }
-};
 
 const syncCommsLinks = () => {
     if (!world || activeSatellites.value.length === 0 || groundStations.value.length === 0) return;
 
     const links = [];
     activeSatellites.value.forEach(sat => {
+        // Find nearest station within 3000km
         let nearest = null;
         let minDist = Infinity;
 
@@ -770,24 +635,22 @@ watch(groundStations, () => {
 }, { deep: true });
 
 const handleResize = () => {
-    if (!globeContainer.value || !world) return;
-    world.width(globeContainer.value.offsetWidth);
-    world.height(globeContainer.value.offsetHeight);
-};
+        if (!globeContainer.value) return;
+        world.width(globeContainer.value.offsetWidth);
+        world.height(globeContainer.value.offsetHeight);
+    };
 
-import { onUnmounted } from 'vue';
-
-onMounted(async () => {
-    await initGlobe();
-    initLeaflet();
     window.addEventListener('resize', handleResize);
-    animationFrameId = requestAnimationFrame(propagateSatellites);
-});
 
-onUnmounted(() => {
-    if (animationFrameId) cancelAnimationFrame(animationFrameId);
-    animationFrameId = null;
-    window.removeEventListener('resize', handleResize);
+    // Orbital Propagator Loop (Using requestAnimationFrame for 60FPS)
+    animationFrameId = requestAnimationFrame(propagateSatellites);
+    
+    // Cleanup
+    return () => {
+        if (animationFrameId) cancelAnimationFrame(animationFrameId);
+        animationFrameId = null;
+        window.removeEventListener('resize', handleResize);
+    };
 });
 
 import L from 'leaflet';
@@ -1187,23 +1050,6 @@ const switchView = (mode) => {
                 </div>
             </Transition>
 
-            <!-- Maritime Vessel Intelligence HUD -->
-            <Transition
-                enter-active-class="transition duration-500 ease-out"
-                enter-from-class="translate-x-full opacity-0"
-                enter-to-class="translate-x-0 opacity-100"
-                leave-active-class="transition duration-300 ease-in"
-                leave-from-class="translate-x-0 opacity-100"
-                leave-to-class="translate-x-full opacity-0"
-            >
-                <div v-if="selectedVessel" class="absolute top-8 right-8 z-30 w-80">
-                    <AisVesselHUD 
-                        :vessel="selectedVessel" 
-                        @close="selectedVessel = null"
-                    />
-                </div>
-            </Transition>
-
             <!-- Point Intelligence HUD -->
             <Transition
                 enter-active-class="transition duration-500 ease-out"
@@ -1388,18 +1234,9 @@ const switchView = (mode) => {
                     </div>
 
                     <!-- Timeline Scrubber Layer -->
-                    <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center bg-black/60 backdrop-blur-xl px-6 py-2 border border-vibrant-blue/30 rounded-full space-x-6 shadow-[0_0_20px_rgba(0,136,255,0.2)]">
-                        <div class="flex flex-col">
-                            <span class="text-[7px] font-black text-vibrant-blue uppercase tracking-[0.2em]">Temporal_Shift</span>
-                            <span class="text-[9px] font-bold text-white uppercase">{{ timeOffset === 0 ? 'REAL_TIME' : '-' + timeOffset + ' MIN' }}</span>
-                        </div>
-                        <input 
-                            v-model.number="timeOffset"
-                            type="range" 
-                            min="0" 
-                            max="720" 
-                            class="w-80 accent-vibrant-blue bg-white/10 h-1.5 rounded-full cursor-pointer hover:bg-white/20 transition-colors"
-                        >
+                    <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center bg-black/40 backdrop-blur-md px-4 py-2 border border-white/10 rounded-full space-x-4">
+                        <span class="text-[8px] font-black text-white/30 uppercase">Local_Timeline</span>
+                        <input type="range" min="0" max="47" class="w-96 accent-vibrant-blue bg-white/10 h-1 rounded-full cursor-pointer">
                     </div>
                 </div>
             </Transition>
