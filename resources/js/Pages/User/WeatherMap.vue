@@ -200,6 +200,7 @@ const isSearching = ref(false);
 const groundStations = ref([]);
 const radarTimestamp = ref(null);
 const showRadar = ref(false);
+const isSyncingSatellites = ref(false);
 const showGroundStations = ref(true);
 const showLightning = ref(false);
 const lightningData = ref([]);
@@ -758,27 +759,39 @@ onMounted(async () => {
         console.error("Globe config failure", err);
     }
 
-    // Initial Fetch (triggered AFTER globe setup)
+    // Initial Fetch (vitals first for fast render)
     try {
         const token = 'vethinh_strategic_internal_token_2026';
-        const [stormRes, satRes, stationRes] = await Promise.all([
+        
+        // Load storms and stations immediately
+        const [stormRes, stationRes] = await Promise.all([
             axios.get(`/api/internal-map/storms?token=${token}`),
-            axios.get(`/api/internal-map/satellites?token=${token}`),
             axios.get(`/api/internal-map/ground-stations?token=${token}`)
         ]);
         
         activeStorms.value = stormRes.data;
-        activeSatellites.value = satRes.data.data;
         groundStations.value = stationRes.data.data;
 
         // Fetch Radar metadata
         const radarRes = await axios.get('https://api.rainviewer.com/public/weather-maps.json');
         radarTimestamp.value = radarRes.data.radar.past[radarRes.data.radar.past.length - 1].time;
         
-        // Unified Force Sync
         syncGlobeLayers();
+
+        // DECOUPLED: Fetch Satellites in background
+        isSyncingSatellites.value = true;
+        axios.get(`/api/internal-map/satellites?token=${token}`).then(satRes => {
+            activeSatellites.value = satRes.data.data;
+            syncGlobeLayers();
+            isSyncingSatellites.value = false;
+            console.log("SATELLITE_HYDRATION_COMPLETE");
+        }).catch(err => {
+            console.error("Satellite hydration failed", err);
+            isSyncingSatellites.value = false;
+        });
+
     } catch (e) {
-        console.error('Failed to fetch data', e);
+        console.error('Failed to fetch initial tactical data', e);
     }
 
 const syncCommsLinks = () => {
