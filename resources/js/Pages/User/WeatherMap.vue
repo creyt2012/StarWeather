@@ -75,11 +75,9 @@ const propagateSatellites = () => {
     });
 
     if (world) {
-        // Toggle satellite visibility based on activeLayers array
+        // Only update if visible to save performance
         if (activeLayers.value.includes('satellites')) {
             world.customLayerData([...activeSatellites.value]);
-        } else {
-            world.customLayerData([]);
         }
         if (Math.floor(Date.now() / 100) % 10 === 0) syncCommsLinks();
     }
@@ -220,6 +218,9 @@ const toggleLayer = (id) => {
         activeLayers.value.push(id);
     } else {
         activeLayers.value.splice(index, 1);
+        // Explicitly clear layers if unticked
+        if (id === 'satellites') world.customLayerData([]);
+        if (id === 'wind') world.pathsData(activeLayers.value.includes('satellites') ? activeSatellites.value.map(s => s.path) : []);
     }
     syncGlobeLayers();
 };
@@ -281,7 +282,11 @@ const syncGlobeLayers = () => {
 
     // 5. Polygons (NDVI + Watch Zones)
     if (activeLayers.value.includes('ndvi')) renderNDVILayer();
-    else world.polygonsData(watchZones.value); // Always keep watch zones if drawn
+    else {
+        // Only reset if NDVI was active, but keep watch zones
+        // Fetch original countries if needed or keep existing state
+        if (world) world.polygonsData(watchZones.value);
+    }
 
     // 6. Paths (Wind + Orbits)
     if (activeLayers.value.includes('wind')) toggleWindLayer(true);
