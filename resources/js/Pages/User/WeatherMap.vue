@@ -17,6 +17,15 @@ const selectedSatellite = ref(null);
 const pointData = ref(null);
 const isLoadingPoint = ref(false);
 
+// Pro Upgrade State
+const searchQuery = ref('');
+const searchResults = ref([]);
+const isSearching = ref(false);
+const groundStations = ref([]);
+const radarTimestamp = ref(null);
+const showRadar = ref(false);
+const showGroundStations = ref(true);
+
 let world = null; // Globe.gl instance
 let map = null;   // Leaflet instance
 
