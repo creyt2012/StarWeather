@@ -471,15 +471,15 @@ let world = null; // Globe.gl instance
 let map = null;   // Leaflet instance
 
 const layers = [
-    { id: 'clouds', name: 'CLOUD_DENSITY', color: 'vibrant-blue' },
-    { id: 'precip', name: 'PRECIPITATION', color: 'vibrant-green' },
-    { id: 'wind', name: 'WIND_SPEED', color: 'yellow-500' },
-    { id: 'aqi', name: 'AIR_QUALITY_INDEX', color: 'purple-500' },
-    { id: 'sst', name: 'SEA_TEMPERATURE', color: 'orange-500' },
-    { id: 'aurora', name: 'AURORA_TRACKING', color: 'green-400' },
-    { id: 'risk', name: 'STRATEGIC_RISK', color: 'red-500' },
-    { id: 'marine', name: 'MARINE_TRAFFIC', color: 'blue-400' },
-    { id: 'ndvi', name: 'VEGETATION_NDVI', color: 'green-600' },
+    { id: 'clouds', name: 'CLOUD_DENSITY', color: 'vibrant-blue', icon: '📡' },
+    { id: 'precip', name: 'PRECIPITATION', color: 'vibrant-green', icon: '🌧️' },
+    { id: 'wind', name: 'WIND_SPEED', color: 'yellow-500', icon: '🌬️' },
+    { id: 'aqi', name: 'AIR_QUALITY_INDEX', color: 'purple-500', icon: '🌫️' },
+    { id: 'sst', name: 'SEA_TEMPERATURE', color: 'orange-500', icon: '🌡️' },
+    { id: 'aurora', name: 'AURORA_TRACKING', color: 'green-400', icon: '✨' },
+    { id: 'risk', name: 'STRATEGIC_RISK', color: 'red-500', icon: '⚠️' },
+    { id: 'marine', name: 'MARINE_TRAFFIC', color: 'blue-400', icon: '🚢' },
+    { id: 'ndvi', name: 'VEGETATION_NDVI', color: 'green-600', icon: '🍃' },
 ];
 
 const viewOptions = [
@@ -1014,18 +1014,26 @@ const switchView = (mode) => {
                     <p class="text-[9px] text-white/30 uppercase tracking-[0.3em] mt-1">Global Atmospheric Visualization</p>
                 </div>
 
-                <div class="space-y-2">
+                <div class="space-y-2 pointer-events-auto max-h-[60vh] overflow-y-auto custom-scrollbar pr-2">
                     <button v-for="layer in layers" :key="layer.id"
                         @click="activeLayer = layer.id"
-                        :class="activeLayer === layer.id ? 'bg-vibrant-blue/10 border-vibrant-blue/50 text-white' : 'bg-black/40 border-white/5 text-white/40'"
-                        class="w-full text-left px-6 py-4 border transition-all flex items-center justify-between group">
-                        <span class="text-[10px] font-black tracking-widest uppercase">{{ layer.name }}</span>
-                        <div v-if="activeLayer === layer.id" class="w-1.5 h-1.5 rounded-full bg-vibrant-blue shadow-[0_0_10px_#0088ff]"></div>
+                        :class="activeLayer === layer.id ? 'bg-vibrant-blue/20 border-vibrant-blue/50 text-white translate-x-1 shadow-[0_0_20px_rgba(0,136,255,0.15)]' : 'bg-black/40 border-white/5 text-white/40 hover:bg-black/60 hover:translate-x-1'"
+                        class="w-full text-left px-5 py-4 border transition-all flex items-center group relative overflow-hidden">
+                        
+                        <!-- Tactical Color Stripe -->
+                        <div :class="`bg-${layer.color}`" class="absolute left-0 top-0 bottom-0 w-1 opacity-60"></div>
+                        
+                        <div class="flex items-center space-x-4 flex-1">
+                            <span class="text-xs group-hover:scale-110 transition-transform">{{ layer.icon }}</span>
+                            <span class="text-[9px] font-black tracking-[0.15em] uppercase">{{ layer.name }}</span>
+                        </div>
+                        
+                        <div v-if="activeLayer === layer.id" class="w-1.5 h-1.5 rounded-full bg-vibrant-blue shadow-[0_0_10px_#0088ff] animate-pulse"></div>
                     </button>
                 </div>
 
                 <!-- Legend -->
-                <div class="bg-black/60 backdrop-blur-md border border-white/5 p-4">
+                <div class="bg-black/60 backdrop-blur-md border border-white/5 p-4 pointer-events-auto">
                     <p class="text-[8px] font-black text-white/40 uppercase mb-3">CONCENTRATION_INDEX</p>
                     <div class="h-2 w-full bg-gradient-to-r from-blue-900 via-vibrant-blue to-white rounded-full"></div>
                     <div class="flex justify-between mt-2 text-[7px] font-mono text-white/20">
