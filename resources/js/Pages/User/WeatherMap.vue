@@ -38,9 +38,9 @@ const togglePOV = () => {
 const propagateSatellites = () => {
     if (activeSatellites.value.length === 0) return;
     
-    // In live mode, use real-world drift. In playback, use the exact playback timestamp.
+    // In live mode, use real-world drift with optional multiplier for visibility
     const now = isLive.value ? Date.now() : playbackTime.value;
-    const delta = now - lastFetchTime.value;
+    const delta = (now - lastFetchTime.value) * timeMultiplier.value;
     
     activeSatellites.value.forEach(sat => {
         if (!sat.path || sat.path.length < 2 || !sat.telemetry) return;
@@ -73,7 +73,8 @@ const propagateSatellites = () => {
     });
 
     if (world) {
-        world.customLayerData(activeSatellites.value);
+        // Use a new array reference to force Globe.gl to refresh the custom layer
+        world.customLayerData([...activeSatellites.value]);
         if (Math.floor(Date.now() / 100) % 10 === 0) syncCommsLinks();
     }
 };
@@ -205,6 +206,7 @@ const ndviData = ref([]);
 const isLive = ref(true);
 const playbackTime = ref(Date.now());
 const modelMode = ref('ECMWF'); // ECMWF, GFS, COMPARE
+const timeMultiplier = ref(1); // Default 1x real-time
 
 const toggleDrawingMode = () => {
     isDrawingZone.value = !isDrawingZone.value;
@@ -578,6 +580,9 @@ onMounted(async () => {
 
             return group;
         })
+        .customLayerLat(d => d.position?.lat || 0)
+        .customLayerLng(d => d.position?.lng || 0)
+        .customLayerAltitude(d => Math.min(d.position?.alt || 0.1, 1.0) * 0.15 + 0.05)
         .customThreeObjectUpdate((obj, d) => {
             if (!d.position) return;
             const { lat, lng, alt } = d.position;
