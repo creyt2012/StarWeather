@@ -32,8 +32,37 @@ class SystemHealthController extends Controller
             ];
         }
 
+        // External Pipeline Connectivity Check
+        $externalApis = [
+            'CELESTRAK_TLE' => 'https://celestrak.org/NORAD/elements/gp.php?GROUP=active&FORMAT=tle',
+            'RAINVIEWER_RADAR' => 'https://api.rainviewer.com/public/weather-maps.json',
+            'HIMAWARI_ICT' => 'https://himawari8-dl.nict.go.jp/himawari8/img/D531106/latest.json'
+        ];
+
+        $externalStatus = [];
+        foreach ($externalApis as $name => $url) {
+            try {
+                $start = microtime(true);
+                $resp = \Illuminate\Support\Facades\Http::timeout(5)->get($url);
+                $latency = round((microtime(true) - $start) * 1000);
+
+                $externalStatus[$name] = [
+                    'status' => $resp->successful() ? 'CONNECTED' : 'FAILED',
+                    'latency' => $latency,
+                    'last_check' => now()->toIso8601String()
+                ];
+            } catch (\Exception $e) {
+                $externalStatus[$name] = [
+                    'status' => 'OFFLINE',
+                    'latency' => 0,
+                    'last_check' => now()->toIso8601String()
+                ];
+            }
+        }
+
         return Inertia::render('Admin/System/Health', [
             'sla' => $slaData,
+            'externalApis' => $externalStatus,
             'recentLogs' => SystemHealth::latest('recorded_at')->limit(20)->get()
         ]);
     }

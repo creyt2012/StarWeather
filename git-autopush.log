@@ -2952,3 +2952,9 @@ To https://github.com/creyt2012/vetinh.git
    02f0059..a221b9d  main -> main
 [07:06:30.3N] Pushed to GitHub. Contribution secured.
 [07:06:43.3N] Hyper-Sync triggered by app/Engines/Weather/HimawariService.php
+remote: This repository moved. Please use the new location:        
+remote:   https://github.com/creyt2012/StarWeather.git        
+To https://github.com/creyt2012/vetinh.git
+   a221b9d..7422cd1  main -> main
+[07:06:43.3N] Pushed to GitHub. Contribution secured.
+[07:06:46.3N] Hyper-Sync triggered by app/Http/Controllers/Admin/SystemHealthController.php
