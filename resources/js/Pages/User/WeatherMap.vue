@@ -200,22 +200,39 @@ onMounted(async () => {
     // Initial Fetch (triggered AFTER globe setup)
     try {
         const token = 'vethinh_strategic_internal_token_2026';
-        const [stormRes, satRes] = await Promise.all([
+        const [stormRes, satRes, stationRes] = await Promise.all([
             axios.get(`/api/internal-map/storms?token=${token}`),
-            axios.get(`/api/internal-map/satellites?token=${token}`)
+            axios.get(`/api/internal-map/satellites?token=${token}`),
+            axios.get(`/api/internal-map/ground-stations?token=${token}`)
         ]);
         
         activeStorms.value = stormRes.data;
         activeSatellites.value = satRes.data.data;
+        groundStations.value = stationRes.data.data;
+
+        // Fetch Radar metadata
+        const radarRes = await axios.get('https://api.rainviewer.com/public/weather-maps.json');
+        radarTimestamp.value = radarRes.data.radar.past[radarRes.data.radar.past.length - 1].time;
         
         // Manual Force Sync for non-reactive globe.gl
-        if (world && activeSatellites.value.length > 0) {
-            console.log('Force syncing satellite data to globe instance');
-            const newSats = activeSatellites.value;
-            world.customLayerData(newSats);
-            world.pathsData(newSats.map(s => s.path));
-            const strategic = newSats.filter(s => s.norad_id === '41836' || s.norad_id === '25544' || s.norad_id === '40267');
-            world.labelsData([...activeStorms.value, ...strategic]);
+        if (world) {
+            if (activeSatellites.value.length > 0) {
+                const newSats = activeSatellites.value;
+                world.customLayerData(newSats);
+                world.pathsData(newSats.map(s => s.path));
+                const strategic = newSats.filter(s => s.norad_id === '41836' || s.norad_id === '25544' || s.norad_id === '40267');
+                world.labelsData([...activeStorms.value, ...strategic]);
+            }
+            
+            if (groundStations.value.length > 0) {
+                world.pointsData([...activeStorms.value, ...groundStations.value.map(s => ({
+                    ...s,
+                    pointColor: '#00ff88',
+                    pointRadius: 0.8,
+                    pointAltitude: 0.02,
+                    isStation: true
+                }))]);
+            }
         }
     } catch (e) {
         console.error('Failed to fetch data', e);
