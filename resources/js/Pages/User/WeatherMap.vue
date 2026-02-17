@@ -794,6 +794,7 @@ onMounted(async () => {
     } catch (e) {
         console.error('Failed to fetch data', e);
     }
+});
 
 const syncCommsLinks = () => {
     if (!world || activeSatellites.value.length === 0 || groundStations.value.length === 0) return;
