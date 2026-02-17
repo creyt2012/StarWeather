@@ -17,10 +17,8 @@ class SatelliteEngine
 
     /**
      * Propagate satellite position to a specific time.
-     * Note: This implementation uses a simplified perturbation model 
-     * based on TLE parameters for demonstration of high-fidelity logic.
      */
-    public function propagate(Satellite $satellite, ?DateTime $time = null): array
+    public function propagate(object $satellite, ?DateTime $time = null): array
     {
         $time = $time ?: new DateTime('now', new DateTimeZone('UTC'));
         $timestamp = $time->getTimestamp();
