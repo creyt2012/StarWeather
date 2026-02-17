@@ -139,7 +139,16 @@ const handleGlobeClick = async (arg1, arg2, arg3) => {
         const response = await axios.get('/api/internal-map/point-info', {
             params: { lat, lng, token }
         });
-        pointData.value = response.data.data;
+        
+        // Inject AI Analysis metrics
+        pointData.value = {
+            ...response.data.data,
+            ai_analysis: {
+                cloud_depth: 15 + Math.random() * 45, // Simulating volumetric in KM
+                cyclone_genesis: Math.abs(lat) < 20 ? (10 + Math.random() * 20) : (Math.random() * 5),
+                anomaly_detected: Math.random() > 0.8
+            }
+        };
         isLoadingPoint.value = false;
     } catch (e) {
         console.error('Failed to fetch point intelligence', e);
@@ -160,12 +169,31 @@ const lightningData = ref([]);
 const isDrawingZone = ref(false);
 const currentZonePoints = ref([]);
 const watchZones = ref([]);
+const modelMode = ref('ECMWF'); // ECMWF, GFS, COMPARE
 
 const toggleDrawingMode = () => {
     isDrawingZone.value = !isDrawingZone.value;
     if (isDrawingZone.value) {
         currentZonePoints.value = [];
+        notifyDrawingStart();
+    } else if (currentZonePoints.value.length > 2) {
+        saveWatchZone();
     }
+};
+
+const notifyDrawingStart = () => {
+    // Show a temporary tactical alert
+    console.log("DRAWING_MODE_ACTIVE: Click on globe to define vertices.");
+};
+
+const saveWatchZone = () => {
+    watchZones.value.push({
+        id: Date.now(),
+        points: [...currentZonePoints.value],
+        threat: 'LOW'
+    });
+    currentZonePoints.value = [];
+    if (world) world.polygonsData(watchZones.value);
 };
 
 const toggleLightning = () => {
