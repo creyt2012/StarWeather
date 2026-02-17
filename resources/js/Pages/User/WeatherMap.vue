@@ -702,6 +702,19 @@ onMounted(async () => {
             .customLayerLat(d => d.position?.lat || 0)
             .customLayerLng(d => d.position?.lng || 0)
             .customLayerAltitude(d => Math.min(d.position?.alt || 0.1, 1.0) * 0.15 + 0.05)
+            .customThreeObjectUpdate((obj, d) => {
+                if (!d.position) return;
+                const { lat, lng, alt } = d.position;
+                const scaledAlt = Math.min(alt, 1.0) * 0.15; 
+                const coords = world.getCoords(lat, lng, scaledAlt + 0.05);
+                obj.position.set(coords.x, coords.y, coords.z);
+                obj.lookAt(0, 0, 0); 
+            })
+            .onCustomLayerClick(d => {
+                selectedSatellite.value = d;
+                selectedPoint.value = null; 
+                world.pointOfView({ lat: d.position.lat, lng: d.position.lng, altitude: 1.5 }, 1000);
+            })
             .pathsData([])
             .pathColor(() => 'rgba(0, 255, 255, 0.4)')
             .pathDashLength(0.08)
