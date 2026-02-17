@@ -298,56 +298,57 @@ watch(activeLayer, (newLayer) => {
     }
 });
 
-const renderSpaceWeather = () => {
-    // Simulating Solar Particles hitting the Magnetosphere
-    const particleCount = 300;
-    const solarWind = Array.from({ length: particleCount }, () => {
-        const startLat = (Math.random() - 0.5) * 180;
-        const startLng = -180; // Coming from the sun's direction (relative)
-        const path = [];
-        for (let i = 0; i < 10; i++) {
-            path.push([
-                startLat + (Math.random() - 0.5) * 5,
-                startLng + (i * 36)
-            ]);
-        }
-        return { path, color: ['#ef4444', '#f59e0b', '#00ff88'][Math.floor(Math.random() * 3)] };
-    });
+const renderSpaceWeather = async () => {
+    try {
+        const token = 'vethinh_strategic_internal_token_2026';
+        const response = await axios.get('/api/v1/weather/space', { params: { token } });
+        const { data, points } = response.data;
 
-    if (world) {
-        world.pathsData(solarWind)
-             .pathColor(d => d.color)
-             .pathDashLength(0.2)
-             .pathDashGap(0.05)
-             .pathDashAnimateTime(1000)
-             .pathStroke(0.3);
-    }
+        // Space Weather Particles
+        const particleCount = 200 + (data.solar_wind_speed / 2);
+        const solarWind = Array.from({ length: particleCount }, () => {
+            const startLat = (Math.random() - 0.5) * 180;
+            const startLng = -180;
+            const path = [];
+            for (let i = 0; i < 10; i++) {
+                path.push([startLat + (Math.random() - 0.5) * 5, startLng + (i * 36)]);
+            }
+            return { path, color: data.kp_index > 6 ? '#ef4444' : '#00ff88' };
+        });
+
+        if (world) {
+            world.pathsData(solarWind)
+                 .pathColor(d => d.color)
+                 .pathDashAnimateTime(1000 / (data.solar_wind_speed / 400));
+            
+            world.ringsData(points.map(p => ({ ...p, color: '#ff0000', maxR: 5 })))
+                 .ringColor(d => d.color);
+        }
+    } catch (e) { console.error('Space Weather sync failed', e); }
 };
 
-const renderAviationLayer = () => {
-    // Global flight simulation
-    const flightCount = 150;
-    const flights = Array.from({ length: flightCount }, () => ({
-        lat: (Math.random() - 0.5) * 140,
-        lng: (Math.random() - 0.5) * 360,
-        name: `FLIGHT_${Math.floor(Math.random() * 900 + 100)}`,
-        altitude: 30000 + Math.random() * 10000, // ft
-        airline: ['EMIRATES', 'VIETJET', 'LUFTHANSA', 'DELTA'][Math.floor(Math.random() * 4)]
-    }));
-
-    if (world) {
-        world.pointsData(flights)
-             .pointColor(() => '#ffffff')
-             .pointAltitude(0.04)
-             .pointRadius(0.3)
-             .pointLabel(d => `
-                <div class="bg-black/90 p-3 border border-white/20 backdrop-blur-md">
-                    <p class="text-[7px] text-white/40 uppercase">Aviation_Asset</p>
-                    <h4 class="text-xs font-black text-white italic">${d.name}</h4>
-                    <p class="text-[7px] text-white/60">AIRLINE: ${d.airline} | ALT: ${Math.floor(d.altitude)} FT</p>
-                </div>
-             `);
-    }
+const renderAviationLayer = async () => {
+    try {
+        const token = 'vethinh_strategic_internal_token_2026';
+        const response = await axios.get('/api/v1/weather/aviation', { params: { token } });
+        if (world) {
+            world.pointsData(response.data.data)
+                 .pointColor(d => d.strategic_priority === 'HIGH' ? '#ff0000' : '#ffffff')
+                 .pointAltitude(d => d.altitude / 800000)
+                 .pointRadius(0.5)
+                 .pointLabel(d => `
+                    <div class="bg-black/95 p-4 border-l-2 border-vibrant-blue backdrop-blur-2xl shadow-2xl">
+                        <p class="text-[7px] text-vibrant-blue font-black uppercase tracking-widest mb-1">ELITE_ADS_B_ASSET</p>
+                        <h4 class="text-xs font-black text-white italic truncate">${d.name} [${d.id}]</h4>
+                        <div class="mt-2 grid grid-cols-2 gap-2 text-[7px] font-mono text-white/60">
+                            <div>ALT: ${d.altitude} FT</div>
+                            <div>VEL: ${d.velocity} KM/H</div>
+                        </div>
+                        <p class="text-[6px] text-white/30 mt-2 uppercase">AIRLINE: ${d.airline}</p>
+                    </div>
+                 `);
+        }
+    } catch (e) { console.error('Aviation sync failed', e); }
 };
 
 const renderInfrastructureLayer = () => {
@@ -392,25 +393,40 @@ const renderSpaceJunkLayer = () => {
     }
 };
 
-const renderNdviLayer = () => {
-    // Simulating Vegetation Health (Global green zones)
-    const points = Array.from({ length: 400 }, () => ({
-        lat: (Math.random() - 0.5) * 120, // Focus on land areas roughly
-        lng: (Math.random() - 0.5) * 360,
-        value: 0.2 + Math.random() * 0.8 // NDVI range 0 to 1
+const renderNdviLayer = async () => {
+    try {
+        const token = 'vethinh_strategic_internal_token_2026';
+        const response = await axios.get('/api/v1/weather/agri', { params: { token } });
+        if (world) {
+            world.hexBinPointsData(response.data.data)
+                 .hexBinResolution(4)
+                 .hexTopColor(d => {
+                     const avg = d.points.reduce((acc, p) => acc + p.value, 0) / d.points.length;
+                     return avg > 0.6 ? '#16a34a' : '#84cc16';
+                 })
+                 .hexSideColor(() => 'rgba(0, 255, 0, 0.05)')
+                 .hexBinMerge(true);
+        }
+    } catch (e) { console.error('NDVI sync failed', e); }
+};
+
+const renderDefenseGrid = () => {
+    // Planetary Shield Arcs
+    const arcs = Array.from({ length: 40 }, () => ({
+        startLat: (Math.random() - 0.5) * 120,
+        startLng: (Math.random() - 0.5) * 360,
+        endLat: (Math.random() - 0.5) * 120,
+        endLng: (Math.random() - 0.5) * 360,
+        color: 'rgba(0, 255, 255, 0.4)'
     }));
-    
+
     if (world) {
-        world.hexBinPointsData(points)
-             .hexBinResolution(4)
-             .hexTopColor(d => {
-                 const avg = d.sumWeight / d.points.length;
-                 if (avg > 0.7) return '#15803d'; // Healthy Forest
-                 if (avg > 0.4) return '#4ade80'; // Grassland
-                 return '#fde047'; // Sparse/Dry
-             })
-             .hexSideColor(() => 'rgba(0, 255, 0, 0.05)')
-             .hexBinMerge(true);
+        world.arcsData(arcs)
+             .arcColor(d => d.color)
+             .arcDashLength(0.5)
+             .arcDashGap(1)
+             .arcDashAnimateTime(4000)
+             .arcStroke(0.1);
     }
 };
 
