@@ -727,6 +727,12 @@ const switchView = (mode) => {
                     <span class="text-xs">⚡</span>
                     <div class="absolute left-full ml-4 px-3 py-1 bg-black text-[8px] font-black uppercase opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none border border-white/10">LIVE_LIGHTNING</div>
                 </button>
+                <button @click="toggleDrawingMode"
+                    :class="isDrawingZone ? 'bg-red-500 text-white shadow-[0_0_15px_rgba(239,68,68,0.4)]' : 'bg-black/60 text-white/40'"
+                    class="p-3 border border-white/10 backdrop-blur-md transition-all group relative">
+                    <span class="text-xs">📐</span>
+                    <div class="absolute left-full ml-4 px-3 py-1 bg-black text-[8px] font-black uppercase opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none border border-white/10">DEFINE_WATCH_ZONE</div>
+                </button>
             </div>
 
             <!-- Sidebar Controls -->
