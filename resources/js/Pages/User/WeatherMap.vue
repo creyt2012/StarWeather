@@ -25,8 +25,8 @@ onMounted(async () => {
     // Parallel Fetching
     try {
         const [stormRes, satRes] = await Promise.all([
-            axios.get('/api/weather/storms'),
-            axios.get('/api/v1/weather/satellites')
+            axios.get('/api/v1/map/storms'),
+            axios.get('/api/v1/map/satellites')
         ]);
         activeStorms.value = stormRes.data;
         activeSatellites.value = satRes.data.data;
