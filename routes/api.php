@@ -7,7 +7,8 @@ use App\Http\Controllers\Api\V1\WeatherController;
 use App\Http\Controllers\Api\V1\MissionControlController;
 use Illuminate\Http\Request;
 
-Route::middleware(['auth.api_key'])->prefix('v1/map')->group(function () {
+// Internal Map Data APIs (Session-Aware Hybrid Auth)
+Route::middleware(['web', 'auth.api_key'])->prefix('v1/map')->group(function () {
     Route::get('/satellites', [WeatherController::class, 'satellites']);
     Route::get('/storms', function () {
         return \App\Models\Storm::where('status', 'active')->get();
