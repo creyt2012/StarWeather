@@ -40,7 +40,7 @@ const riskScore = ref(props.storms?.length > 0 ? 68 : 34);
                     <div class="absolute inset-0 flex items-center justify-center">
                         <div class="text-center">
                             <div class="w-48 h-48 rounded-full border border-vibrant-blue/20 flex items-center justify-center relative">
-                                <div class="absolute inset-0 rounded-full border-t-2 border-vibrant-blue animate-spin duration-[3000ms]"></div>
+                                <div class="absolute inset-0 rounded-full border-t-2 border-vibrant-blue animate-spin duration-[8000ms]"></div>
                                 <div v-if="storms?.length > 0" class="absolute inset-0 animate-ping opacity-20 rounded-full bg-red-500"></div>
                                 <div class="text-center">
                                     <p class="text-[10px] font-black text-vibrant-blue uppercase tracking-widest">Global_Risk</p>
