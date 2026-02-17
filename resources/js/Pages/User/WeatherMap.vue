@@ -678,7 +678,7 @@ const switchView = (mode) => {
                 leave-from-class="translate-x-0 opacity-100"
                 leave-to-class="translate-x-full opacity-0"
             >
-                <div v-if="selectedSatellite" class="absolute top-8 right-8 z-30 w-80 bg-black/90 backdrop-blur-2xl border border-vibrant-blue/50 shadow-[0_0_50px_rgba(0,136,255,0.2)] overflow-hidden">
+                <div v-if="selectedSatellite" class="absolute top-8 right-8 z-30 w-80 bg-black/90 backdrop-blur-2xl border border-vibrant-blue/50 shadow-[0_0_50px_rgba(0,136,255,0.2)] overflow-hidden flex flex-col max-h-[85vh]">
                     <!-- Target Lock Decoration -->
                     <div class="target-lock animate-target-scan"></div>
                     
@@ -692,7 +692,7 @@ const switchView = (mode) => {
                         </button>
                     </div>
 
-                    <div class="p-6 space-y-6">
+                    <div class="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-6">
                         <!-- Technical Profile -->
                         <div class="grid grid-cols-2 gap-px bg-white/5 border border-white/10">
                             <div class="p-4 bg-[#0a0a0f]">
