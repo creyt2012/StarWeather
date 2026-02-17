@@ -293,6 +293,8 @@ watch(activeLayer, (newLayer) => {
         renderInfrastructureLayer();
     } else if (newLayer === 'junk') {
         renderSpaceJunkLayer();
+    } else if (newLayer === 'defense') {
+        renderDefenseGrid();
     }
 });
 
@@ -602,6 +604,7 @@ const layers = [
     { id: 'aviation', name: 'ELITE_ADS_B', color: 'white' },
     { id: 'infrastructure', name: 'CYBER_INFRA', color: 'purple-500' },
     { id: 'junk', name: 'ORBITAL_DEBRIS', color: 'gray-400' },
+    { id: 'defense', name: 'PLANETARY_SHIELD', color: 'cyan-400', icon: '🛡️' },
 ];
 
 const viewOptions = [
