@@ -38,7 +38,6 @@ const togglePOV = () => {
 const propagateSatellites = () => {
     if (activeSatellites.value.length === 0) return;
     
-    // In live mode, use real-world drift with optional multiplier for visibility
     const now = isLive.value ? Date.now() : playbackTime.value;
     const delta = (now - lastFetchTime.value) * timeMultiplier.value;
     
@@ -51,13 +50,16 @@ const propagateSatellites = () => {
         const segmentDuration = periodMs / totalPoints;
         
         const totalProgress = delta / segmentDuration;
-        const index = Math.floor(totalProgress) % totalPoints;
+        // Wrap around logic for indices to prevent negative bounds
+        const index = ((Math.floor(totalProgress) % totalPoints) + totalPoints) % totalPoints;
         const nextIndex = (index + 1) % totalPoints;
-        const progress = totalProgress % 1;
+        const progress = ((totalProgress % 1) + 1) % 1; 
         
         const currentPos = path[index];
         const nextPos = path[nextIndex];
         
+        if (!currentPos || !nextPos) return;
+
         const nextLat = currentPos[0] + (nextPos[0] - currentPos[0]) * progress;
         const nextLng = currentPos[1] + (nextPos[1] - currentPos[1]) * progress;
 
@@ -73,7 +75,6 @@ const propagateSatellites = () => {
     });
 
     if (world) {
-        // Use a new array reference to force Globe.gl to refresh the custom layer
         world.customLayerData([...activeSatellites.value]);
         if (Math.floor(Date.now() / 100) % 10 === 0) syncCommsLinks();
     }
@@ -491,10 +492,10 @@ const viewOptions = [
 import { watch } from 'vue';
 
 // Watch for data changes to update the non-reactive globe.gl instance
+// Watch for array replacement only (no deep watch to prevent 60fps churn)
 watch(activeSatellites, (newSats) => {
     if (world && newSats.length > 0) {
-        console.log(`Syncing ${newSats.length} satellites to globe`);
-        world.customLayerData(newSats);
+        world.customLayerData([...newSats]);
         world.pathsData(newSats.map(s => s.path));
         
         // Critical labels for strategic satellites
@@ -502,7 +503,7 @@ watch(activeSatellites, (newSats) => {
         world.labelsData([...activeStorms.value, ...strategic]);
     }
     syncLeafletMarkers();
-}, { deep: true });
+});
 
 watch(activeStorms, (newStorms) => {
     if (world && newStorms.length > 0) {
