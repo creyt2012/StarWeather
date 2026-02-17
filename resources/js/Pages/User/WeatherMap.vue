@@ -161,8 +161,8 @@ onMounted(async () => {
     // Initial Fetch (triggered AFTER globe setup)
     try {
         const [stormRes, satRes] = await Promise.all([
-            axios.get('/api/v1/map/storms'),
-            axios.get('/api/v1/map/satellites')
+            axios.get('/internal/map/storms'),
+            axios.get('/internal/map/satellites')
         ]);
         activeStorms.value = stormRes.data;
         activeSatellites.value = satRes.data.data;
