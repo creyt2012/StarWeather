@@ -1385,6 +1385,13 @@ const switchView = (mode) => {
                 <div class="h-4 w-px bg-white/20"></div>
                 <span class="text-[9px] font-bold uppercase italic">Points: {{ currentZonePoints.length }} (Min 3 to save)</span>
             </div>
+
+            <!-- Playback Alert Overlay -->
+            <div v-if="!isLive" class="absolute top-8 left-1/2 -translate-x-1/2 z-[60] bg-orange-500/90 text-white px-8 py-3 rounded-lg border border-white/20 shadow-2xl flex flex-col items-center">
+                <span class="text-[10px] font-black uppercase tracking-[0.4em] mb-1">DATA_PLAYBACK_MODE</span>
+                <span class="text-[12px] font-mono font-bold">{{ new Date(playbackTime).toLocaleString() }}</span>
+                <button @click="isLive = true" class="mt-2 text-[8px] font-black underline uppercase tracking-widest hover:text-white/80 transition-colors">Return_to_Live</button>
+            </div>
         </div>
     </UserLayout>
 </template>
