@@ -90,7 +90,9 @@ onMounted(async () => {
         })
         .customThreeObjectUpdate((obj, d) => {
             const { lat, lng, alt } = d.position;
-            Object.assign(obj.position, world.getCoords(lat, lng, alt));
+            // Scale altitude for visualization: alt is in km, max ~36k km
+            const scaledAlt = Math.min(alt, 1.0) * 0.1; 
+            Object.assign(obj.position, world.getCoords(lat, lng, scaledAlt + 0.05));
             obj.lookAt(0, 0, 0); // Always point towards earth
         })
         .onCustomLayerClick(d => {
