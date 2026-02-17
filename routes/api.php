@@ -27,6 +27,7 @@ Route::middleware(['auth.api_key', \App\Http\Middleware\CheckApiKeyLimits::class
     Route::get('/weather/heatmap', [WeatherController::class, 'heatmap']);
     Route::get('/weather/forecast', [WeatherController::class, 'forecast']);
     Route::get('/weather/point-info', [WeatherController::class, 'pointInfo']);
+    Route::get('/weather/satellites', [WeatherController::class, 'satellites']);
     Route::get('/weather/radar-config', function () {
         return response()->json([
             'status' => 'success',
