@@ -21,6 +21,7 @@ const forecastData = ref([]);
 const isLoadingForecast = ref(false);
 const orbitTick = ref(0);
 const isPOVMode = ref(false);
+const timeOffset = ref(0); // Offset in minutes
 let animationFrameId = null;
 
 const togglePOV = () => {
@@ -38,7 +39,7 @@ const togglePOV = () => {
 const propagateSatellites = () => {
     if (activeSatellites.value.length === 0) return;
     
-    const now = Date.now();
+    const now = Date.now() - (timeOffset.value * 60 * 1000);
     activeSatellites.value = activeSatellites.value.map(sat => {
         if (!sat.path || sat.path.length < 2) return sat;
         
@@ -1311,9 +1312,18 @@ const switchView = (mode) => {
                     </div>
 
                     <!-- Timeline Scrubber Layer -->
-                    <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center bg-black/40 backdrop-blur-md px-4 py-2 border border-white/10 rounded-full space-x-4">
-                        <span class="text-[8px] font-black text-white/30 uppercase">Local_Timeline</span>
-                        <input type="range" min="0" max="47" class="w-96 accent-vibrant-blue bg-white/10 h-1 rounded-full cursor-pointer">
+                    <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center bg-black/60 backdrop-blur-xl px-6 py-2 border border-vibrant-blue/30 rounded-full space-x-6 shadow-[0_0_20px_rgba(0,136,255,0.2)]">
+                        <div class="flex flex-col">
+                            <span class="text-[7px] font-black text-vibrant-blue uppercase tracking-[0.2em]">Temporal_Shift</span>
+                            <span class="text-[9px] font-bold text-white uppercase">{{ timeOffset === 0 ? 'REAL_TIME' : '-' + timeOffset + ' MIN' }}</span>
+                        </div>
+                        <input 
+                            v-model.number="timeOffset"
+                            type="range" 
+                            min="0" 
+                            max="720" 
+                            class="w-80 accent-vibrant-blue bg-white/10 h-1.5 rounded-full cursor-pointer hover:bg-white/20 transition-colors"
+                        >
                     </div>
                 </div>
             </Transition>
