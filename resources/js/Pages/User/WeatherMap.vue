@@ -260,6 +260,8 @@ watch(activeLayer, (newLayer) => {
         world.ringsData([]);
         world.heatmapsData([]);
         world.hexBinPointsData([]);
+        currentWindPaths.value = []; // Reset wind on layer change
+        syncUnifiedPaths();
     }
     stopLightningSimulation();
     showLightning.value = false;
@@ -304,13 +306,31 @@ const renderWindLayer = () => {
     });
 
     if (world) {
-        world.pathsData(windPaths)
-             .pathColor(d => d.color)
-             .pathDashLength(0.4)
-             .pathDashGap(0.1)
-             .pathDashAnimateTime(2000)
-             .pathStroke(d => d.width);
+        currentWindPaths.value = windPaths;
+        syncUnifiedPaths();
     }
+};
+
+const currentWindPaths = ref([]);
+
+const syncUnifiedPaths = () => {
+    if (!world) return;
+    
+    const satPaths = activeSatellites.value.map(s => ({
+        path: s.path,
+        color: '#0088ff',
+        width: 0.5,
+        isSat: true
+    }));
+
+    const combined = [...satPaths, ...currentWindPaths.value];
+    
+    world.pathsData(combined)
+         .pathColor(d => d.color)
+         .pathDashLength(d => d.isSat ? 0 : 0.4)
+         .pathDashGap(d => d.isSat ? 0 : 0.1)
+         .pathDashAnimateTime(d => d.isSat ? 0 : 2000)
+         .pathStroke(d => d.isSat ? 0.5 : (d.width || 1));
 };
 
 const renderAQILayer = () => {
@@ -462,7 +482,7 @@ watch(activeSatellites, (newSats) => {
     if (world && newSats.length > 0) {
         console.log(`Syncing ${newSats.length} satellites to globe`);
         world.customLayerData(newSats);
-        world.pathsData(newSats.map(s => s.path));
+        syncUnifiedPaths(); 
         
         // Critical labels for strategic satellites
         const strategic = newSats.filter(s => s.norad_id === '41836' || s.norad_id === '25544' || s.norad_id === '40267');
