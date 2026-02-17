@@ -717,14 +717,14 @@ onMounted(async () => {
                 world.pointOfView({ lat: d.position.lat, lng: d.position.lng, altitude: 1.5 }, 1000);
             })
             .pathsData([])
-            .pathColor(() => 'rgba(0, 255, 255, 0.9)')
+            .pathColor(() => '#00ffff')
             .pathDashLength(1)
             .pathDashGap(0)
             .pathDashAnimateTime(0) 
-            .pathStroke(0.2)
+            .pathStroke(0.25)
             .pathPointLat(p => p[0])
             .pathPointLng(p => p[1])
-            .pathPointAlt(p => (p[2] || 1) * 0.15 + 0.02) // Increased alt to avoid Z-fighting
+            .pathPointAlt(p => (p[2] || 0) * 0.15 + 0.05) 
             .onGlobeClick(handleGlobeClick)
             .onPolygonClick(handleGlobeClick)
             .onPointClick(handleGlobeClick)
