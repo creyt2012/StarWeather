@@ -5,6 +5,7 @@ import { onMounted, ref } from 'vue';
 import Globe from 'globe.gl';
 import * as THREE from 'three';
 import axios from 'axios';
+import AisVesselHUD from '@/Components/AisVesselHUD.vue';
 
 const globeContainer = ref(null);
 const leafletContainer = ref(null);
@@ -22,6 +23,7 @@ const isLoadingForecast = ref(false);
 const orbitTick = ref(0);
 const isPOVMode = ref(false);
 const timeOffset = ref(0); // Offset in minutes
+const selectedVessel = ref(null);
 let animationFrameId = null;
 
 const togglePOV = () => {
@@ -279,8 +281,32 @@ watch(activeLayer, (newLayer) => {
         renderSSTLayer();
     } else if (newLayer === 'wind') {
         renderWindLayer();
+    } else if (newLayer === 'ndvi') {
+        renderNdviLayer();
     }
 });
+
+const renderNdviLayer = () => {
+    // Simulating Vegetation Health (Global green zones)
+    const points = Array.from({ length: 400 }, () => ({
+        lat: (Math.random() - 0.5) * 120, // Focus on land areas roughly
+        lng: (Math.random() - 0.5) * 360,
+        value: 0.2 + Math.random() * 0.8 // NDVI range 0 to 1
+    }));
+    
+    if (world) {
+        world.hexBinPointsData(points)
+             .hexBinResolution(4)
+             .hexTopColor(d => {
+                 const avg = d.sumWeight / d.points.length;
+                 if (avg > 0.7) return '#15803d'; // Healthy Forest
+                 if (avg > 0.4) return '#4ade80'; // Grassland
+                 return '#fde047'; // Sparse/Dry
+             })
+             .hexSideColor(() => 'rgba(0, 255, 0, 0.05)')
+             .hexBinMerge(true);
+    }
+};
 
 const renderWindLayer = () => {
     // Creating a global wind particle system via pathsData
@@ -467,6 +493,7 @@ const layers = [
     { id: 'aurora', name: 'AURORA_TRACKING', color: 'green-400' },
     { id: 'risk', name: 'STRATEGIC_RISK', color: 'red-500' },
     { id: 'ais', name: 'MARITIME_AIS', color: 'teal-400' },
+    { id: 'ndvi', name: 'VEGETATION_HEALTH', color: 'green-600' },
 ];
 
 const viewOptions = [
@@ -520,13 +547,25 @@ const initGlobe = async () => {
         .height(height)
         .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
         .bumpImageUrl('https://unpkg.com/three-globe/example/img/earth-topology.png')
-        .backgroundImageUrl('//unpkg.com/three-globe/example/img/night-stars.png') // Added
-        .showAtmosphere(true) // Added
-        .atmosphereColor('#0088ff') // Added
-        .atmosphereDaylightAlpha(0.1) // Added
+        .backgroundImageUrl('//unpkg.com/three-globe/example/img/night-stars.png')
+        .showAtmosphere(true)
+        .atmosphereColor('#0088ff')
+        .atmosphereDaylightAlpha(0.1)
         .backgroundColor('#020205')
         
-        // --- Boundaries Layer ---
+        // --- Interactivity ---
+        .onPointClick((point, event) => {
+            if (point.name && (point.name.startsWith('VESSEL_') || point.type)) {
+                selectedVessel.value = point;
+                selectedSatellite.value = null;
+                selectedPoint.value = null;
+            } else {
+                handleGlobeClick(point, event);
+            }
+        })
+        .onGlobeClick(handleGlobeClick)
+        .onPolygonClick(handleGlobeClick)
+        .onLabelClick(handleGlobeClick)
         .lineHoverPrecision(0)
         .polygonCapColor(() => 'rgba(0, 136, 255, 0.05)')
         .polygonSideColor(() => 'rgba(0, 136, 255, 0.02)')
@@ -1145,6 +1184,23 @@ const switchView = (mode) => {
                             </button>
                         </div>
                     </div>
+                </div>
+            </Transition>
+
+            <!-- Maritime Vessel Intelligence HUD -->
+            <Transition
+                enter-active-class="transition duration-500 ease-out"
+                enter-from-class="translate-x-full opacity-0"
+                enter-to-class="translate-x-0 opacity-100"
+                leave-active-class="transition duration-300 ease-in"
+                leave-from-class="translate-x-0 opacity-100"
+                leave-to-class="translate-x-full opacity-0"
+            >
+                <div v-if="selectedVessel" class="absolute top-8 right-8 z-30 w-80">
+                    <AisVesselHUD 
+                        :vessel="selectedVessel" 
+                        @close="selectedVessel = null"
+                    />
                 </div>
             </Transition>
 
