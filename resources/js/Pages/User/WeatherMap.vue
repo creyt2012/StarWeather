@@ -590,13 +590,13 @@ const initGlobe = async () => {
     } catch (e) {
         console.error('Failed to fetch data', e);
     }
+};
 
 const syncCommsLinks = () => {
     if (!world || activeSatellites.value.length === 0 || groundStations.value.length === 0) return;
 
     const links = [];
     activeSatellites.value.forEach(sat => {
-        // Find nearest station within 3000km
         let nearest = null;
         let minDist = Infinity;
 
@@ -612,6 +612,13 @@ const syncCommsLinks = () => {
             links.push({
                 startLat: sat.position.lat,
                 startLng: sat.position.lng,
+                endLat: nearest.latitude,
+                endLng: nearest.longitude
+            });
+        }
+    });
+    world.arcsData(links);
+};
                 endLat: nearest.latitude,
                 endLng: nearest.longitude
             });
@@ -645,23 +652,19 @@ watch(groundStations, () => {
     syncCommsLinks();
 }, { deep: true });
 
-const handleResize = () => {
-        if (!globeContainer.value) return;
-        world.width(globeContainer.value.offsetWidth);
-        world.height(globeContainer.value.offsetHeight);
-    };
+import { onUnmounted } from 'vue';
 
+onMounted(async () => {
+    await initGlobe();
+    initLeaflet();
     window.addEventListener('resize', handleResize);
-
-    // Orbital Propagator Loop (Using requestAnimationFrame for 60FPS)
     animationFrameId = requestAnimationFrame(propagateSatellites);
-    
-    // Cleanup
-    return () => {
-        if (animationFrameId) cancelAnimationFrame(animationFrameId);
-        animationFrameId = null;
-        window.removeEventListener('resize', handleResize);
-    };
+});
+
+onUnmounted(() => {
+    if (animationFrameId) cancelAnimationFrame(animationFrameId);
+    animationFrameId = null;
+    window.removeEventListener('resize', handleResize);
 });
 
 import L from 'leaflet';
