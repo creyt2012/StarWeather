@@ -179,6 +179,13 @@ onMounted(async () => {
 
     world.pointOfView({ lat: 10, lng: 106, altitude: 2.5 }, 2000);
 
+    // Load Administrative Boundaries
+    fetch('https://raw.githubusercontent.com/vasturiano/globe.gl/master/example/datasets/ne_110m_admin_0_countries.geojson')
+        .then(res => res.json())
+        .then(countries => {
+            world.polygonsData(countries.features);
+        });
+
     // Initial Fetch (triggered AFTER globe setup)
     try {
         const token = 'vethinh_strategic_internal_token_2026';
