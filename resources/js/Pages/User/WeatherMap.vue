@@ -37,49 +37,45 @@ const togglePOV = () => {
 const propagateSatellites = () => {
     if (activeSatellites.value.length === 0) return;
     
-    activeSatellites.value = activeSatellites.value.map(sat => {
-        if (!sat.path || sat.path.length < 2) return sat;
+    const now = Date.now();
+    activeSatellites.value.forEach(sat => {
+        if (!sat.path || sat.path.length < 2) return;
         
-        // Simple linear interpolation along the path
         const path = sat.path;
         const totalPoints = path.length;
-        const speed = 0.05; // Orbital speed factor
         
-        orbitTick.value += speed / 1000;
-        const index = Math.floor(Date.now() / 2000) % totalPoints;
+        // Use a faster multiplier for smooth interpolation
+        const timeScale = 2000; // ms per path segment transition
+        const index = Math.floor(now / timeScale) % totalPoints;
         const nextIndex = (index + 1) % totalPoints;
         
         const currentPos = path[index];
         const nextPos = path[nextIndex];
-        
-        // Progress between the two points (0 to 1)
-        const progress = (Date.now() % 2000) / 2000;
+        const progress = (now % timeScale) / timeScale;
         
         const nextLat = currentPos[0] + (nextPos[0] - currentPos[0]) * progress;
         const nextLng = currentPos[1] + (nextPos[1] - currentPos[1]) * progress;
+
+        sat.position = {
+            lat: nextLat,
+            lng: nextLng,
+            alt: currentPos[2] || 0.1
+        };
 
         // If this is the selected satellite and POV is active, update camera
         if (isPOVMode.value && selectedSatellite.value && selectedSatellite.value.norad_id === sat.norad_id && world) {
             world.pointOfView({
                 lat: nextLat,
                 lng: nextLng,
-                altitude: 0.4 // Dynamic following altitude
-            }, 100); // Small duration for smooth chasing
+                altitude: 0.4
+            }, 0); // 0 duration for instant sync with RAF
         }
-
-        return {
-            ...sat,
-            position: {
-                lat: nextLat,
-                lng: nextLng,
-                alt: currentPos[2] || 0.1
-            }
-        };
     });
 
     if (world) {
         world.customLayerData(activeSatellites.value);
-        syncCommsLinks(); // Update ground station lines
+        // Throttle link sync to every 10 frames to save CPU
+        if (now % 10 === 0) syncCommsLinks();
     }
 };
 
@@ -640,12 +636,17 @@ const handleResize = () => {
 
     window.addEventListener('resize', handleResize);
 
-    // Orbital Propagator Loop (Every 100ms for smooth motion)
-    const propagatorId = setInterval(propagateSatellites, 100);
+    // Orbital Propagator Loop (Using requestAnimationFrame for 60FPS)
+    let rafId;
+    const animate = () => {
+        propagateSatellites();
+        rafId = requestAnimationFrame(animate);
+    };
+    rafId = requestAnimationFrame(animate);
     
     // Cleanup
     return () => {
-        clearInterval(propagatorId);
+        cancelAnimationFrame(rafId);
         window.removeEventListener('resize', handleResize);
     };
 });
