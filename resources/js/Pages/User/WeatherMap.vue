@@ -9,7 +9,7 @@ import axios from 'axios';
 const globeContainer = ref(null);
 const leafletContainer = ref(null);
 const viewMode = ref('GLOBE'); // GLOBE, SATELLITE, FLAT
-const activeLayer = ref('clouds');
+const activeLayers = ref(['clouds', 'satellites']); // Multi-layer selection
 const activeStorms = ref([]);
 const activeSatellites = ref([]);
 const selectedPoint = ref(null);
@@ -208,6 +208,36 @@ const isLive = ref(true);
 const playbackTime = ref(Date.now());
 const modelMode = ref('ECMWF'); // ECMWF, GFS, COMPARE
 const timeMultiplier = ref(1); // Default 1x real-time
+
+const toggleLayer = (id) => {
+    const index = activeLayers.value.indexOf(id);
+    if (index === -1) {
+        activeLayers.value.push(id);
+    } else {
+        activeLayers.value.splice(index, 1);
+    }
+    syncGlobeLayers();
+};
+
+const syncGlobeLayers = () => {
+    if (!world) return;
+
+    // Reset some layers if they are not active
+    if (!activeLayers.value.includes('aurora')) world.ringsData(activeStorms.value); // Keep storms rings
+    if (!activeLayers.value.includes('risk') && !activeLayers.value.includes('sst')) world.heatmapsData([]);
+    if (!activeLayers.value.includes('aqi')) world.hexBinPointsData([]);
+    if (!activeLayers.value.includes('marine') && !activeLayers.value.includes('storms') && !activeLayers.value.includes('lightning')) world.pointsData([]);
+    
+    // Trigger specific render functions for active layers
+    if (activeLayers.value.includes('aurora')) toggleAurora(true);
+    if (activeLayers.value.includes('risk')) toggleRiskHeatmap(true);
+    if (activeLayers.value.includes('aqi')) renderAQILayer();
+    if (activeLayers.value.includes('sst')) renderSSTLayer();
+    if (activeLayers.value.includes('wind')) toggleWindLayer(true);
+    if (activeLayers.value.includes('marine')) renderMarineLayer();
+    if (activeLayers.value.includes('ndvi')) renderNDVILayer();
+    if (activeLayers.value.includes('lightning')) toggleLightning(true);
+};
 
 const toggleDrawingMode = () => {
     isDrawingZone.value = !isDrawingZone.value;
@@ -1015,21 +1045,30 @@ const switchView = (mode) => {
                     <p class="text-[9px] text-white/30 uppercase tracking-[0.3em] mt-1">Global Atmospheric Visualization</p>
                 </div>
 
-                <div class="space-y-2 pointer-events-auto max-h-[50vh] overflow-y-auto custom-scrollbar pr-2">
+                <div class="space-y-1.5 pointer-events-auto max-h-[50vh] overflow-y-auto custom-scrollbar pr-2">
                     <button v-for="layer in layers" :key="layer.id"
-                        @click="activeLayer = layer.id"
-                        :class="activeLayer === layer.id ? 'bg-vibrant-blue/20 border-vibrant-blue/50 text-white translate-x-1 shadow-[0_0_20px_rgba(0,136,255,0.15)]' : 'bg-black/40 border-white/5 text-white/40 hover:bg-black/60 hover:translate-x-1'"
-                        class="w-full text-left px-5 py-4 border transition-all flex items-center group relative overflow-hidden">
+                        @click="toggleLayer(layer.id)"
+                        :class="activeLayers.includes(layer.id) ? 'bg-vibrant-blue/20 border-vibrant-blue/50 text-white translate-x-1 shadow-[0_0_20px_rgba(0,136,255,0.1)]' : 'bg-black/40 border-white/5 text-white/40 hover:bg-black/60 hover:translate-x-1'"
+                        class="w-full text-left p-0 border transition-all flex items-stretch group relative overflow-hidden h-14">
                         
-                        <!-- Tactical Color Stripe -->
-                        <div :class="`bg-${layer.color}`" class="absolute left-0 top-0 bottom-0 w-1 opacity-60"></div>
+                        <!-- Tactical Color Strip -->
+                        <div :class="`bg-${layer.color}`" class="w-1.5 h-full opacity-60"></div>
                         
-                        <div class="flex items-center space-x-4 flex-1">
-                            <span class="text-xs group-hover:scale-110 transition-transform">{{ layer.icon }}</span>
-                            <span class="text-[9px] font-black tracking-[0.15em] uppercase">{{ layer.name }}</span>
+                        <div class="flex items-center space-x-4 px-4 flex-1">
+                            <span class="text-lg group-hover:scale-110 transition-transform filter drop-shadow-[0_0_5px_rgba(0,0,0,0.5)]">{{ layer.icon }}</span>
+                            <div class="flex flex-col">
+                                <span class="text-[9px] font-black tracking-[0.2em] uppercase leading-none">{{ layer.name }}</span>
+                                <span class="text-[7px] text-white/20 font-bold mt-1 tracking-widest">{{ activeLayers.includes(layer.id) ? 'DATA_STREAM_ACTIVE' : 'IDLE_MONITOR' }}</span>
+                            </div>
                         </div>
                         
-                        <div v-if="activeLayer === layer.id" class="w-1.5 h-1.5 rounded-full bg-vibrant-blue shadow-[0_0_10px_#0088ff] animate-pulse"></div>
+                        <!-- Status Indicator -->
+                        <div class="flex items-center px-4">
+                            <div class="w-4 h-4 rounded-sm border border-white/10 flex items-center justify-center transition-all" 
+                                 :class="activeLayers.includes(layer.id) ? 'bg-vibrant-blue border-vibrant-blue' : 'bg-white/5'">
+                                <svg v-if="activeLayers.includes(layer.id)" class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            </div>
+                        </div>
                     </button>
                 </div>
 
