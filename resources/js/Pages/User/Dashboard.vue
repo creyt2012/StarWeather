@@ -48,42 +48,51 @@ const weatherData = ref({
                         </div>
                     </div>
                     
+                    <div class="absolute inset-0 flex items-center justify-center">
                         <div class="text-center relative">
                             <!-- Tactical Ring Breakdown -->
-                            <div class="absolute -inset-16 border border-white/5 rounded-full pointer-events-none"></div>
-                            <div class="absolute -inset-24 border border-white/5 rounded-full opacity-50 pointer-events-none"></div>
+                            <div class="absolute -inset-12 border border-white/5 rounded-full pointer-events-none"></div>
+                            <div class="absolute -inset-20 border border-white/5 rounded-full opacity-30 pointer-events-none"></div>
                             
                             <!-- Detailed Metrics around the circle -->
-                            <div class="absolute -top-20 left-1/2 -translate-x-1/2 whitespace-nowrap">
+                            <div class="absolute -top-16 left-1/2 -translate-x-1/2 whitespace-nowrap">
                                 <p class="text-[7px] font-black text-vibrant-blue tracking-[.3em] uppercase">SYSTEM_INTEGRITY: 100%</p>
                             </div>
-                            <div class="absolute top-1/2 -left-32 -translate-y-1/2 text-right">
-                                <p class="text-[7px] font-black text-white/40 tracking-widest uppercase mb-1">STORM_THREAT</p>
-                                <p class="text-[10px] font-black" :class="storms?.length > 0 ? 'text-red-500' : 'text-vibrant-green'">{{ storms?.length > 0 ? 'ACTIVE' : 'NOMINAL' }}</p>
+                            <div class="absolute top-1/2 -left-28 -translate-y-1/2 text-right">
+                                <p class="text-[6px] font-black text-white/30 tracking-widest uppercase mb-0.5">STORM_THREAT</p>
+                                <p class="text-[9px] font-black" :class="storms?.length > 0 ? 'text-red-500' : 'text-vibrant-green'">{{ storms?.length > 0 ? 'ACTIVE' : 'NOMINAL' }}</p>
                             </div>
-                            <div class="absolute top-1/2 -right-32 -translate-y-1/2 text-left">
-                                <p class="text-[7px] font-black text-white/40 tracking-widest uppercase mb-1">ASSET_LATENCY</p>
-                                <p class="text-[10px] font-black text-vibrant-blue">14MS</p>
+                            <div class="absolute top-1/2 -right-28 -translate-y-1/2 text-left">
+                                <p class="text-[6px] font-black text-white/30 tracking-widest uppercase mb-0.5">ASSET_LATENCY</p>
+                                <p class="text-[9px] font-black text-vibrant-blue">14MS</p>
                             </div>
 
-                            <div class="w-48 h-48 rounded-full border border-vibrant-blue/20 flex items-center justify-center relative bg-black/40">
+                            <div class="w-40 h-40 rounded-full border border-vibrant-blue/20 flex items-center justify-center relative bg-black/40">
                                 <!-- Pulsing Ring instead of spinning -->
                                 <div class="absolute inset-0 rounded-full border-2 border-vibrant-blue/40 animate-pulse"></div>
-                                <div class="absolute inset-4 rounded-full border border-vibrant-blue/10 border-t-vibrant-blue/60 animate-spin duration-[15000ms]"></div>
+                                <div class="absolute inset-3 rounded-full border border-vibrant-blue/10 border-t-vibrant-blue/60 animate-spin duration-[15000ms]"></div>
                                 
                                 <div v-if="storms?.length > 0" class="absolute inset-0 animate-ping opacity-20 rounded-full bg-red-500"></div>
                                 <div class="text-center relative z-10">
-                                    <p class="text-[9px] font-black text-vibrant-blue uppercase tracking-[0.3em] mb-1">THREAT_LEVEL</p>
-                                    <h1 class="text-6xl font-black italic shadow-vibrant-blue/40 drop-shadow-[0_0_15px_rgba(0,136,255,0.5)]" :class="riskScore > 50 ? 'text-red-500' : 'text-white'">{{ riskScore }}%</h1>
+                                    <p class="text-[8px] font-black text-vibrant-blue/60 uppercase tracking-[0.3em] mb-1">THREAT_LEVEL</p>
+                                    <h1 class="text-5xl font-black italic text-white drop-shadow-[0_0_15px_rgba(0,136,255,0.5)] leading-none">{{ riskScore }}%</h1>
                                 </div>
                             </div>
                         </div>
+                    </div>
 
                     <!-- Corners UI -->
                     <div class="absolute top-6 left-6 p-4 border-l border-t border-white/10 opacity-40">
                          <p class="text-[10px] font-black tracking-widest uppercase text-vibrant-blue mb-1">INTELLIGENCE_DIAGNOSTICS</p>
                         <p class="text-[8px] font-black tracking-widest uppercase">Sector_Grid: Alpha-09</p>
                         <p class="text-[8px] font-black tracking-widest uppercase">Targeting_Active</p>
+                    </div>
+                    <div class="absolute bottom-6 left-6 p-4 border-l border-b border-white/10 opacity-40">
+                        <p class="text-[7px] font-bold text-vibrant-blue uppercase tracking-widest mb-1">LIVE_DATA_STREAM</p>
+                        <div class="space-y-0.5">
+                            <p class="text-[6px] font-mono text-white/40 italic">REQ_SENT: 18:22:45... OK</p>
+                            <p class="text-[6px] font-mono text-white/40 italic">IMG_INGEST: HIMAWARI_9... LATEST</p>
+                        </div>
                     </div>
                     <div class="absolute bottom-6 right-6 p-4 border-r border-b border-vibrant-blue/10">
                         <p class="text-[8px] font-black text-vibrant-blue tracking-widest uppercase">Encryption_Type: AES-256</p>
