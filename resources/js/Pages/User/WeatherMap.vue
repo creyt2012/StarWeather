@@ -288,6 +288,68 @@ const initLeaflet = () => {
     map._satelliteLayer = satelliteLayer;
     map._labelLayer = labelLayer;
     map._darkLayer = darkLayer;
+
+    // Radar Overlay (Leaflet)
+    if (radarTimestamp.value) {
+        map._radarLayer = L.tileLayer(`https://tilecache.rainviewer.com/v2/radar/${radarTimestamp.value}/256/{z}/{x}/{y}/2/1_1.png`, {
+            opacity: 0.6,
+            zIndex: 100
+        });
+        if (showRadar.value) map._radarLayer.addTo(map);
+    }
+};
+
+const handleSearch = async () => {
+    if (!searchQuery.value) return;
+    
+    isSearching.value = true;
+    try {
+        // 1. Check for Satellite Match
+        const satMatch = activeSatellites.value.find(s => 
+            s.name.toLowerCase().includes(searchQuery.value.toLowerCase()) || 
+            s.norad_id.includes(searchQuery.value)
+        );
+
+        if (satMatch) {
+            flyToLocation(satMatch.position.lat, satMatch.position.lng, 1.5);
+            selectedSatellite.value = satMatch;
+            isSearching.value = false;
+            searchQuery.value = '';
+            return;
+        }
+
+        // 2. Geocode Location Match (OSM Nominatim)
+        const geocodeRes = await axios.get(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery.value)}`);
+        if (geocodeRes.data && geocodeRes.data.length > 0) {
+            const topResult = geocodeRes.data[0];
+            flyToLocation(parseFloat(topResult.lat), parseFloat(topResult.lon), 2.5);
+        }
+    } catch (e) {
+        console.error('Search failed', e);
+    } finally {
+        isSearching.value = false;
+    }
+};
+
+const flyToLocation = (lat, lng, altitude = 2.5) => {
+    if (viewMode.value === 'GLOBE' && world) {
+        world.pointOfView({ lat, lng, altitude }, 2000);
+    } else if (map) {
+        map.flyTo([lat, lng], altitude === 1.5 ? 8 : 5);
+    }
+};
+
+const toggleRadar = () => {
+    showRadar.value = !showRadar.value;
+    if (!map) return;
+    
+    if (showRadar.value && map._radarLayer) {
+        map._radarLayer.addTo(map);
+    } else if (map._radarLayer) {
+        map.removeLayer(map._radarLayer);
+    }
+    
+    // Globe Radar logic (using custom textures is complex, we start with 2D first)
 };
 
 const syncLeafletMarkers = () => {
