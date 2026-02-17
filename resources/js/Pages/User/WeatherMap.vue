@@ -21,7 +21,6 @@ const forecastData = ref([]);
 const isLoadingForecast = ref(false);
 const orbitTick = ref(0);
 const isPOVMode = ref(false);
-let animationFrameId = null;
 
 const togglePOV = () => {
     isPOVMode.value = !isPOVMode.value;
@@ -38,31 +37,34 @@ const togglePOV = () => {
 const propagateSatellites = () => {
     if (activeSatellites.value.length === 0) return;
     
-    const now = Date.now();
     activeSatellites.value = activeSatellites.value.map(sat => {
         if (!sat.path || sat.path.length < 2) return sat;
         
+        // Simple linear interpolation along the path
         const path = sat.path;
         const totalPoints = path.length;
-        const orbitalPeriod = 2000; // ms per path segment for simulation speed
+        const speed = 0.05; // Orbital speed factor
         
-        const timestamp = now + (sat.id || 0); // Slight offset per satellite
-        const index = Math.floor(timestamp / orbitalPeriod) % totalPoints;
+        orbitTick.value += speed / 1000;
+        const index = Math.floor(Date.now() / 2000) % totalPoints;
         const nextIndex = (index + 1) % totalPoints;
         
         const currentPos = path[index];
         const nextPos = path[nextIndex];
-        const progress = (timestamp % orbitalPeriod) / orbitalPeriod;
+        
+        // Progress between the two points (0 to 1)
+        const progress = (Date.now() % 2000) / 2000;
         
         const nextLat = currentPos[0] + (nextPos[0] - currentPos[0]) * progress;
         const nextLng = currentPos[1] + (nextPos[1] - currentPos[1]) * progress;
 
+        // If this is the selected satellite and POV is active, update camera
         if (isPOVMode.value && selectedSatellite.value && selectedSatellite.value.norad_id === sat.norad_id && world) {
             world.pointOfView({
                 lat: nextLat,
                 lng: nextLng,
-                altitude: 0.4
-            });
+                altitude: 0.4 // Dynamic following altitude
+            }, 100); // Small duration for smooth chasing
         }
 
         return {
@@ -77,11 +79,7 @@ const propagateSatellites = () => {
 
     if (world) {
         world.customLayerData(activeSatellites.value);
-        syncCommsLinks();
-    }
-    
-    if (animationFrameId !== null) {
-        animationFrameId = requestAnimationFrame(propagateSatellites);
+        syncCommsLinks(); // Update ground station lines
     }
 };
 
@@ -642,13 +640,12 @@ const handleResize = () => {
 
     window.addEventListener('resize', handleResize);
 
-    // Orbital Propagator Loop (Using requestAnimationFrame for 60FPS)
-    animationFrameId = requestAnimationFrame(propagateSatellites);
+    // Orbital Propagator Loop (Every 100ms for smooth motion)
+    const propagatorId = setInterval(propagateSatellites, 100);
     
     // Cleanup
     return () => {
-        if (animationFrameId) cancelAnimationFrame(animationFrameId);
-        animationFrameId = null;
+        clearInterval(propagatorId);
         window.removeEventListener('resize', handleResize);
     };
 });
