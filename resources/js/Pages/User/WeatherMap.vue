@@ -388,6 +388,19 @@ const syncLeafletMarkers = () => {
             fillOpacity: 0.6
         }).addTo(markers).bindTooltip(`STORM: ${storm.name}`);
     });
+
+    // Ground Stations
+    if (showGroundStations.value) {
+        groundStations.value.forEach(station => {
+            L.marker([station.latitude, station.longitude], {
+                icon: L.divIcon({
+                    className: 'custom-station-icon',
+                    html: `<div class="station-pulse"></div>`,
+                    iconSize: [20, 20]
+                })
+            }).addTo(markers).bindTooltip(`STATION: ${station.name}`);
+        });
+    }
     
     markers.addTo(map);
     map._markersLayer = markers;
@@ -659,5 +672,80 @@ const switchView = (mode) => {
 </template>
 
 <style scoped>
-/* HUD aesthetics would go here */
+.custom-station-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.station-pulse {
+    width: 8px;
+    height: 8px;
+    background: #00ff88;
+    border-radius: 50%;
+    box-shadow: 0 0 10px #00ff88;
+    position: relative;
+}
+
+.station-pulse::after {
+    content: '';
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    border: 2px solid #00ff88;
+    border-radius: 50%;
+    animation: station-pulse 2s infinite;
+    opacity: 0;
+    left: -8px;
+    top: -8px;
+}
+
+@keyframes station-pulse {
+    0% { transform: scale(0.5); opacity: 0.8; }
+    100% { transform: scale(2.5); opacity: 0; }
+}
+
+/* Target Lock Effect */
+.target-lock {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100px;
+    height: 100px;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    border: 2px solid rgba(0, 255, 255, 0.5);
+    border-radius: 50%;
+}
+
+.target-lock::before, .target-lock::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border-color: #00ffff;
+    border-style: solid;
+}
+
+.target-lock::before {
+    top: -5px;
+    left: -5px;
+    border-width: 3px 0 0 3px;
+}
+
+.target-lock::after {
+    bottom: -5px;
+    right: -5px;
+    border-width: 0 3px 3px 0;
+}
+
+.animate-target-scan {
+    animation: target-scan 1s ease-out;
+}
+
+@keyframes target-scan {
+    0% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
+    70% { transform: translate(-50%, -50%) scale(0.9); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
 </style>
