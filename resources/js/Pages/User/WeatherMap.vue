@@ -1137,8 +1137,15 @@ const switchView = (mode) => {
                                 <span class="text-xl group-hover:scale-110 transition-transform filter drop-shadow-[0_0_8px_rgba(0,0,0,0.5)]">{{ layer.icon }}</span>
                             </div>
                             <div class="flex flex-col flex-1 min-w-0">
-                                <span class="text-[9px] font-black tracking-[0.15em] uppercase leading-tight truncate">{{ layer.name }}</span>
-                                <span class="text-[7px] text-white/30 font-bold mt-1 tracking-widest">{{ activeLayers.includes(layer.id) ? 'STREAM_ENCRYPTED' : 'IDLE_VECTORS' }}</span>
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-[9px] font-black tracking-[0.15em] uppercase leading-tight truncate">{{ layer.name }}</span>
+                                    <!-- Syncing Indicator -->
+                                    <span v-if="layer.id === 'satellites' && isSyncingSatellites" class="flex h-1.5 w-1.5 relative">
+                                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00ffff] opacity-75"></span>
+                                        <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#00ffff]"></span>
+                                    </span>
+                                </div>
+                                <span class="text-[7px] text-white/30 font-bold mt-1 tracking-widest">{{ activeLayers.includes(layer.id) ? (layer.id === 'satellites' && isSyncingSatellites ? 'HYDRATING_ORBITAL_DATA...' : 'STREAM_ENCRYPTED') : 'IDLE_VECTORS' }}</span>
                             </div>
                         </div>
                         
