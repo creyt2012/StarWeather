@@ -223,7 +223,13 @@ const selectSatellite = async (sat) => {
                 </div>
 
                 <!-- HUD Content -->
-                <div class="flex-1 overflow-y-auto custom-scrollbar p-8 space-y-8">
+                <div class="flex-1 overflow-y-auto custom-scrollbar p-8 space-y-8 relative">
+                    <!-- Loading Overlay -->
+                    <div v-if="isLoadingSat" class="absolute inset-0 z-20 bg-black/60 backdrop-blur-md flex flex-col items-center justify-center space-y-4 animate-in fade-in duration-300">
+                        <div class="w-12 h-12 border-2 border-vibrant-blue border-t-transparent rounded-full animate-spin"></div>
+                        <p class="text-[9px] font-black text-vibrant-blue uppercase tracking-[0.4em] animate-pulse">ACQUIRING_DATA_LINK...</p>
+                    </div>
+
                     <!-- Technical Profile -->
                     <div class="grid grid-cols-2 gap-4">
                         <div class="p-4 bg-white/[0.03] border border-white/5">
