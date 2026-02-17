@@ -8,33 +8,6 @@ import axios from 'axios';
 
 const globeContainer = ref(null);
 const leafletContainer = ref(null);
-const modelMode = ref('ECMWF'); // ECMWF, GFS, COMPARE
-
-const toggleDrawingMode = () => {
-    isDrawingZone.value = !isDrawingZone.value;
-    if (isDrawingZone.value) {
-        currentZonePoints.value = [];
-        notifyDrawingStart();
-    } else if (currentZonePoints.value.length > 2) {
-        saveWatchZone();
-    } else {
-        if (world) world.polygonsData(watchZones.value);
-    }
-};
-
-const notifyDrawingStart = () => {
-    console.log("DRAWING_MODE_ACTIVE");
-};
-
-const saveWatchZone = () => {
-    watchZones.value.push({
-        id: Date.now(),
-        points: [...currentZonePoints.value],
-        threat: 'LOW'
-    });
-    currentZonePoints.value = [];
-    if (world) world.polygonsData(watchZones.value);
-};
 const viewMode = ref('GLOBE'); // GLOBE, SATELLITE, FLAT
 const activeLayer = ref('clouds');
 const activeStorms = ref([]);
@@ -214,6 +187,19 @@ const currentZonePoints = ref([]);
 const watchZones = ref([]);
 const auroraData = ref([]);
 const riskHeatmapData = ref([]);
+const modelMode = ref('ECMWF'); // ECMWF, GFS, COMPARE
+
+const toggleDrawingMode = () => {
+    isDrawingZone.value = !isDrawingZone.value;
+    if (isDrawingZone.value) {
+        currentZonePoints.value = [];
+        notifyDrawingStart();
+    } else if (currentZonePoints.value.length > 2) {
+        saveWatchZone();
+    } else {
+        if (world) world.polygonsData(watchZones.value);
+    }
+};
 
 const toggleAurora = () => {
     if (auroraData.value.length > 0) {
