@@ -747,7 +747,7 @@ onMounted(async () => {
 
         if (world.controls()) {
             world.controls().autoRotate = true;
-            world.controls().autoRotateSpeed = 0.7;
+            world.controls().autoRotateSpeed = 0.2;
         }
 
         world.pointOfView({ lat: 10, lng: 106, altitude: 2.5 }, 2000);
