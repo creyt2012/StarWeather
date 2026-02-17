@@ -6,6 +6,7 @@ import Globe from 'globe.gl';
 import * as THREE from 'three';
 import axios from 'axios';
 import AisVesselHUD from '@/Components/AisVesselHUD.vue';
+import CyberCommandHUD from '@/Components/CyberCommandHUD.vue';
 
 const globeContainer = ref(null);
 const leafletContainer = ref(null);
@@ -24,6 +25,7 @@ const orbitTick = ref(0);
 const isPOVMode = ref(false);
 const timeOffset = ref(0); // Offset in minutes
 const selectedVessel = ref(null);
+const showCyberCommand = ref(false);
 let animationFrameId = null;
 
 const togglePOV = () => {
@@ -283,8 +285,110 @@ watch(activeLayer, (newLayer) => {
         renderWindLayer();
     } else if (newLayer === 'ndvi') {
         renderNdviLayer();
+    } else if (newLayer === 'space_weather') {
+        renderSpaceWeather();
+    } else if (newLayer === 'aviation') {
+        renderAviationLayer();
+    } else if (newLayer === 'infrastructure') {
+        renderInfrastructureLayer();
+    } else if (newLayer === 'junk') {
+        renderSpaceJunkLayer();
     }
 });
+
+const renderSpaceWeather = () => {
+    // Simulating Solar Particles hitting the Magnetosphere
+    const particleCount = 300;
+    const solarWind = Array.from({ length: particleCount }, () => {
+        const startLat = (Math.random() - 0.5) * 180;
+        const startLng = -180; // Coming from the sun's direction (relative)
+        const path = [];
+        for (let i = 0; i < 10; i++) {
+            path.push([
+                startLat + (Math.random() - 0.5) * 5,
+                startLng + (i * 36)
+            ]);
+        }
+        return { path, color: ['#ef4444', '#f59e0b', '#00ff88'][Math.floor(Math.random() * 3)] };
+    });
+
+    if (world) {
+        world.pathsData(solarWind)
+             .pathColor(d => d.color)
+             .pathDashLength(0.2)
+             .pathDashGap(0.05)
+             .pathDashAnimateTime(1000)
+             .pathStroke(0.3);
+    }
+};
+
+const renderAviationLayer = () => {
+    // Global flight simulation
+    const flightCount = 150;
+    const flights = Array.from({ length: flightCount }, () => ({
+        lat: (Math.random() - 0.5) * 140,
+        lng: (Math.random() - 0.5) * 360,
+        name: `FLIGHT_${Math.floor(Math.random() * 900 + 100)}`,
+        altitude: 30000 + Math.random() * 10000, // ft
+        airline: ['EMIRATES', 'VIETJET', 'LUFTHANSA', 'DELTA'][Math.floor(Math.random() * 4)]
+    }));
+
+    if (world) {
+        world.pointsData(flights)
+             .pointColor(() => '#ffffff')
+             .pointAltitude(0.04)
+             .pointRadius(0.3)
+             .pointLabel(d => `
+                <div class="bg-black/90 p-3 border border-white/20 backdrop-blur-md">
+                    <p class="text-[7px] text-white/40 uppercase">Aviation_Asset</p>
+                    <h4 class="text-xs font-black text-white italic">${d.name}</h4>
+                    <p class="text-[7px] text-white/60">AIRLINE: ${d.airline} | ALT: ${Math.floor(d.altitude)} FT</p>
+                </div>
+             `);
+    }
+};
+
+const renderInfrastructureLayer = () => {
+    // Undersea Fiber Optic Cables
+    const cableCount = 50;
+    const cables = Array.from({ length: cableCount }, () => ({
+        startLat: (Math.random() - 0.5) * 40,
+        startLng: (Math.random() - 0.5) * 360,
+        endLat: (Math.random() - 0.5) * 40,
+        endLng: (Math.random() - 1) * 360,
+        color: '#ff00ff' // Neon purple for cyber infrastructure
+    }));
+
+    if (world) {
+        world.arcsData(cables)
+             .arcColor(() => '#ff00ff')
+             .arcDashLength(0.1)
+             .arcDashGap(0.05)
+             .arcDashAnimateTime(3000)
+             .arcStroke(0.2);
+    }
+};
+
+const renderSpaceJunkLayer = () => {
+    // Simulation of LEO debris clusters
+    const junkPoints = Array.from({ length: 500 }, () => ({
+        lat: (Math.random() - 0.5) * 160,
+        lng: (Math.random() - 0.5) * 360,
+        weight: Math.random()
+    }));
+
+    if (world) {
+        world.heatmapsData([{
+            data: junkPoints,
+            lat: d => d.lat,
+            lng: d => d.lng,
+            weight: d => d.weight,
+            radius: 5,
+            opacity: 0.6,
+            colorInterpolator: t => `rgba(255, 255, 255, ${t * 0.5})`
+        }]);
+    }
+};
 
 const renderNdviLayer = () => {
     // Simulating Vegetation Health (Global green zones)
@@ -494,6 +598,10 @@ const layers = [
     { id: 'risk', name: 'STRATEGIC_RISK', color: 'red-500' },
     { id: 'ais', name: 'MARITIME_AIS', color: 'teal-400' },
     { id: 'ndvi', name: 'VEGETATION_HEALTH', color: 'green-600' },
+    { id: 'space_weather', name: 'SPACE_WEATHER', color: 'red-400' },
+    { id: 'aviation', name: 'ELITE_ADS_B', color: 'white' },
+    { id: 'infrastructure', name: 'CYBER_INFRA', color: 'purple-500' },
+    { id: 'junk', name: 'ORBITAL_DEBRIS', color: 'gray-400' },
 ];
 
 const viewOptions = [
@@ -1184,6 +1292,20 @@ const switchView = (mode) => {
                             </button>
                         </div>
                     </div>
+                </div>
+            </Transition>
+
+            <!-- AI Neural Command Center HUD -->
+            <Transition
+                enter-active-class="transition duration-700 ease-out"
+                enter-from-class="-translate-x-full opacity-0"
+                enter-to-class="translate-x-0 opacity-100"
+                leave-active-class="transition duration-500 ease-in"
+                leave-from-class="translate-x-0 opacity-100"
+                leave-to-class="-translate-x-full opacity-0"
+            >
+                <div v-if="showCyberCommand" class="absolute top-8 left-8 z-40 w-96">
+                    <CyberCommandHUD @close="showCyberCommand = false" />
                 </div>
             </Transition>
 
