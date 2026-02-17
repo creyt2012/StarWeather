@@ -665,11 +665,17 @@ watch(showGroundStations, () => {
 
 let frameCounter = 0; // For throttling comms links updates
 
-const initGlobe = async () => {
-    if (!globeContainer.value) return;
+const initGlobe = () => {
+    if (!globeContainer.value) {
+        console.error('GLOBE_CONTAINER_NOT_FOUND');
+        return;
+    }
 
-    const width = globeContainer.value.offsetWidth;
-    const height = globeContainer.value.offsetHeight;
+    // Force layout recalculation
+    const width = globeContainer.value.clientWidth || window.innerWidth;
+    const height = globeContainer.value.clientHeight || (window.innerHeight - 200);
+
+    console.log(`INITIALIZING_TACTICAL_GLOBE: ${width}x${height}`);
 
     world = Globe()
         (globeContainer.value)
@@ -680,8 +686,9 @@ const initGlobe = async () => {
         .backgroundImageUrl('//unpkg.com/three-globe/example/img/night-stars.png')
         .showAtmosphere(true)
         .atmosphereColor('#0088ff')
-        .atmosphereDaylightAlpha(0.1)
+        .atmosphereDaylightAlpha(0.2)
         .backgroundColor('#020205')
+        .globeColor('rgba(0, 136, 255, 0.1)') // Fallback color
         
         // --- Interactivity ---
         .onPointClick((point, event) => {
@@ -907,11 +914,19 @@ const handleResize = () => {
 
 import { onUnmounted } from 'vue';
 
-onMounted(async () => {
-    await initGlobe();
-    initLeaflet();
-    window.addEventListener('resize', handleResize);
-    animationFrameId = requestAnimationFrame(propagateSatellites);
+onMounted(() => {
+    // Small delay to ensure layout is settled
+    setTimeout(async () => {
+        initGlobe();
+        initLeaflet();
+        window.addEventListener('resize', handleResize);
+        animationFrameId = requestAnimationFrame(propagateSatellites);
+        
+        // Initial POV
+        if (world) {
+            world.pointOfView({ altitude: 2.5 }, 2000);
+        }
+    }, 500);
 });
 
 onUnmounted(() => {
@@ -1576,10 +1591,20 @@ const switchView = (mode) => {
             </div>
 
             <!-- Globe Container (3D) -->
-            <div v-show="viewMode === 'GLOBE'" ref="globeContainer" class="absolute inset-0 z-0 cursor-grab active:cursor-grabbing"></div>
+            <div 
+                v-show="viewMode === 'GLOBE'" 
+                ref="globeContainer" 
+                class="absolute inset-0 z-0 cursor-grab active:cursor-grabbing bg-[#020205]"
+                style="min-height: 500px; min-width: 100%;"
+            ></div>
             
             <!-- Leaflet Container (2D/Satellite) -->
-            <div v-show="viewMode !== 'GLOBE'" ref="leafletContainer" class="absolute inset-0 bg-[#050508] z-0"></div>
+            <div 
+                v-show="viewMode !== 'GLOBE'" 
+                ref="leafletContainer" 
+                class="absolute inset-0 bg-[#050508] z-0"
+                style="min-height: 500px; min-width: 100%;"
+            ></div>
                         <!-- HUD Overlay Decoration -->
             <div class="absolute inset-0 pointer-events-none border-[15px] border-black/5 z-20"></div>
 
