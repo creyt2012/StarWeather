@@ -127,6 +127,22 @@ const handleGlobeClick = async (arg1, arg2, arg3) => {
         return;
     }
 
+    // Drawing Mode Logic
+    if (isDrawingZone.value) {
+        currentZonePoints.value.push([lat, lng]);
+        if (world) {
+            // Visualize temporary polygon
+            world.polygonsData([
+                ...watchZones.value,
+                { id: 'preview', points: currentZonePoints.value, threat: 'SCANNING' }
+            ])
+            .polygonCapColor(d => d.threat === 'SCANNING' ? 'rgba(255, 0, 0, 0.3)' : 'rgba(0, 136, 255, 0.05)')
+            .polygonSideColor(() => 'rgba(0, 136, 255, 0.02)')
+            .polygonStrokeColor(d => d.threat === 'SCANNING' ? '#ff0000' : 'rgba(255, 255, 255, 0.1)');
+        }
+        return;
+    }
+
     selectedPoint.value = { lat, lng };
     isLoadingPoint.value = true;
     pointData.value = null;
@@ -178,6 +194,11 @@ const toggleDrawingMode = () => {
         notifyDrawingStart();
     } else if (currentZonePoints.value.length > 2) {
         saveWatchZone();
+    } else {
+        // Clear preview if drawing stopped with too few points
+        if (world) {
+            world.polygonsData(watchZones.value); // Revert to only saved zones
+        }
     }
 };
 
@@ -971,13 +992,40 @@ const switchView = (mode) => {
                             </div>
                         </div>
 
+                        <div v-if="pointData.ai_analysis" class="space-y-4 pt-4 border-t border-white/10">
+                            <h4 class="text-[10px] font-black text-white/40 uppercase tracking-widest border-l-2 border-purple-500 pl-3">AI_Atmospheric_Analysis</h4>
+                            <div class="grid grid-cols-1 gap-3">
+                                <div class="p-4 bg-purple-500/5 border border-purple-500/10 rounded-lg">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <span class="text-[9px] font-black text-purple-400">VOLUMETRIC_CLOUD_DEPTH</span>
+                                        <span class="text-xs font-mono font-bold">{{ pointData.ai_analysis.cloud_depth.toFixed(1) }} KM</span>
+                                    </div>
+                                    <div class="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                                        <div class="h-full bg-purple-500 shadow-[0_0_10px_#a855f7]" :style="{ width: pointData.ai_analysis.cloud_depth * 2 + '%' }"></div>
+                                    </div>
+                                </div>
+                                <div class="p-4 bg-orange-500/5 border border-orange-500/10 rounded-lg">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <span class="text-[9px] font-black text-orange-400">CYCLONE_GENESIS_PROB</span>
+                                        <span class="text-xs font-mono font-bold">{{ pointData.ai_analysis.cyclone_genesis.toFixed(1) }}%</span>
+                                    </div>
+                                    <div class="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                                        <div class="h-full bg-orange-500 shadow-[0_0_10px_#f97316]" :style="{ width: pointData.ai_analysis.cyclone_genesis + '%' }"></div>
+                                    </div>
+                                </div>
+                                <div v-if="pointData.ai_analysis.anomaly_detected" class="p-3 bg-red-500/10 border border-red-500/30 rounded-lg animate-pulse text-center">
+                                    <p class="text-[8px] font-black text-red-500 uppercase tracking-widest">⚠️ STRATEGIC_ANOMALY_DETECTED</p>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="space-y-2">
                             <div class="flex justify-between items-center text-[9px] font-black uppercase tracking-widest">
                                 <span class="text-white/40">Cloud_Density</span>
                                 <span class="text-vibrant-blue">{{ pointData.cloud_density.toFixed(0) }}%</span>
                             </div>
-                            <div class="h-1 w-full bg-white/5 overflow-hidden">
-                                <div class="h-full bg-vibrant-blue transition-all duration-1000" :style="{ width: pointData.cloud_density + '%' }"></div>
+                            <div class="h-1 bg-white/5 rounded-full overflow-hidden">
+                                <div class="h-full bg-vibrant-blue shadow-[0_0_10px_#0088ff]" :style="{ width: pointData.cloud_density + '%' }"></div>
                             </div>
                         </div>
 
