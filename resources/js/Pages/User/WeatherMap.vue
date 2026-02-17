@@ -322,7 +322,7 @@ const syncGlobeLayers = () => {
     // Ensure rotation is active
     if (world.controls()) {
         world.controls().autoRotate = true;
-        world.controls().autoRotateSpeed = 0.7;
+        world.controls().autoRotateSpeed = 0.2;
     }
 
     // 7. Custom Layers (Satellites)
