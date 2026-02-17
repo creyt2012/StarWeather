@@ -41,6 +41,22 @@ Route::prefix('api/internal-map')->group(function () {
         }
         return \App\Models\Storm::where('status', 'active')->get();
     });
+
+    Route::get('/point-info', function (\Illuminate\Http\Request $request) {
+        $internalToken = 'vethinh_strategic_internal_token_2026';
+        if ($request->query('token') !== $internalToken && !auth()->check()) {
+            return response()->json(['error' => 'Access Restricted'], 401);
+        }
+        return app(\App\Http\Controllers\Api\V1\WeatherController::class)->pointInfo($request);
+    });
+
+    Route::get('/forecast', function (\Illuminate\Http\Request $request) {
+        $internalToken = 'vethinh_strategic_internal_token_2026';
+        if ($request->query('token') !== $internalToken && !auth()->check()) {
+            return response()->json(['error' => 'Access Restricted'], 401);
+        }
+        return app(\App\Http\Controllers\Api\V1\WeatherController::class)->forecast($request);
+    });
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
