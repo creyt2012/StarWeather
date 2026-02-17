@@ -157,6 +157,16 @@ const showRadar = ref(false);
 const showGroundStations = ref(true);
 const showLightning = ref(false);
 const lightningData = ref([]);
+const isDrawingZone = ref(false);
+const currentZonePoints = ref([]);
+const watchZones = ref([]);
+
+const toggleDrawingMode = () => {
+    isDrawingZone.value = !isDrawingZone.value;
+    if (isDrawingZone.value) {
+        currentZonePoints.value = [];
+    }
+};
 
 const toggleLightning = () => {
     showLightning.value = !showLightning.value;
@@ -209,6 +219,8 @@ const layers = [
     { id: 'clouds', name: 'CLOUD_DENSITY', color: 'vibrant-blue' },
     { id: 'precip', name: 'PRECIPITATION', color: 'vibrant-green' },
     { id: 'wind', name: 'WIND_SPEED', color: 'yellow-500' },
+    { id: 'aqi', name: 'AIR_QUALITY_INDEX', color: 'purple-500' },
+    { id: 'sst', name: 'SEA_TEMPERATURE', color: 'orange-500' },
 ];
 
 const viewOptions = [
