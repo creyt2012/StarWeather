@@ -65,9 +65,21 @@ onMounted(async () => {
         (globeContainer.value)
         .width(width)
         .height(height)
-        .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-night.jpg')
+        .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
         .bumpImageUrl('https://unpkg.com/three-globe/example/img/earth-topology.png')
         .backgroundColor('#020205')
+        
+        // --- Boundaries Layer ---
+        .lineHoverPrecision(0)
+        .polygonCapColor(() => 'rgba(0, 136, 255, 0.05)')
+        .polygonSideColor(() => 'rgba(0, 136, 255, 0.02)')
+        .polygonStrokeColor(() => 'rgba(255, 255, 255, 0.1)')
+        .polygonLabel(({ properties: d }) => `
+            <div class="bg-black/90 p-3 border border-vibrant-blue/30 backdrop-blur-xl">
+                <p class="text-[8px] font-black text-vibrant-blue uppercase mb-1">PROVINCE_INTEL</p>
+                <p class="text-xs font-black uppercase italic">${d.NAME_1 || d.NAME || 'UNKNOWN_REGION'}</p>
+            </div>
+        `)
         
         // --- Storms Layer ---
         .ringColor(() => '#ef4444')
