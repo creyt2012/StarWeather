@@ -6,6 +6,7 @@ import Chart from 'chart.js/auto';
 
 const props = defineProps({
     sla: Object,
+    externalApis: Object,
     recentLogs: Array
 });
 
@@ -13,7 +14,10 @@ const charts = ref({});
 
 onMounted(() => {
     Object.keys(props.sla).forEach(service => {
-        const ctx = document.getElementById(`chart-${service}`).getContext('2d');
+        const element = document.getElementById(`chart-${service}`);
+        if (!element) return;
+        
+        const ctx = element.getContext('2d');
         const history = props.sla[service].history;
         
         charts.value[service] = new Chart(ctx, {
@@ -50,11 +54,18 @@ onMounted(() => {
 
 const getStatusColor = (status) => {
     switch (status) {
-        case 'operational': return 'text-vibrant-green';
+        case 'operational': 
+        case 'CONNECTED': return 'text-vibrant-green';
         case 'degraded': return 'text-yellow-500';
-        case 'down': return 'text-red-500';
+        case 'down': 
+        case 'FAILED':
+        case 'OFFLINE': return 'text-red-500';
         default: return 'text-white/20';
     }
+};
+
+const getExternalLabel = (key) => {
+    return key.replace(/_/g, ' ');
 };
 </script>
 
@@ -65,10 +76,41 @@ const getStatusColor = (status) => {
         <template #header>System_Integrity_Monitor</template>
 
         <div class="space-y-10">
+            <!-- External Data Pipeline Health -->
+            <div class="bg-[#050508] border border-white/5 p-8 relative overflow-hidden">
+                <div class="flex items-center justify-between mb-8 border-b border-white/5 pb-6">
+                    <div>
+                        <h3 class="text-xl font-black uppercase tracking-tighter italic mr-4">EXTERNAL_DATA_PIPELINE</h3>
+                        <p class="text-[10px] text-white/30 uppercase tracking-[0.3em] mt-1">Live connectivity state with global meteorological agencies</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div v-for="(info, api) in externalApis" :key="api" 
+                        class="bg-white/[0.02] border border-white/5 p-6 flex flex-col justify-between">
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="text-[9px] font-black text-white/30 uppercase tracking-widest">{{ getExternalLabel(api) }}</span>
+                            <div :class="getStatusColor(info.status)" class="w-1.5 h-1.5 rounded-full shadow-[0_0_10px_currentColor] bg-current"></div>
+                        </div>
+                        <div class="flex justify-between items-end">
+                            <div>
+                                <p class="text-[8px] font-bold text-white/10 uppercase tracking-widest mb-1">LATENCY</p>
+                                <p class="text-2xl font-black font-mono text-white">{{ info.latency }}<span class="text-xs text-white/30 ml-1">MS</span></p>
+                            </div>
+                            <div class="text-right">
+                                <p :class="getStatusColor(info.status)" class="text-xs font-black italic uppercase tracking-widest">{{ info.status }}</p>
+                                <p class="text-[8px] font-bold text-white/10 uppercase mt-1">{{ new Date(info.last_check).toLocaleTimeString() }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Service Grid -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div v-for="(data, service) in sla" :key="service" 
                     class="bg-[#050508] border border-white/5 p-8 relative overflow-hidden group">
+                    <!-- ... existing code ... -->
                     
                     <div class="flex justify-between items-start mb-8">
                         <div>
