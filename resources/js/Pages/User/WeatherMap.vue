@@ -737,12 +737,47 @@ const switchView = (mode) => {
                             </div>
                         </div>
 
-                        <!-- Position Vectors -->
-                        <div class="p-4 bg-vibrant-blue/5 border border-vibrant-blue/20">
-                            <p class="text-[8px] font-black text-vibrant-blue/60 uppercase tracking-widest mb-3 text-center">CURRENT_SPATIAL_VECTORS</p>
-                            <div class="flex justify-around font-mono text-xs font-bold italic">
-                                <div><span class="text-white/30 mr-1">LAT:</span> {{ selectedSatellite.position.lat.toFixed(4) }}</div>
-                                <div><span class="text-white/30 mr-1">LNG:</span> {{ selectedSatellite.position.lng.toFixed(4) }}</div>
+                        <!-- Precise Location Vector -->
+                        <div class="space-y-3">
+                            <h4 class="text-[10px] font-black text-white/40 uppercase tracking-widest border-l-2 border-vibrant-blue pl-3">Ground_Impact_Intelligence</h4>
+                            <div class="p-4 bg-vibrant-blue/5 border border-vibrant-blue/20 rounded-lg">
+                                <div class="flex items-center space-x-3 mb-3">
+                                    <span class="text-xl">📍</span>
+                                    <div>
+                                        <p class="text-[8px] font-black text-vibrant-blue uppercase tracking-widest">Currently_Overflying</p>
+                                        <p class="text-xs font-black text-white uppercase italic">{{ selectedSatellite.location || 'INTELLERNATIONAL_WATERS' }}</p>
+                                    </div>
+                                </div>
+                                <div class="flex justify-between font-mono text-[9px] font-bold text-white/40 border-t border-white/5 pt-2">
+                                    <div>LAT: {{ selectedSatellite.position.lat.toFixed(6) }}</div>
+                                    <div>LNG: {{ selectedSatellite.position.lng.toFixed(6) }}</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Hardware Modules -->
+                        <div class="space-y-4">
+                            <h4 class="text-[10px] font-black text-white/40 uppercase tracking-widest border-l-2 border-vibrant-blue pl-3">Orbital_Module_Status</h4>
+                            <div class="grid grid-cols-1 gap-2">
+                                <div v-for="mod in (selectedSatellite.modules || [])" :key="mod.id" 
+                                    class="flex items-center justify-between p-3 bg-white/[0.03] border border-white/5 hover:bg-white/[0.05] transition-colors">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-1.5 h-1.5 rounded-full" :class="mod.status === 'OPERATIONAL' || mod.status === 'ONLINE' ? 'bg-vibrant-green shadow-[0_0_8px_#22c55e]' : 'bg-red-500'"></div>
+                                        <span class="text-[9px] font-black text-white/80 uppercase">{{ mod.name }}</span>
+                                    </div>
+                                    <span class="text-[7px] font-mono text-white/20">{{ mod.id }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Hardware Specifications -->
+                        <div class="space-y-4">
+                            <h4 class="text-[10px] font-black text-white/40 uppercase tracking-widest border-l-2 border-vibrant-blue pl-3">Technical_Specifications</h4>
+                            <div class="grid grid-cols-2 gap-3 text-[9px]">
+                                <div v-for="(val, key) in (selectedSatellite.specs || {})" :key="key" class="p-3 bg-black/40 border border-white/5">
+                                    <p class="text-[7px] font-black text-white/20 uppercase mb-1">{{ key.replace('_', ' ') }}</p>
+                                    <p class="font-black text-vibrant-blue">{{ val }}</p>
+                                </div>
                             </div>
                         </div>
 
