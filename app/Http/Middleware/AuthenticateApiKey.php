@@ -24,22 +24,27 @@ class AuthenticateApiKey
     {
         $keyString = $request->header('X-API-KEY');
 
-        if (!$keyString) {
-            return response()->json(['error' => 'API Key missing.'], 401);
+        if ($keyString) {
+            $apiKey = ApiKey::where('key', $keyString)->active()->with('tenant')->first();
+
+            if (!$apiKey) {
+                return response()->json(['error' => 'Invalid or inactive API Key.'], 401);
+            }
+
+            // Set the global tenant context
+            $this->tenantManager->setTenant($apiKey->tenant);
+
+            // Update last used timestamp (proactive update)
+            $apiKey->update(['last_used_at' => now()]);
+
+            return $next($request);
         }
 
-        $apiKey = ApiKey::where('key', $keyString)->active()->with('tenant')->first();
-
-        if (!$apiKey) {
-            return response()->json(['error' => 'Invalid or inactive API Key.'], 401);
+        // --- Hybrid Fallback: Check if user is authenticated via standard session ---
+        if (auth('web')->check()) {
+            return $next($request);
         }
 
-        // Set the global tenant context
-        $this->tenantManager->setTenant($apiKey->tenant);
-
-        // Update last used timestamp (proactive update)
-        $apiKey->update(['last_used_at' => now()]);
-
-        return $next($request);
+        return response()->json(['error' => 'Unauthenticated. API Key missing or Session expired.'], 401);
     }
 }
