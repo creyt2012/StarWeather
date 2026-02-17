@@ -152,6 +152,15 @@ onMounted(async () => {
             }, 1000);
         })
 
+        // --- Comms Links (Arcs) ---
+        .arcsData([])
+        .arcColor(() => '#00ff88')
+        .arcDashLength(0.4)
+        .arcDashGap(0.2)
+        .arcDashAnimateTime(2000)
+        .arcStroke(0.1)
+        .arcAltitudeAutoScale(0.2)
+
         // --- Orbit Paths Layer ---
         .pathsData([]) // Start empty
         .pathColor(() => 'rgba(0, 255, 255, 0.4)') // Brighter orbits
@@ -242,7 +251,61 @@ onMounted(async () => {
         console.error('Failed to fetch data', e);
     }
 
-    const handleResize = () => {
+const syncCommsLinks = () => {
+    if (!world || activeSatellites.value.length === 0 || groundStations.value.length === 0) return;
+
+    const links = [];
+    activeSatellites.value.forEach(sat => {
+        // Find nearest station within 3000km
+        let nearest = null;
+        let minDist = Infinity;
+
+        groundStations.value.forEach(station => {
+            const dist = getDistance(sat.position.lat, sat.position.lng, station.latitude, station.longitude);
+            if (dist < 3000 && dist < minDist) {
+                minDist = dist;
+                nearest = station;
+            }
+        });
+
+        if (nearest) {
+            links.push({
+                startLat: sat.position.lat,
+                startLng: sat.position.lng,
+                endLat: nearest.latitude,
+                endLng: nearest.longitude
+            });
+        }
+    });
+    world.arcsData(links);
+};
+
+// Haversine distance
+const getDistance = (lat1, lon1, lat2, lon2) => {
+    const R = 6371; // km
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+              Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
+};
+
+watch(groundStations, () => {
+    if (world) {
+        world.pointsData([...activeStorms.value, ...groundStations.value.map(s => ({
+            ...s,
+            pointColor: '#00ff88',
+            pointRadius: 0.8,
+            pointAltitude: 0.02,
+            isStation: true
+        }))]);
+    }
+    syncCommsLinks();
+}, { deep: true });
+
+const handleResize = () => {
         if (!globeContainer.value) return;
         world.width(globeContainer.value.offsetWidth);
         world.height(globeContainer.value.offsetHeight);
