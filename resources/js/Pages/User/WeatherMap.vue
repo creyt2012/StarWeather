@@ -69,8 +69,11 @@ const propagateSatellites = () => {
             alt: currentPos[2] || 0.1
         };
 
-        if (isPOVMode.value && selectedSatellite.value && selectedSatellite.value.norad_id === sat.norad_id && world) {
-            world.pointOfView({ lat: nextLat, lng: nextLng, altitude: 0.4 }, 0); 
+        if (selectedSatellite.value && selectedSatellite.value.norad_id === sat.norad_id) {
+            selectedSatellite.value.position = { ...sat.position };
+            if (isPOVMode.value && world) {
+                world.pointOfView({ lat: nextLat, lng: nextLng, altitude: 0.4 }, 0); 
+            }
         }
     });
 
