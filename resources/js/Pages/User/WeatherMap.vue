@@ -45,6 +45,7 @@ watch(activeSatellites, (newSats) => {
         const strategic = newSats.filter(s => s.norad_id === '41836' || s.norad_id === '25544' || s.norad_id === '40267');
         world.labelsData([...activeStorms.value, ...strategic]);
     }
+    syncLeafletMarkers();
 }, { deep: true });
 
 watch(activeStorms, (newStorms) => {
@@ -55,6 +56,7 @@ watch(activeStorms, (newStorms) => {
         const strategicSats = activeSatellites.value.filter(s => s.norad_id === '41836' || s.norad_id === '25544' || s.norad_id === '40267');
         world.labelsData([...newStorms, ...strategicSats]);
     }
+    syncLeafletMarkers();
 }, { deep: true });
 
 onMounted(async () => {
@@ -262,6 +264,47 @@ const initLeaflet = () => {
     map._darkLayer = darkLayer;
 };
 
+const syncLeafletMarkers = () => {
+    if (!map) return;
+    
+    // Clear existing markers
+    if (map._markersLayer) {
+        map.removeLayer(map._markersLayer);
+    }
+    
+    const markers = L.layerGroup();
+    
+    // Satellites
+    activeSatellites.value.forEach(sat => {
+        const isStrategic = sat.norad_id === '41836' || sat.norad_id === '40267' || sat.norad_id === '25544';
+        const color = isStrategic ? '#00ffff' : '#0088ff';
+        
+        L.circleMarker([sat.position.lat, sat.position.lng], {
+            radius: isStrategic ? 6 : 4,
+            fillColor: color,
+            color: color,
+            weight: 2,
+            opacity: 0.8,
+            fillOpacity: 1
+        }).addTo(markers).bindTooltip(sat.name);
+    });
+    
+    // Storms
+    activeStorms.value.forEach(storm => {
+        L.circleMarker([storm.latitude, storm.longitude], {
+            radius: 8,
+            fillColor: '#ef4444',
+            color: '#ffffff',
+            weight: 2,
+            opacity: 0.8,
+            fillOpacity: 0.6
+        }).addTo(markers).bindTooltip(`STORM: ${storm.name}`);
+    });
+    
+    markers.addTo(map);
+    map._markersLayer = markers;
+};
+
 const switchView = (mode) => {
     viewMode.value = mode;
     
@@ -269,15 +312,20 @@ const switchView = (mode) => {
         setTimeout(() => {
             initLeaflet();
             map.invalidateSize();
+            syncLeafletMarkers();
             
             // Switch layers
-            map.eachLayer(l => map.removeLayer(l));
+            map.eachLayer(l => {
+                if (l !== map._markersLayer) map.removeLayer(l);
+            });
+            
             if (mode === 'SATELLITE') {
                 map._satelliteLayer.addTo(map);
                 map._labelLayer.addTo(map);
             } else {
                 map._darkLayer.addTo(map);
             }
+            map._markersLayer.addTo(map);
         }, 100);
     }
 };
