@@ -193,7 +193,7 @@ onMounted(async () => {
             group.add(mesh);
 
             const glowMesh = new THREE.Mesh(
-                new THREE.SphereGeometry(size * 2, 16, 16),
+                new THREE.SphereGeometry(size * 2, 8, 8),
                 new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.2 })
             );
             group.add(glowMesh);
@@ -224,7 +224,7 @@ onMounted(async () => {
         .arcColor(() => '#00ff88')
         .arcDashLength(0.4)
         .arcDashGap(0.2)
-        .arcDashAnimateTime(2000)
+        .arcDashAnimateTime(3000)
         .arcStroke(0.1)
         .arcAltitudeAutoScale(0.2)
 
@@ -249,7 +249,7 @@ onMounted(async () => {
         .onPointClick(handleGlobeClick)
         .onLabelClick(handleGlobeClick);
     world.controls().autoRotate = true;
-    world.controls().autoRotateSpeed = 0.5;
+    world.controls().autoRotateSpeed = 0.1;
 
     world.pointOfView({ lat: 10, lng: 106, altitude: 2.5 }, 2000);
 
