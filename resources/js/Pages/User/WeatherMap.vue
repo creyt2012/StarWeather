@@ -297,34 +297,7 @@ const toggleRiskHeatmap = () => {
         }
     }
 };
-// Layer Synchronization Watcher
-watch(activeLayer, (newLayer) => {
-    // Clear special layers first
-    if (world) {
-        world.ringsData([]);
-        world.heatmapsData([]);
-        world.hexBinPointsData([]);
-    }
-    stopLightningSimulation();
-    showLightning.value = false;
-
-    // Trigger specialized engines
-    if (newLayer === 'aurora') {
-        toggleAurora();
-    } else if (newLayer === 'risk') {
-        toggleRiskHeatmap();
-    } else if (newLayer === 'aqi') {
-        renderAQILayer();
-    } else if (newLayer === 'sst') {
-        renderSSTLayer();
-    } else if (newLayer === 'wind') {
-        toggleWindLayer(true);
-    } else if (newLayer === 'marine') {
-        renderMarineLayer();
-    } else if (newLayer === 'ndvi') {
-        renderNDVILayer();
-    }
-});
+// Layer Synchronization logic is now managed by syncGlobeLayers() triggered from UI
 
 const renderAQILayer = () => {
     // Simulating AQI hotspots (e.g. Asia/India/China)
@@ -388,15 +361,15 @@ const toggleWindLayer = (active) => {
     if (active) {
         generateWindParticles();
         if (world) {
-            world.pathsData(windParticles.value)
-                 .pathColor(() => 'rgba(255, 255, 255, 0.3)')
+            world.pathsData([...activeSatellites.value.map(s => s.path), ...windParticles.value])
+                 .pathColor(d => d.norad_id ? 'rgba(0, 136, 255, 0.4)' : 'rgba(255, 255, 255, 0.3)')
                  .pathDashLength(0.5)
                  .pathDashGap(0.1)
-                 .pathDashAnimateTime(2000)
-                 .pathStroke(0.15);
+                 .pathDashAnimateTime(d => d.norad_id ? 10000 : 2000)
+                 .pathStroke(d => d.norad_id ? 0.2 : 0.15);
         }
     } else {
-        if (world) world.pathsData([]);
+        if (world) world.pathsData(activeSatellites.value.map(s => s.path));
     }
 };
 
