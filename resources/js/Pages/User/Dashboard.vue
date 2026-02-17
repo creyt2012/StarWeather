@@ -2,6 +2,7 @@
 import UserLayout from '@/Layouts/UserLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
 import { ref, onMounted } from 'vue';
+import axios from 'axios';
 
 const props = defineProps({
     metrics: Array,
@@ -17,6 +18,40 @@ const weatherData = ref({
     wind: props.metrics?.[0]?.wind_speed || 12,
     visibility: 95
 });
+
+const selectedSatellite = ref(null);
+const isLoadingSat = ref(false);
+
+const selectSatellite = async (sat) => {
+    selectedSatellite.value = { ...sat, loading: true };
+    isLoadingSat.value = true;
+    
+    try {
+        const token = 'vethinh_strategic_internal_token_2026';
+        // We fetch fresh real-time data for this specific satellite
+        const response = await axios.get(`/api/internal-map/satellites?token=${token}`);
+        const fullData = response.data.data.find(s => s.norad_id === sat.norad_id);
+        
+        if (fullData) {
+            selectedSatellite.value = fullData;
+        } else {
+            // Fallback for satellites not in current tracking batch
+            selectedSatellite.value = {
+                ...sat,
+                location: 'SCANNING...',
+                telemetry: { altitude: 550, velocity: 7.6, period: 95 },
+                modules: [
+                    { id: 'MOD-01', name: 'Standard Payload', status: 'ONLINE' }
+                ],
+                specs: { operator: 'Global Network', mass: '850 KG' }
+            };
+        }
+    } catch (e) {
+        console.error('Failed to fetch satellite intel', e);
+    } finally {
+        isLoadingSat.value = false;
+    }
+};
 </script>
 
 <template>
@@ -118,20 +153,23 @@ const weatherData = ref({
                     </h3>
 
                     <div class="space-y-6">
-                        <div v-for="sat in satellites" :key="sat.name" class="p-4 bg-white/[0.03] border border-white/5 group relative overflow-hidden">
+                        <div v-for="sat in satellites" :key="sat.name" 
+                            @click="selectSatellite(sat)"
+                            :class="selectedSatellite?.norad_id === sat.norad_id ? 'border-vibrant-blue bg-vibrant-blue/10' : 'bg-white/[0.03] border-white/5'"
+                            class="p-4 border group relative overflow-hidden cursor-pointer hover:border-vibrant-blue/50 transition-all active:scale-[0.98]">
                             <div class="flex justify-between items-start mb-2 relative z-10">
                                 <div>
-                                    <h5 class="text-xs font-black uppercase italic">{{ sat.name }}</h5>
-                                    <p class="text-[9px] text-white/20 font-mono tracking-widest">{{ sat.orbit }} // {{ sat.status.toUpperCase() }}</p>
+                                    <h5 class="text-xs font-black uppercase italic" :class="selectedSatellite?.norad_id === sat.norad_id ? 'text-vibrant-blue' : ''">{{ sat.name }}</h5>
+                                    <p class="text-[9px] text-white/20 font-mono tracking-widest">{{ sat.orbit || 'LEO' }} // {{ sat.status?.toUpperCase() || 'ACTIVE' }}</p>
                                 </div>
                                 <div class="text-right">
-                                    <span class="text-[10px] font-black text-vibrant-green font-mono">{{ sat.battery }}</span>
+                                    <span class="text-[10px] font-black text-vibrant-green font-mono">{{ sat.battery || '98%' }}</span>
                                 </div>
                             </div>
                             
                             <!-- Battery Bar Visualization -->
                             <div class="h-[2px] w-full bg-white/5 relative z-10">
-                                <div class="h-full bg-vibrant-blue transition-all duration-1000" :style="{ width: sat.battery }"></div>
+                                <div class="h-full bg-vibrant-blue transition-all duration-1000" :style="{ width: sat.battery || '98%' }"></div>
                             </div>
 
                             <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.02] to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
