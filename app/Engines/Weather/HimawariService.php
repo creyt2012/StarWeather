@@ -8,25 +8,45 @@ use Illuminate\Support\Facades\Storage;
 class HimawariService
 {
     /**
-     * Download the latest Himawari-9 full disk or sector image.
+     * Download the latest Himawari-9 full disk or sector image dynamically.
      */
     public function downloadLatest(): string
     {
-        // Real URL for H8/H9 real-time images (simplified for this context)
-        // Source: https://himawari8.nict.go.jp/
-        $url = "https://himawari8-dl.nict.go.jp/himawari8/img/D531106/1d/800/2026/02/16/000000_0_0.png";
+        try {
+            // 1. Fetch latest timestamp info from NICT
+            $latestInfo = Http::get("https://himawari8-dl.nict.go.jp/himawari8/img/D531106/latest.json");
 
-        $response = Http::get($url);
+            if ($latestInfo->failed()) {
+                throw new \Exception("Could not fetch latest Himawari timestamp");
+            }
 
-        if ($response->failed()) {
-            // Provide a local test placeholder if external fetch fails to ensure system continuity
+            $dateStr = $latestInfo->json()['date']; // e.g., "2026-02-17 00:00:00"
+            $date = \Carbon\Carbon::parse($dateStr);
+
+            // 2. Construct dynamic URL based on latest timestamp
+            // Path format: /1d/800/YYYY/MM/DD/HHMMSS_0_0.png
+            $year = $date->format('Y');
+            $month = $date->format('m');
+            $day = $date->format('d');
+            $time = $date->format('His');
+
+            $url = "https://himawari8-dl.nict.go.jp/himawari8/img/D531106/1d/800/{$year}/{$month}/{$day}/{$time}_0_0.png";
+
+            $response = Http::timeout(30)->get($url);
+
+            if ($response->failed()) {
+                Log::warning("Himawari image download failed for URL: {$url}");
+                return $this->usePlaceholder();
+            }
+
+            $path = 'weather/himawari_latest.png';
+            Storage::disk('local')->put($path, $response->body());
+
+            return Storage::path($path);
+        } catch (\Exception $e) {
+            Log::error("Himawari Service Error: " . $e->getMessage());
             return $this->usePlaceholder();
         }
-
-        $path = 'weather/raw_' . time() . '.jpg';
-        Storage::disk('local')->put($path, $response->body());
-
-        return Storage::path($path);
     }
 
     private function usePlaceholder(): string
