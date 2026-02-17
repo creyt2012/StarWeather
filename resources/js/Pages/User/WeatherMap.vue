@@ -20,6 +20,7 @@ const showBottomForecast = ref(false);
 const forecastData = ref([]);
 const isLoadingForecast = ref(false);
 const orbitTick = ref(0);
+const lastFetchTime = ref(Date.now());
 const isPOVMode = ref(false);
 
 const togglePOV = () => {
@@ -38,20 +39,26 @@ const propagateSatellites = () => {
     if (activeSatellites.value.length === 0) return;
     
     const now = Date.now();
+    const delta = now - lastFetchTime.value; // ms since last sync
+    
     activeSatellites.value.forEach(sat => {
-        if (!sat.path || sat.path.length < 2) return;
+        if (!sat.path || sat.path.length < 2 || !sat.telemetry) return;
         
         const path = sat.path;
         const totalPoints = path.length;
         
-        // Use a faster multiplier for smooth interpolation
-        const timeScale = 2000; // ms per path segment transition
-        const index = Math.floor(now / timeScale) % totalPoints;
+        // Use actual orbital period from telemetry (default to 90 mins if missing)
+        const periodMs = (sat.telemetry.period || 90) * 60 * 1000;
+        const segmentDuration = periodMs / totalPoints;
+        
+        // Calculate point index based on real-time elapsed
+        const totalProgress = delta / segmentDuration;
+        const index = Math.floor(totalProgress) % totalPoints;
         const nextIndex = (index + 1) % totalPoints;
+        const progress = totalProgress % 1;
         
         const currentPos = path[index];
         const nextPos = path[nextIndex];
-        const progress = (now % timeScale) / timeScale;
         
         const nextLat = currentPos[0] + (nextPos[0] - currentPos[0]) * progress;
         const nextLng = currentPos[1] + (nextPos[1] - currentPos[1]) * progress;
@@ -62,20 +69,35 @@ const propagateSatellites = () => {
             alt: currentPos[2] || 0.1
         };
 
-        // If this is the selected satellite and POV is active, update camera
         if (isPOVMode.value && selectedSatellite.value && selectedSatellite.value.norad_id === sat.norad_id && world) {
             world.pointOfView({
                 lat: nextLat,
                 lng: nextLng,
                 altitude: 0.4
-            }, 0); // 0 duration for instant sync with RAF
+            }, 0); 
         }
     });
 
     if (world) {
         world.customLayerData(activeSatellites.value);
-        // Throttle link sync to every 10 frames to save CPU
-        if (now % 10 === 0) syncCommsLinks();
+        if (Math.floor(now / 100) % 10 === 0) syncCommsLinks();
+    }
+};
+
+const refreshTacticalData = async () => {
+    try {
+        const token = 'vethinh_strategic_internal_token_2026';
+        const res = await axios.get(`/api/internal-map/satellites?token=${token}`);
+        activeSatellites.value = res.data.data;
+        lastFetchTime.value = Date.now();
+        
+        if (world) {
+            world.customLayerData(activeSatellites.value);
+            world.pathsData(activeSatellites.value.map(s => s.path));
+        }
+        console.log("TACTICAL_SYNC_COMPLETE: Orbital paths updated.");
+    } catch (e) {
+        console.error("Tactical sync failed", e);
     }
 };
 
@@ -644,9 +666,14 @@ const handleResize = () => {
     };
     rafId = requestAnimationFrame(animate);
     
+    // Auto-sync data every 60 seconds
+    const intervalId = setInterval(refreshTacticalData, 60000);
+    lastFetchTime.value = Date.now();
+
     // Cleanup
     return () => {
         cancelAnimationFrame(rafId);
+        clearInterval(intervalId);
         window.removeEventListener('resize', handleResize);
     };
 });
