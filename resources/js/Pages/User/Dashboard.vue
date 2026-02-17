@@ -198,6 +198,107 @@ const selectSatellite = async (sat) => {
                 </div>
             </div>
         </div>
+
+        <!-- Satellite Intelligence HUD (Slide-over) -->
+        <Transition
+            enter-active-class="transition duration-500 ease-out"
+            enter-from-class="translate-x-full opacity-0"
+            enter-to-class="translate-x-0 opacity-100"
+            leave-active-class="transition duration-300 ease-in"
+            leave-from-class="translate-x-0 opacity-100"
+            leave-to-class="translate-x-full opacity-0"
+        >
+            <div v-if="selectedSatellite" class="fixed top-24 right-8 bottom-32 w-96 bg-black/90 backdrop-blur-2xl border border-vibrant-blue/50 shadow-[0_0_50px_rgba(0,136,255,0.2)] z-[60] flex flex-col overflow-hidden">
+                <!-- Header -->
+                <div class="p-6 border-b border-vibrant-blue/20 bg-vibrant-blue/10 flex justify-between items-center relative overflow-hidden">
+                    <div class="relative z-10">
+                        <p class="text-[8px] font-black text-vibrant-blue uppercase tracking-[0.4em] mb-1">Satellite_Intel</p>
+                        <h3 class="text-xl font-black uppercase tracking-tighter italic leading-none">{{ selectedSatellite.name }}</h3>
+                    </div>
+                    <button @click="selectedSatellite = null" class="relative z-10 text-white/40 hover:text-white transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </button>
+                    <!-- Background Decoration -->
+                    <div class="absolute -right-4 -top-4 w-24 h-24 bg-vibrant-blue/5 rounded-full blur-2xl"></div>
+                </div>
+
+                <!-- HUD Content -->
+                <div class="flex-1 overflow-y-auto custom-scrollbar p-8 space-y-8">
+                    <!-- Technical Profile -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="p-4 bg-white/[0.03] border border-white/5">
+                            <p class="text-[8px] font-black text-white/20 uppercase mb-1">NORAD_ID</p>
+                            <p class="text-sm font-black text-vibrant-blue font-mono">{{ selectedSatellite.norad_id }}</p>
+                        </div>
+                        <div class="p-4 bg-white/[0.03] border border-white/5">
+                            <p class="text-[8px] font-black text-white/20 uppercase mb-1">TX_STATUS</p>
+                            <p class="text-sm font-black text-vibrant-green italic uppercase">{{ selectedSatellite.status || 'ACTIVE' }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Precise Location Vector -->
+                    <div class="space-y-4">
+                        <h4 class="text-[10px] font-black text-white/40 uppercase tracking-widest border-l-2 border-vibrant-blue pl-3">Ground_Impact_Intelligence</h4>
+                        <div class="p-5 bg-vibrant-blue/5 border border-vibrant-blue/20 rounded-xl relative group">
+                            <div class="flex items-center space-x-4 mb-4">
+                                <span class="text-2xl animate-pulse">📍</span>
+                                <div>
+                                    <p class="text-[8px] font-black text-vibrant-blue uppercase tracking-widest mb-1">Currently_Overflying</p>
+                                    <p class="text-sm font-black text-white uppercase italic">{{ selectedSatellite.location || 'INTELLERNATIONAL_WATERS' }}</p>
+                                </div>
+                            </div>
+                            <div class="flex justify-between font-mono text-[10px] font-bold text-white/40 border-t border-white/5 pt-3">
+                                <div class="flex flex-col">
+                                    <span class="text-[8px] opacity-50 mb-0.5">LATITUDE</span>
+                                    <span class="text-white">{{ selectedSatellite.position?.lat?.toFixed(6) || '0.000000' }}</span>
+                                </div>
+                                <div class="flex flex-col text-right">
+                                    <span class="text-[8px] opacity-50 mb-0.5">LONGITUDE</span>
+                                    <span class="text-white">{{ selectedSatellite.position?.lng?.toFixed(6) || '0.000000' }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Telemetry -->
+                    <div class="space-y-5">
+                        <h4 class="text-[10px] font-black text-white/40 uppercase tracking-widest border-l-2 border-vibrant-blue pl-3">Live_Telemetry_Stream</h4>
+                        <div class="grid grid-cols-1 gap-1">
+                            <div class="flex justify-between items-center p-4 bg-white/[0.02] border border-white/5">
+                                <span class="text-[9px] text-white/30 font-bold uppercase">Altitude</span>
+                                <span class="text-sm font-black text-white">{{ (selectedSatellite.telemetry?.altitude || 550).toLocaleString() }} <span class="text-[10px] opacity-20 ml-1">KM</span></span>
+                            </div>
+                            <div class="flex justify-between items-center p-4 bg-white/[0.02] border border-white/5">
+                                <span class="text-[9px] text-white/30 font-bold uppercase">Orbital Velocity</span>
+                                <span class="text-sm font-black text-vibrant-green">{{ (selectedSatellite.telemetry?.velocity || 7.6).toFixed(3) }} <span class="text-[10px] opacity-20 ml-1">KM/S</span></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Orbital Modules -->
+                    <div class="space-y-4">
+                         <h4 class="text-[10px] font-black text-white/40 uppercase tracking-widest border-l-2 border-vibrant-blue pl-3">Orbital_Module_Status</h4>
+                        <div class="space-y-2">
+                            <div v-for="mod in (selectedSatellite.modules || [])" :key="mod.id" 
+                                class="flex items-center justify-between p-4 bg-white/[0.03] border border-white/5 hover:bg-white/[0.05] transition-all">
+                                <div class="flex items-center space-x-4">
+                                    <div class="w-2 h-2 rounded-full shadow-[0_0_10px_currentColor] animate-pulse" :class="mod.status === 'OPERATIONAL' || mod.status === 'ONLINE' ? 'text-vibrant-green bg-vibrant-green' : 'text-red-500 bg-red-500'"></div>
+                                    <span class="text-[10px] font-black text-white/80 uppercase">{{ mod.name }}</span>
+                                </div>
+                                <span class="text-[8px] font-mono text-white/20 uppercase tracking-widest">{{ mod.id }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action -->
+                    <div class="pt-4">
+                        <Link :href="route('weather-map')" class="block w-full py-4 bg-vibrant-blue text-white text-[10px] font-black uppercase tracking-[0.3em] text-center hover:bg-vibrant-blue/80 transition-all shadow-[0_0_30px_rgba(0,136,255,0.2)]">
+                            VIEW_ON_GLOBAL_MAP
+                        </Link>
+                    </div>
+                </div>
+            </div>
+        </Transition>
     </UserLayout>
 </template>
 
