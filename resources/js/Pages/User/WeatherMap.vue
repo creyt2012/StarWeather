@@ -518,30 +518,31 @@ const renderSSTLayer = () => {
     }
 };
 
-const renderAisLayer = () => {
-    // Simulating major shipping routes (e.g. Malacca, Suez, Panama)
-    const vesselCount = 100;
-    const vessels = Array.from({ length: vesselCount }, () => ({
-        lat: (Math.random() - 0.5) * 40, // Mostly mid-latitudes for trade
-        lng: (Math.random() - 0.5) * 360,
-        name: `VESSEL_${Math.floor(Math.random() * 90000 + 10000)}`,
-        type: ['CARGO', 'TANKER', 'CONTAINER'][Math.floor(Math.random() * 3)],
-        status: 'UNDERWAY'
-    }));
-    
-    if (world) {
-        world.pointsData(vessels)
-             .pointColor(() => '#2dd4bf') // Teal for AIS
-             .pointAltitude(0.01)
-             .pointRadius(0.5)
-             .pointLabel(d => `
-                <div class="bg-black/90 p-3 border border-teal-500/30 backdrop-blur-md">
-                    <p class="text-[8px] font-black text-teal-400 uppercase mb-1">MARITIME_UNIT</p>
-                    <h4 class="text-xs font-black text-white italic">${d.name}</h4>
-                    <p class="text-[7px] text-white/40 mt-1">TYPE: ${d.type} | STATUS: ${d.status}</p>
-                </div>
-             `);
-    }
+const renderAisLayer = async () => {
+    try {
+        const token = 'vethinh_strategic_internal_token_2026';
+        const response = await axios.get('/api/v1/weather/ais', { params: { token } });
+        if (world) {
+            world.pointsData(response.data.data)
+                 .pointColor(d => d.strategic_value === 'HIGH' ? '#f59e0b' : '#2dd4bf')
+                 .pointAltitude(0.01)
+                 .pointRadius(0.8)
+                 .pointLabel(d => `
+                    <div class="bg-black/95 p-4 border-l-2 border-teal-500 backdrop-blur-2xl shadow-2xl w-48">
+                        <p class="text-[7px] text-teal-400 font-black uppercase tracking-widest mb-1">MARITIME_ASSET</p>
+                        <h4 class="text-xs font-black text-white italic truncate">${d.name}</h4>
+                        <div class="mt-2 space-y-1 text-[7px] font-mono text-white/60">
+                            <p>TYPE: ${d.type}</p>
+                            <p>CARGO: ${d.cargo}</p>
+                            <p>STATUS: ${d.status}</p>
+                        </div>
+                        <div v-if="d.strategic_value === 'HIGH'" class="mt-2 text-[6px] text-yellow-500 font-black uppercase tracking-widest bg-yellow-500/10 p-1 text-center border border-yellow-500/20">
+                            ⚠️ STRATEGIC_IMPORTANCE_HIGH
+                        </div>
+                    </div>
+                 `);
+        }
+    } catch (e) { console.error('AIS sync failed', e); }
 };
 
 const notifyDrawingStart = () => {
