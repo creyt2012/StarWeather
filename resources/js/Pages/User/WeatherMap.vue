@@ -644,8 +644,8 @@ watch(showGroundStations, () => {
 });
 
 onMounted(async () => {
-    const width = globeContainer.value.offsetWidth;
-    const height = globeContainer.value.offsetHeight;
+    const width = globeContainer.value.offsetWidth || window.innerWidth;
+    const height = globeContainer.value.offsetHeight || (window.innerHeight - 300);
 
     world = Globe()
         (globeContainer.value)
@@ -654,6 +654,11 @@ onMounted(async () => {
         .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
         .bumpImageUrl('https://unpkg.com/three-globe/example/img/earth-topology.png')
         .backgroundColor('#020205')
+        
+        // Ensure initial sizing is correct after a small delay to allow layout to settle
+        setTimeout(() => {
+            handleResize();
+        }, 500);
         
         // --- Boundaries Layer ---
         .lineHoverPrecision(0)
@@ -1513,10 +1518,10 @@ const switchView = (mode) => {
             </div>
 
             <!-- Globe Container (3D) -->
-            <div v-show="viewMode === 'GLOBE'" ref="globeContainer" class="w-full h-full cursor-grab active:cursor-grabbing"></div>
+            <div v-show="viewMode === 'GLOBE'" ref="globeContainer" class="absolute inset-0 cursor-grab active:cursor-grabbing z-0"></div>
             
             <!-- Leaflet Container (2D/Satellite) -->
-            <div v-show="viewMode !== 'GLOBE'" ref="leafletContainer" class="w-full h-full bg-[#050508] z-0"></div>
+            <div v-show="viewMode !== 'GLOBE'" ref="leafletContainer" class="absolute inset-0 bg-[#050508] z-0"></div>
                         <!-- HUD Overlay Decoration -->
             <div class="absolute inset-0 pointer-events-none border-[15px] border-black/5 z-20"></div>
 
