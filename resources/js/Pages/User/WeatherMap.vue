@@ -234,20 +234,63 @@ const toggleRiskHeatmap = () => {
         }
     }
 };
-const modelMode = ref('ECMWF'); // ECMWF, GFS, COMPARE
+// Layer Synchronization Watcher
+watch(activeLayer, (newLayer) => {
+    // Clear special layers first
+    if (world) {
+        world.ringsData([]);
+        world.heatmapsData([]);
+        world.hexBinPointsData([]);
+    }
+    stopLightningSimulation();
+    showLightning.value = false;
 
-const toggleDrawingMode = () => {
-    isDrawingZone.value = !isDrawingZone.value;
-    if (isDrawingZone.value) {
-        currentZonePoints.value = [];
-        notifyDrawingStart();
-    } else if (currentZonePoints.value.length > 2) {
-        saveWatchZone();
-    } else {
-        // Clear preview if drawing stopped with too few points
-        if (world) {
-            world.polygonsData(watchZones.value); // Revert to only saved zones
-        }
+    // Trigger specialized engines
+    if (newLayer === 'aurora') {
+        toggleAurora();
+    } else if (newLayer === 'risk') {
+        toggleRiskHeatmap();
+    } else if (newLayer === 'aqi') {
+        renderAQILayer();
+    } else if (newLayer === 'sst') {
+        renderSSTLayer();
+    }
+});
+
+const renderAQILayer = () => {
+    // Simulating AQI hotspots (e.g. Asia/India/China)
+    const points = Array.from({ length: 200 }, () => ({
+        lat: 10 + (Math.random() * 40),
+        lng: 70 + (Math.random() * 80),
+        value: 50 + Math.random() * 450
+    }));
+    if (world) {
+        world.hexBinPointsData(points)
+             .hexBinResolution(4)
+             .hexTopColor(d => d.sumWeight > 300 ? '#ef4444' : '#eab308')
+             .hexSideColor(() => 'rgba(255,255,255,0.1)')
+             .hexBinMerge(true)
+             .hexTopCurvatureColor('#ef4444');
+    }
+};
+
+const renderSSTLayer = () => {
+    // SST is better as heatmap
+    const points = Array.from({ length: 300 }, () => ({
+        lat: (Math.random() - 0.5) * 60, // Near equator
+        lng: (Math.random() - 0.5) * 360,
+        weight: Math.random()
+    }));
+    if (world) {
+        world.heatmapsData([{
+            data: points,
+            lat: d => d.lat,
+            lng: d => d.lng,
+            weight: d => d.weight,
+            radius: 20,
+            opacity: 0.5,
+            colorInterpolator: t => `interpolateWarm(${t})`
+        }]);
     }
 };
 
