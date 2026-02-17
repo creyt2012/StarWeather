@@ -377,18 +377,31 @@ onMounted(async () => {
                 </div>
             </Transition>
 
-            <!-- Bottom Left Info -->
-            <div class="absolute bottom-8 left-8 z-10 p-4 border-l border-white/20 bg-black/40 backdrop-blur-sm">
-                <p class="text-[10px] font-black uppercase italic text-vibrant-blue">ACTIVE_DATA_SOURCE: HIMAWARI_9</p>
-                <p class="text-[8px] text-white/40 font-mono mt-1 uppercase">Resolving spatial vectors @ 2.5km/px</p>
+            <!-- View Mode Switcher -->
+            <div class="absolute bottom-8 right-8 z-40 flex space-x-2">
+                <button v-for="mode in viewOptions" :key="mode.id"
+                    @click="switchView(mode.id)"
+                    :class="viewMode === mode.id ? 'bg-vibrant-blue border-vibrant-blue text-white shadow-[0_0_20px_rgba(0,136,255,0.4)]' : 'bg-black/60 border-white/10 text-white/40 hover:bg-black/80 hover:border-white/20'"
+                    class="px-4 py-3 border backdrop-blur-md transition-all flex items-center space-x-3 group">
+                    <span class="text-sm">{{ mode.icon }}</span>
+                    <span class="text-[9px] font-black tracking-widest uppercase hidden lg:block">{{ mode.name }}</span>
+                </button>
             </div>
 
+            <!-- Bottom Left Info -->
+            <div class="absolute bottom-8 left-8 z-10 p-4 border-l border-white/20 bg-black/40 backdrop-blur-sm">
+                <p class="text-[10px] font-black uppercase italic text-vibrant-blue">ACTIVE_VIEW: {{ viewMode }}</p>
+                <p class="text-[8px] text-white/40 font-mono mt-1 uppercase">Resolving spatial vectors @ {{ viewMode === 'GLOBE' ? '2.5km/px' : '0.5km/px' }}</p>
+            </div>
 
-            <!-- Globe Container -->
-            <div ref="globeContainer" class="w-full h-full cursor-grab active:cursor-grabbing"></div>
+            <!-- Globe Container (3D) -->
+            <div v-show="viewMode === 'GLOBE'" ref="globeContainer" class="w-full h-full cursor-grab active:cursor-grabbing"></div>
+            
+            <!-- Leaflet Container (2D/Satellite) -->
+            <div v-show="viewMode !== 'GLOBE'" ref="leafletContainer" class="w-full h-full bg-[#050508] z-0"></div>
             
             <!-- HUD Overlay Decoration -->
-            <div class="absolute inset-0 pointer-events-none border-[20px] border-black/10"></div>
+            <div class="absolute inset-0 pointer-events-none border-[15px] border-black/5 z-20"></div>
         </div>
     </UserLayout>
 </template>
