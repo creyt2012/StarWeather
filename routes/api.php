@@ -7,6 +7,19 @@ use App\Http\Controllers\Api\V1\WeatherController;
 use App\Http\Controllers\Api\V1\MissionControlController;
 use Illuminate\Http\Request;
 
+Route::middleware(['auth.api_key'])->prefix('v1/map')->group(function () {
+    Route::get('/satellites', [WeatherController::class, 'satellites']);
+    Route::get('/storms', function () {
+        return \App\Models\Storm::where('status', 'active')->get();
+    });
+    Route::get('/radar-config', function () {
+        return response()->json([
+            'status' => 'success',
+            'data' => \Illuminate\Support\Facades\Cache::get('radar_config_latest')
+        ]);
+    });
+});
+
 Route::middleware(['auth.api_key', \App\Http\Middleware\CheckApiKeyLimits::class])->prefix('v1')->group(function () {
     Route::get('/live/state', [LiveStateController::class, 'index']);
 
