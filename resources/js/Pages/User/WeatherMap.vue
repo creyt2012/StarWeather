@@ -1294,6 +1294,49 @@ const switchView = (mode) => {
                             </div>
                         </div>
 
+                        <!-- Real-time Atmospheric Analysis (NEW) -->
+                        <div v-if="telemetryData" class="space-y-4">
+                            <h4 class="text-[10px] font-black text-vibrant-blue uppercase tracking-widest border-l-2 border-vibrant-blue pl-3">Ground_Point_Analysis</h4>
+                            
+                            <div class="grid grid-cols-2 gap-3">
+                                <div class="bg-white/5 p-3 rounded-sm border border-white/10">
+                                    <p class="text-[7px] text-white/30 font-black uppercase mb-1">Temperature</p>
+                                    <p class="text-xs font-black text-white">{{ telemetryData.environmental.temperature }}°C</p>
+                                </div>
+                                <div class="bg-white/5 p-3 rounded-sm border border-white/10">
+                                    <p class="text-[7px] text-white/30 font-black uppercase mb-1">Pressure</p>
+                                    <p class="text-xs font-black text-white">{{ telemetryData.environmental.pressure }} hPa</p>
+                                </div>
+                                <div class="bg-white/5 p-3 rounded-sm border border-white/10">
+                                    <p class="text-[7px] text-white/30 font-black uppercase mb-1">Humidity</p>
+                                    <p class="text-xs font-black text-white">{{ telemetryData.environmental.humidity }}%</p>
+                                </div>
+                                <div class="bg-white/5 p-3 rounded-sm border border-white/10">
+                                    <p class="text-[7px] text-white/30 font-black uppercase mb-1">Solar_Flux</p>
+                                    <p class="text-xs font-black text-vibrant-green">{{ telemetryData.environmental.solar_flux }} W/m²</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sensor Status (NEW) -->
+                        <div v-if="telemetryData" class="space-y-4 bg-black/40 p-4 border border-vibrant-blue/20">
+                            <h4 class="text-[10px] font-black text-white/40 uppercase tracking-widest">Onboard_Systems</h4>
+                            <div class="space-y-2">
+                                <div class="flex justify-between">
+                                    <span class="text-[8px] text-white/20">PWR_BUS</span>
+                                    <span class="text-[8px] font-mono text-vibrant-green">{{ telemetryData.status.power }}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-[8px] text-white/20">SIG_INT</span>
+                                    <span class="text-[8px] font-mono text-vibrant-blue">{{ telemetryData.status.signal_strength }}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-[8px] text-white/20">ATTITUDE</span>
+                                    <span class="text-[8px] font-mono text-white/50">{{ telemetryData.status.orientation }}</span>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Precise Location Vector -->
                         <div class="space-y-3">
                             <h4 class="text-[10px] font-black text-white/40 uppercase tracking-widest border-l-2 border-vibrant-blue pl-3">Ground_Impact_Intelligence</h4>
