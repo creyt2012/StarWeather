@@ -34,7 +34,7 @@ X-API-KEY: your_api_key_here
 
 ---
 
-## [MET] Khí Tượng & Du bao (Weather)
+## [MET] Khí Tượng & Dự Báo (Weather)
 
 | Phương thức | Endpoint | Mô tả |
 | :--- | :--- | :--- |
