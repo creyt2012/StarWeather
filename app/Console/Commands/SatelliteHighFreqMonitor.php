@@ -40,6 +40,7 @@ class SatelliteHighFreqMonitor extends Command
                         'alt' => $telemetry['orbital']['coordinates']['alt'],
                         'v' => $telemetry['orbital']['physics']['velocity_kms'],
                         'h' => $telemetry['intel']['heading_deg'],
+                        'loc' => $telemetry['metadata']['location'],
                         'gs' => $telemetry['intel']['link_specs']['is_visible_to_hanoi']
                     ];
 
