@@ -48,7 +48,8 @@ class ApiExpansionTest extends TestCase
             'latitude' => 10,
             'longitude' => 106,
             'max_wind_speed' => 120,
-            'min_pressure' => 980
+            'min_pressure' => 980,
+            'last_updated_at' => now()
         ]);
         AlertRule::create([
             'name' => 'TEST_RULE',
