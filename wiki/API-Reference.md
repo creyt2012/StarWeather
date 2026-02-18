@@ -66,6 +66,31 @@ X-API-KEY: your_api_key_here
 
 ---
 
+## [INT] API Bản đồ Nội bộ (Internal Map APIs)
+
+Được sử dụng bởi dashboard chính để hiển thị dữ liệu thời gian thực mà không bị giới hạn bởi Rate Limit thông thường. Yêu cầu tham số `token`.
+
+| URL | Phương thức | Mô tả |
+| :--- | :--- | :--- |
+| `/api/internal-map/satellites` | GET | Dữ liệu vị trí và quỹ đạo tối ưu cho rendering. |
+| `/api/internal-map/storms` | GET | Danh sách các cơn bão đang hoạt động. |
+| `/api/internal-map/ground-stations`| GET | Tọa độ các trạm mặt đất. |
+| `/api/internal-map/point-info` | GET | Thông tin khí tượng tại một điểm cụ thể. |
+| `/api/internal-map/forecast` | GET | Dữ liệu dự báo thô cho biểu đồ Meteogram. |
+
+---
+
+## [AI] Microservice Phân tích Ảnh (AI Core)
+
+Dịch vụ độc lập xử lý dữ liệu hình ảnh từ vệ tinh. Chạy tại cổng `:8001`.
+
+| URL | Phương thức | Mô tả |
+| :--- | :--- | :--- |
+| `POST /analyze` | POST | Phân tích ảnh vệ tinh (Input: File, Lat, Lng). Trả về temp, pressure, wind. |
+| `GET /` | GET | Kiểm tra trạng thái microservice. |
+
+---
+
 ## [SYS] Sức khỏe Hệ thống (System Health)
 
 | URL | Phương thức | Mô tả |
