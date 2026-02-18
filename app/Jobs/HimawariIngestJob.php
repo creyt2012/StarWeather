@@ -49,8 +49,10 @@ class HimawariIngestJob implements ShouldQueue
                 'data_sources' => ['JMA', 'Himawari-9', 'StarWeather AI Core'],
                 'provenance' => [
                     'sensor' => 'AHI',
+                    'image_id' => basename($imagePath),
                     'engine' => $aiResults['metadata']['engine'],
                     'temp_derived' => $aiResults['temperature_c'],
+                    'mean_brightness' => $aiResults['metadata']['mean_brightness'],
                     'wind_speed' => $aiResults['wind_speed_kmh'],
                     'wind_direction' => $aiResults['wind_direction_deg'],
                     'timestamp' => $aiResults['timestamp']
