@@ -63,7 +63,7 @@ Hệ thống không dựa trên cảm tính, mà sử dụng các công thức t
 
 ### Yêu Cầu Hạ Tầng
 - **PHP**: Phiên bản 8.2 trở lên với các extension: `bcmath`, `gmp`, `redis`.
-- **Database**: MySQL 8.0 với hỗ trợ JSON/Spatial.
+- **Database**: MySQL 8.0 với module JSON/Spatial.
 - **Memory Store**: Redis server để quản lý hàng đợi và cache trạng thái.
 
 ### Quy Trình Cài Đặt
