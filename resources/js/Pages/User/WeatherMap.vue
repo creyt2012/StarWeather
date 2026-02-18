@@ -1262,6 +1262,43 @@ const switchView = (mode) => {
                             </div>
                         </div>
 
+                        <!-- Vantage Viewport (NEW) -->
+                        <div v-if="telemetryData && telemetryData.metadata.can_image" class="space-y-3">
+                            <h4 class="text-[10px] font-black text-vibrant-blue uppercase tracking-widest border-l-2 border-vibrant-blue pl-3">Vantage_Capture_Stream</h4>
+                            <div class="relative aspect-video bg-black border border-vibrant-blue/30 overflow-hidden group">
+                                <!-- Live Image -->
+                                <img :src="telemetryData.visual.vantage_capture" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="Nadir View" />
+                                
+                                <!-- Tactical Overlays -->
+                                <div class="absolute inset-0 pointer-events-none">
+                                    <div class="absolute inset-0 border-[20px] border-black/20"></div>
+                                    <!-- Scanline -->
+                                    <div class="absolute top-0 left-0 w-full h-1 bg-vibrant-blue/20 animate-scanline"></div>
+                                    <!-- Crosshair -->
+                                    <div class="absolute inset-0 flex items-center justify-center">
+                                        <div class="w-12 h-12 border border-vibrant-blue/50 rounded-full flex items-center justify-center">
+                                            <div class="w-full h-[1px] bg-vibrant-blue/30"></div>
+                                            <div class="h-full w-[1px] bg-vibrant-blue/30 absolute"></div>
+                                        </div>
+                                    </div>
+                                    <!-- FOV Marker -->
+                                    <div class="absolute bottom-2 left-2 text-[6px] font-mono text-vibrant-blue bg-black/60 px-1">
+                                        FOV: {{ telemetryData.visual.fov_deg }}°_TARGET_LOCKED
+                                    </div>
+                                    <div class="absolute top-2 right-2 flex space-x-1">
+                                        <div class="w-1 h-1 bg-vibrant-red animate-pulse"></div>
+                                        <span class="text-[6px] font-black text-vibrant-red">REC_LIVE</span>
+                                    </div>
+                                </div>
+                                
+                                <!-- Zoom Controls Simulation -->
+                                <div class="absolute bottom-2 right-2 flex flex-col space-y-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <button class="bg-vibrant-blue/20 hover:bg-vibrant-blue/40 text-[8px] p-1 border border-vibrant-blue/30 text-white">ZOOM+</button>
+                                    <button class="bg-vibrant-blue/20 hover:bg-vibrant-blue/40 text-[8px] p-1 border border-vibrant-blue/30 text-white">ZOOM-</button>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Live Telemetry -->
                         <div class="space-y-4">
                             <h4 class="text-[10px] font-black text-white/40 uppercase tracking-widest border-l-2 border-vibrant-blue pl-3">Live_Telemetry_Stream</h4>
