@@ -1,6 +1,6 @@
 # Nền tảng Trí tuệ Khí quyển StarWeather
 
-![Mission Control](file:///Users/creytdeveloper/Documents/vetinh/public/assets/docs/images/mission_control_terminal.png)
+![Mission Control](images/mission_control_terminal.png)
 
 ## Tong quan He thong
 **StarWeather** là một hệ sinh thái giám sát khí quyển và quỹ đạo cấp cao, kết hợp giữa công nghệ viễn thám vệ tinh (Remote Sensing), trí tuệ nhân tạo (AI Core) và mô hình hóa vật lý thời gian thực. Nền tảng được thiết kế nhằm cung cấp khả năng cảnh báo sớm, phân tích dữ liệu đa phổ và quản lý tài sản không gian cho các tổ chức chuyên nghiệp.
@@ -11,16 +11,16 @@ Hệ thống giải quyết các thách thức về **Dữ liệu lớn (Big Dat
 
 ## Cau truc Tai lieu (Muc luc)
 
-### Kien truc He thong](Architecture)
+### [Kien truc He thong](Architecture)
 Khám phá thiết kế Hybrid Microservices, luồng dữ liệu (Data Pipeline) từ vệ tinh đến người dùng cuối, và cách hệ thống mở rộng quy mô.
 
-### Co che Van hanh & Thuat toan](Algorithms)
+### [Co che Van hanh & Thuat toan](Algorithms)
 Phân tích sâu về engine tính toán quỹ đạo SGP4, các thuật toán xử lý ảnh đa phổ và mô hình dự báo AI.
 
-### He thong Danh gia Rui ro](Risk-Engine)
+### [He thong Danh gia Rui ro](Risk-Engine)
 Tìm hiểu về Condition Engine - bộ não phân tích các chỉ số cực đoan và tự động phát bản tin cảnh báo.
 
-### Tai lieu API Toan cuc](API-Reference)
+### [Tai lieu API Toan cuc](API-Reference)
 Tra cứu danh mục đầy đủ các đầu cuối API (RESTful), bao gồm cả API nội bộ và giao thức kết nối AI Core.
 
 ---
