@@ -4,6 +4,32 @@ StarWeather được thiết kế theo kiến trúc **Monolithic-Distributed Hyb
 
 ---
 
+## [SVC] Hệ sinh thái Dịch vụ (Service Ecosystem)
+
+Dự án được thiết kế theo mô hình **Hybrid Microservices**:
+
+1.  **Core Backend (Laravel/PHP)**: Quản lý API, xác thực, cơ sở dữ liệu và điều phối task.
+2.  **AI Core (FastAPI/Python)**: Microservice chuyên biệt xử lý Computer Vision và tính toán vật lý khí quyển từ ảnh vệ tinh.
+3.  **Real-time Engine (WebSockets)**: Phát sóng tọa độ vệ tinh và cảnh báo tức thời.
+
+## [PIPE] Luồng Dữ liệu (Data Pipeline)
+
+```mermaid
+graph TD
+    A[Satellite Data - Himawari/GOES] --> B[HimawariIngestJob]
+    B --> C{AI Analysis}
+    C -->|Image Data| D[AI Core Microservice]
+    D -->|Meteorological Metrics| B
+    B --> E[Database/L1 Cache]
+    E --> F[API V1 / Internal Map]
+    F --> G[Tactical Dashboard / Globe]
+```
+
+1.  **Ingestion**: `HimawariIngestJob` tải ảnh vệ tinh từ các nguồn public.
+2.  **Analysis**: AI Core xử lý pixel để derive ra nhiệt độ, áp suất và tốc độ gió.
+3.  **Propagation**: `SatellitePropagateJob` tính toán vị trí vệ tinh tiếp theo mỗi giây dựa trên TLE.
+4.  **Delivery**: Dữ liệu được đẩy lên frontend qua API hoặc WebSockets.
+
 ## Phân Lớp Kiến Trúc (Architectural Layers)
 
 Hệ thống được tổ chức thành 4 phân lớp logic chính:
