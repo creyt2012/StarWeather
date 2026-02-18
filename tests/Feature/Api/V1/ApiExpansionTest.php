@@ -19,14 +19,28 @@ class ApiExpansionTest extends TestCase
     {
         parent::setUp();
 
+        $tenant = Tenant::create([ // Changed to use Tenant model directly
+            'name' => 'Test Tenant',
+            'domain' => 'test.starweather.com',
+            'plan' => 'ENTERPRISE'
+        ]);
+
         ApiKey::create([
+            'tenant_id' => $tenant->id, // Added tenant_id
             'key' => $this->apiKey,
             'name' => 'Test Key',
-            'status' => 'ACTIVE'
+            'is_active' => true // Changed 'status' to 'is_active'
         ]);
 
         // Seed necessary data
-        Satellite::factory()->create(['norad_id' => '25544', 'status' => 'ACTIVE']);
+        Satellite::create([ // Changed from factory to create with specific data
+            'name' => 'ISS',
+            'norad_id' => '25544',
+            'type' => 'SCIENCE',
+            'status' => 'ACTIVE',
+            'tle_line1' => '1 25544U 98067A   24047.53127814  .00015507  00000-0  27599-3 0  9990',
+            'tle_line2' => '2 25544  51.6416 112.1868 0005748  42.4410  94.6225 15.49885895440231'
+        ]);
         Storm::create([
             'name' => 'EXPANSION_STORM',
             'status' => 'active',
