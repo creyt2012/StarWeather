@@ -157,4 +157,4 @@ Các đầu cuối dành cho khu vực quản trị, yêu cầu quyền `admin`.
 | `GET` | `/sanctum/csrf-cookie` | Khởi tạo cookie xác thực cho SPA/Frontend. |
 
 ---
-[🏠 Home](Home) | [🏗️ Architecture](Architecture) | [🚀 Algorithms](Algorithms)
+[Home](Home) | [Architecture](Architecture) | [Algorithms](Algorithms)
