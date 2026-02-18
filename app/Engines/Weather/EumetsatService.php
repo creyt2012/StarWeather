@@ -15,11 +15,16 @@ class EumetsatService
     public function downloadLatest(string $noradId = '28912'): ?string
     {
         try {
-            // Using EUMETSAT public imagery preview service
-            // This is a proxy to their Real-Time Imagery service
-            $url = "https://eumetview.eumetsat.int/static-images/METEOSAT/RGB/NATURALCOLOR/FULLRESOLUTION/latest.jpg";
+            // Updated URL for EUMETSAT static imagery
+            $url = "https://eumetview.eumetsat.int/static-images/METEOSAT/RGB/NATURALCOLOR/FULL_RESOLUTION/latest.jpg";
 
+            // Fallback to lower res if full fails
             $response = Http::timeout(60)->get($url);
+
+            if ($response->failed()) {
+                $url = "https://eumetview.eumetsat.int/static-images/METEOSAT/RGB/NATURALCOLOR/latest.jpg";
+                $response = Http::timeout(60)->get($url);
+            }
 
             if ($response->failed()) {
                 Log::warning("EUMETSAT download failed for NORAD {$noradId}: {$url}");
