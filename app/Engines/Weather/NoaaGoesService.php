@@ -50,6 +50,7 @@ class NoaaGoesService
             '60133' => 'GOES19',
             '41866' => 'GOES16',
             '43226' => 'GOES17',
+            '53461' => 'GOES18', // GOES-18
             default => 'GOES19'
         };
     }
