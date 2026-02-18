@@ -52,14 +52,14 @@ class SatelliteIntelController extends Controller
         $trends = [];
         foreach ($historyFiles as $file) {
             $data = json_decode(Storage::disk('public')->get($file), true);
-            if (!$data)
+            if (!$data || !isset($data['subsystems']) || !isset($data['metadata']))
                 continue;
 
             $trends[] = [
                 'time' => Carbon::parse($data['metadata']['timestamp'])->format('H:i'),
-                'power' => (int) str_replace('%', '', $data['subsystems']['power_bus']),
-                'thermal' => (int) str_replace('C', '', $data['subsystems']['thermal']),
-                'link' => abs((int) str_replace('dBm', '', $data['subsystems']['comm_link']))
+                'power' => (int) str_replace('%', '', $data['subsystems']['power_bus'] ?? '0%'),
+                'thermal' => (int) str_replace('C', '', $data['subsystems']['thermal'] ?? '0C'),
+                'link' => abs((int) str_replace('dBm', '', $data['subsystems']['comm_link'] ?? '0dBm'))
             ];
         }
 
