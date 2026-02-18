@@ -6,6 +6,7 @@ use App\Models\ApiKey;
 use App\Models\Satellite;
 use App\Models\Storm;
 use App\Models\AlertRule;
+use App\Models\Tenant;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
