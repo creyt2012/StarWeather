@@ -105,6 +105,3 @@ Yêu cầu Header `X-API-KEY`. Đối với các API Internal, sử dụng tham 
 | :--- | :--- | :--- |
 | `POST` | `/analyze` | Phân tích spectral hình ảnh vệ tinh. |
 | `GET` | `/` | Liveness & Heartbeat của AI Core. |
-
----
-[Về Trang Chủ](Home) | [Kiến Trúc Hệ Thống](Architecture) | [Mô Hình Toán Học](Algorithms)
