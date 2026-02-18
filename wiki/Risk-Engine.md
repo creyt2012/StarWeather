@@ -1,10 +1,10 @@
-# Engine Đánh Giá Rủi Ro: Cơ Sở Định Lượng Cảnh Báo
+# Engine Danh gia Rui ro: Co So Dinh Luong Canh Bao
 
 Engine Đánh giá Rủi ro (Risk Engine) là thành phần trung tâm của hệ thống StarWeather, chịu trách nhiệm chuyển đổi các dữ liệu đo xa và cảm biến thô thành các chỉ số rủi ro có thể hiểu được bằng phương thức định lượng.
 
 ---
 
-## [MODEL] 1. Phương Pháp Luận Tính Điểm Rủi Ro ($R$)
+## [MODEL] 1. Phuong Phap Luan Tinh Diem Rui ro
 
 Điểm rủi ro không phải là một giá trị định tính mà là kết quả của một hàm tổng trọng số được chuẩn hóa trong khoảng $[0, 100]$.
 
@@ -26,7 +26,7 @@ Trong đó:
 
 ---
 
-## [DATA] 2. Chỉ Số Tin Cậy (Confidence Metric - $C$)
+## [DATA] 2. Chi So Tin Cay (Confidence Metric)
 
 Để đảm bảo tính xác thực của cảnh báo, mỗi kết quả tính toán đều đi kèm với một giá trị tin cậy:
 $$C = F(t) \cdot P(n)$$
@@ -36,7 +36,7 @@ $$C = F(t) \cdot P(n)$$
 
 ---
 
-## [SEV] 3. Phân Cấp Cảnh Báo & Hành Động (Severity Levels)
+## [SEV] 3. Phan Cap Canh Bao & Hanh Dong (Severity Levels)
 
 - **Mức 1 (An Toàn)**: $R < 40$. Điều kiện môi trường ổn định.
 - **Mức 2 (Theo Dõi)**: $40 \le R < 60$. Hệ thống tăng tần suất quét và cập nhật trạng thái mỗi 5 phút.
