@@ -2,9 +2,13 @@
 
 Hệ thống StarWeather cung cấp các giao diện lập trình ứng dụng (API) chuẩn RESTful. Dưới đây là danh mục chi tiết toàn bộ các đầu cuối (endpoints) hiện có.
 
-## [AUTH] Xác thực (Authentication)
+## [AUTH] Xac thuc (Authentication)
 
-Yêu cầu Header `X-API-KEY`. Đối với các API Internal, sử dụng tham số `?token=`.
+Tất cả các yêu cầu yêu cầu Header `X-API-KEY`. Bạn có thể quản lý khóa API trong phần Portals của mình.
+
+```http
+X-API-KEY: your_api_key_here
+```
 
 ---
 
@@ -18,7 +22,7 @@ Yêu cầu Header `X-API-KEY`. Đối với các API Internal, sử dụng tham 
 
 ---
 
-## [SAT] Vệ tinh & Quỹ đạo (Satellites)
+## [SAT] Ve tinh & Quy dao (Satellites)
 
 | Phương thức | Endpoint | Mô tả |
 | :--- | :--- | :--- |
@@ -30,7 +34,7 @@ Yêu cầu Header `X-API-KEY`. Đối với các API Internal, sử dụng tham 
 
 ---
 
-## [MET] Khí tượng & Dự báo (Weather)
+## [MET] Khi tuong & Du bao (Weather)
 
 | Phương thức | Endpoint | Mô tả |
 | :--- | :--- | :--- |
@@ -45,7 +49,7 @@ Yêu cầu Header `X-API-KEY`. Đối với các API Internal, sử dụng tham 
 
 ---
 
-## [STORM] Theo dõi Thiên tai (Storms & Risk)
+## [STORM] Theo doi Thien tai (Storms & Risk)
 
 | Phương thức | Endpoint | Mô tả |
 | :--- | :--- | :--- |
@@ -56,7 +60,7 @@ Yêu cầu Header `X-API-KEY`. Đối với các API Internal, sử dụng tham 
 
 ---
 
-## [ALRT] Logic Cảnh báo (Alerts)
+## [ALRT] Logic Canh bao (Alerts)
 
 | Phương thức | Endpoint | Mô tả |
 | :--- | :--- | :--- |
@@ -66,7 +70,7 @@ Yêu cầu Header `X-API-KEY`. Đối với các API Internal, sử dụng tham 
 
 ---
 
-## [OPS] Quản lý Nhiệm vụ (Mission Control)
+## [OPS] Quan ly Nhiem vu (Mission Control)
 
 | Phương thức | Endpoint | Mô tả |
 | :--- | :--- | :--- |
@@ -77,7 +81,7 @@ Yêu cầu Header `X-API-KEY`. Đối với các API Internal, sử dụng tham 
 
 ---
 
-## [FIN] Thanh toán & Hàng hải (Billing & Marine)
+## [FIN] Thanh toan & Hang hai (Billing & Marine)
 
 | Phương thức | Endpoint | Mô tả |
 | :--- | :--- | :--- |
@@ -87,7 +91,7 @@ Yêu cầu Header `X-API-KEY`. Đối với các API Internal, sử dụng tham 
 
 ---
 
-## [ADM] Quản lý Vệ tinh & Trạm (Admin Assets)
+## [ADM] Quan ly Ve tinh & Tram (Admin Assets)
 
 Các đầu cuối dành cho khu vực quản trị, yêu cầu quyền `admin`.
 
@@ -101,7 +105,7 @@ Các đầu cuối dành cho khu vực quản trị, yêu cầu quyền `admin`.
 
 ---
 
-## [ADM] Quản trị Hệ thống & Người dùng (System Admin)
+## [ADM] Quan tri He thong & Nguoi dung (System Admin)
 
 | Phương thức | Endpoint | Mô tả |
 | :--- | :--- | :--- |
@@ -113,7 +117,7 @@ Các đầu cuối dành cho khu vực quản trị, yêu cầu quyền `admin`.
 
 ---
 
-## [ADM] Tài chính & Cảnh báo (Billing & Alert Settings)
+## [ADM] Tai chinh & Canh bao (Billing & Alert Settings)
 
 | Phương thức | Endpoint | Mô tả |
 | :--- | :--- | :--- |
@@ -123,7 +127,7 @@ Các đầu cuối dành cho khu vực quản trị, yêu cầu quyền `admin`.
 
 ---
 
-## [INT] API Bản đồ Chiến thuật (Internal Map)
+## [INT] API Ban do Chien thuat (Internal Map)
 
 | Endpoint | Mô tả | Tham số |
 | :--- | :--- | :--- |
@@ -144,7 +148,7 @@ Các đầu cuối dành cho khu vực quản trị, yêu cầu quyền `admin`.
 
 ---
 
-## [SYS] Hạ tầng & Vận hành (Infrastructure)
+## [SYS] Ha tang & Van hanh (Infrastructure)
 
 | Phương thức | Endpoint | Mô tả |
 | :--- | :--- | :--- |
