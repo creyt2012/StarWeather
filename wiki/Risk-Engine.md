@@ -4,7 +4,7 @@ Engine Đánh giá Rủi ro (Risk Engine) là thành phần trung tâm của h�
 
 ---
 
-## ⚖️ 1. Phương Pháp Luận Tính Điểm Rủi Ro ($R$)
+## [MODEL] 1. Phương Pháp Luận Tính Điểm Rủi Ro ($R$)
 
 Điểm rủi ro không phải là một giá trị định tính mà là kết quả của một hàm tổng trọng số được chuẩn hóa trong khoảng $[0, 100]$.
 
@@ -26,7 +26,7 @@ Trong đó:
 
 ---
 
-## 📶 2. Chỉ Số Tin Cậy (Confidence Metric - $C$)
+## [DATA] 2. Chỉ Số Tin Cậy (Confidence Metric - $C$)
 
 Để đảm bảo tính xác thực của cảnh báo, mỗi kết quả tính toán đều đi kèm với một giá trị tin cậy:
 $$C = F(t) \cdot P(n)$$
@@ -36,7 +36,7 @@ $$C = F(t) \cdot P(n)$$
 
 ---
 
-## 🚨 3. Phân Cấp Cảnh Báo & Hành Động (Severity Levels)
+## [SEV] 3. Phân Cấp Cảnh Báo & Hành Động (Severity Levels)
 
 - **Mức 1 (An Toàn)**: $R < 40$. Điều kiện môi trường ổn định.
 - **Mức 2 (Theo Dõi)**: $40 \le R < 60$. Hệ thống tăng tần suất quét và cập nhật trạng thái mỗi 5 phút.
