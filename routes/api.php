@@ -14,6 +14,7 @@ Route::middleware(['auth.api_key', \App\Http\Middleware\CheckApiKeyLimits::class
     Route::get('/satellites/live', [SatelliteController::class, 'index']);
     Route::get('/satellites/conjunctions', [\App\Http\Controllers\Api\V1\ConjunctionController::class, 'index']);
     Route::get('/satellites/{satellite}/telemetry', [SatelliteController::class, 'telemetry']);
+    Route::get('/satellites/imagery-history', [SatelliteController::class, 'imageryHistory']);
     Route::get('/satellites/{satellite}/tle', [SatelliteController::class, 'tle']);
 
     Route::get('/health', [\App\Http\Controllers\Api\V1\HealthController::class, 'check']);

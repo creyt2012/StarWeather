@@ -66,6 +66,22 @@ const formatCoord = (val) => val ? val.toFixed(4) : '0.0000';
                 </div>
             </div>
 
+            <!-- Real-time Payload Metrics -->
+            <div v-if="satellite.payload" class="grid grid-cols-3 gap-2 bg-vibrant-blue/5 border border-vibrant-blue/20 rounded-xl p-3 animate-in zoom-in-95 duration-300">
+                <div class="text-center">
+                    <p class="text-[7px] font-black text-white/40 uppercase">IR_BRIGHT</p>
+                    <p class="text-xs font-black text-vibrant-blue">{{ satellite.payload.brightness || '182' }}</p>
+                </div>
+                <div class="text-center border-x border-vibrant-blue/10">
+                    <p class="text-[7px] font-black text-white/40 uppercase">PRESSURE</p>
+                    <p class="text-xs font-black text-white">{{ satellite.payload.pressure || '1013' }} <span class="text-[6px] text-white/20">hPa</span></p>
+                </div>
+                <div class="text-center">
+                    <p class="text-[7px] font-black text-white/40 uppercase">S_TEMP</p>
+                    <p class="text-xs font-black text-orange-400">{{ satellite.payload.temperature || '24.5' }}°C</p>
+                </div>
+            </div>
+
             <!-- Coordinates -->
             <div class="bg-white/5 border border-white/10 rounded-xl p-4 flex justify-between items-center group relative overflow-hidden">
                 <div class="absolute inset-0 bg-gradient-to-r from-transparent via-vibrant-blue/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
