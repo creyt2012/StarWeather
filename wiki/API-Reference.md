@@ -70,7 +70,7 @@ X-API-KEY: your_api_key_here
 
 ---
 
-## [OPS] Qua (Mission Control)
+## [OPS] Quan ly Nhiem vu (Mission Control)
 
 | Phương thức | Endpoint | Mô tả |
 | :--- | :--- | :--- |
