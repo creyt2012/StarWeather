@@ -1,115 +1,110 @@
-# API Reference (V1)
+# API Reference (V1 Full Catalog)
 
-Hệ thống StarWeather cung cấp API RESTful toàn diện để truy cập dữ liệu khí tượng, viễn thám và quản lý nhiệm vụ.
+Hệ thống StarWeather cung cấp các giao diện lập trình ứng dụng (API) chuẩn RESTful. Dưới đây là danh mục chi tiết toàn bộ các đầu cuối (endpoints) hiện có.
 
 ## [AUTH] Xác thực (Authentication)
 
-Tất cả các yêu cầu yêu cầu Header `X-API-KEY`. Bạn có thể quản lý khóa API trong phần Portals của mình.
+Yêu cầu Header `X-API-KEY`. Đối với các API Internal, sử dụng tham số `?token=`.
 
-```http
-X-API-KEY: your_api_key_here
-```
+---
+
+## [LIVE] Trạng thái Hệ thống (Live State)
+
+| Phương thức | Endpoint | Mô tả |
+| :--- | :--- | :--- |
+| `GET` | `/api/v1/live/state` | Trạng thái tổng quát của mạng lưới cảm biến và vệ tinh. |
+| `GET` | `/api/v1/health` | Kiểm tra trạng thái sẵn sàng (Liveness check). |
+| `GET` | `/api/v1/health/system`| Chỉ số chi tiết về hạ tầng (DB, Redis, RAM). |
 
 ---
 
 ## [SAT] Vệ tinh & Quỹ đạo (Satellites)
 
-| URL | Phương thức | Mô tả |
+| Phương thức | Endpoint | Mô tả |
 | :--- | :--- | :--- |
-| `/api/v1/satellites/live` | GET | Vị trí thời gian thực của toàn bộ đội ngũ vệ tinh. |
-| `/api/v1/satellites/conjunctions` | GET | Danh sách các tiếp cận gần (Close approach) và nguy cơ va chạm. |
-| `/api/v1/satellites/{id}/telemetry` | GET | Dữ liệu viễn thám chi tiết (Vận tốc, độ cao, góc nghiêng). |
-| `/api/v1/satellites/{id}/tle` | GET | Bộ phần tử quỹ đạo Two-Line Element sets mới nhất. |
+| `GET` | `/api/v1/satellites/live` | Danh sách toàn bộ vệ tinh và vị trí hiện tại. |
+| `GET` | `/api/v1/satellites/conjunctions` | Cảnh báo các điểm giao cắt quỹ đạo nguy hiểm. |
+| `GET` | `/api/v1/satellites/{id}/telemetry` | Dữ liệu viễn thám thời gian thực của 1 vệ tinh. |
+| `GET` | `/api/v1/satellites/imagery-history` | Lịch sử ảnh chụp từ vệ tinh (Time-machine). |
+| `GET` | `/api/v1/satellites/{id}/tle` | Dữ liệu TLE (Two-Line Element) thô của vệ tinh. |
 
 ---
 
-## [MET] Khí tượng & Theo dõi Bão (Weather & Storms)
+## [MET] Khí tượng & Dự báo (Weather)
 
-| URL | Phương thức | Mô tả |
+| Phương thức | Endpoint | Mô tả |
 | :--- | :--- | :--- |
-| `/api/v1/weather/latest` | GET | Các chỉ số khí tượng mới nhất từ mạng lưới cảm biến. |
-| `/api/v1/weather/metrics` | GET | Truy cập lịch sử dữ liệu (Time-series metrics). |
-| `/api/v1/weather/forecast` | GET | Dự báo khí tượng dựa trên mô hình AI (48h). |
-| `/api/v1/weather/heatmap` | GET | Dữ liệu mật độ mây và lượng mưa cho bản đồ nhiệt. |
-| `/api/v1/weather/storms` | GET | Theo dõi danh sách các cơn bão đang hoạt động. |
-| `/api/v1/weather/storms/{id}/vortex` | GET | Phân tích sâu cấu trúc Vortex và tính toàn vẹn vật lý. |
-| `/api/v1/weather/risk-areas` | GET | Các vùng nguy hiểm và khu vực sơ tán chiến thuật. |
-| `/api/v1/weather/ground-stations` | GET/POST | Quản lý hoặc liệt kê các trạm thu phát mặt đất. |
+| `GET` | `/api/v1/weather/latest` | Chỉ số khí tượng mới nhất từ sensor gần nhất. |
+| `GET` | `/api/v1/weather/metrics` | Truy vấn dữ liệu lịch sử theo thời gian. |
+| `GET` | `/api/v1/weather/ground-stations`| Danh sách và trạng thái các trạm mặt đất. |
+| `GET` | `/api/v1/weather/history` | Lịch sử khí tượng chi tiết tại một tọa độ. |
+| `GET` | `/api/v1/weather/heatmap` | Dữ liệu mật độ phân bổ cho bản đồ nhiệt. |
+| `GET` | `/api/v1/weather/forecast` | Dự báo AI cho 48 giờ tới (Hourly). |
+| `GET` | `/api/v1/weather/point-info` | Phân tích sâu tại một điểm (SST, AQI, UV). |
+| `GET` | `/api/v1/weather/trends` | Xu hướng biến đổi khí hậu trong 30 ngày qua. |
 
 ---
 
-## [ALRT] Cảnh báo (Alerting)
+## [STORM] Theo dõi Thiên tai (Storms & Risk)
 
-| URL | Phương thức | Mô tả |
+| Phương thức | Endpoint | Mô tả |
 | :--- | :--- | :--- |
-| `/api/v1/alerts/rules` | GET/POST | Quản lý danh sách quy tắc (Intelligence Condition Engine). |
-| `/api/v1/alerts/rules/{id}` | GET/PUT/DELETE| Chi tiết và cập nhật logic cảnh báo. |
-| `/api/v1/alerts/history` | GET | Nhật ký toàn bộ các thông báo đã gửi đi. |
+| `GET` | `/api/v1/weather/storms` | Danh sách các áp thấp và bão đang hoạt động. |
+| `GET` | `/api/v1/weather/storms/{id}` | Thông số chi tiết về sức gió, lộ trình bão. |
+| `GET` | `/api/v1/weather/storms/{id}/vortex`| Phân tích cấu trúc lõi và mắt bão. |
+| `GET` | `/api/v1/weather/risk-areas` | Các khu vực nằm trong vùng cảnh báo đỏ. |
 
 ---
 
-## [OPS] Hàng hải (Marine Intelligence)
+## [ALRT] Logic Cảnh báo (Alerts)
 
-| URL | Phương thức | Mô tả |
+| Phương thức | Endpoint | Mô tả |
 | :--- | :--- | :--- |
-| `/api/v1/marine/vessels` | GET | Theo dõi tàu thuyền tích hợp dữ liệu AIS-mesh. |
+| `GET` | `/api/v1/alerts/rules` | Danh sách các quy tắc cảnh báo (Condition Engine). |
+| `POST`| `/api/v1/alerts/rules` | Tạo mới một quy tắc logic cảnh báo. |
+| `GET` | `/api/v1/alerts/history` | Nhật ký các thông báo đã gửi cho người dùng. |
 
 ---
 
-## [OPS] Quản lý Nhiệm vụ & Báo cáo (Mission Control)
+## [OPS] Quản lý Nhiệm vụ (Mission Control)
 
-| URL | Phương thức | Mô tả |
+| Phương thức | Endpoint | Mô tả |
 | :--- | :--- | :--- |
-| `/api/v1/mission-control/files` | GET | Danh sách tệp tin liên quan đến các nhiệm vụ không gian. |
-| `/api/v1/mission-control/upload` | POST | Tải lên dữ liệu lên trung tâm kiểm soát nhiệm vụ. |
-| `/api/v1/reports` | GET | Thư viện báo cáo khoa học và phân tích khí tượng định kỳ. |
+| `GET` | `/api/v1/mission-control/files` | Quản lý tệp tin truyền từ vệ tinh về trạm. |
+| `POST`| `/api/v1/mission-control/upload`| Tải tệp tin lên trung tâm dữ liệu. |
+| `GET` | `/api/v1/reports` | Kho báo cáo khoa học định kỳ (PDF/JSON). |
+| `GET` | `/api/v1/reports/{file}/download`| Tải xuống báo cáo chi tiết. |
 
 ---
 
-## [INT] API Bản đồ Nội bộ (Internal Map APIs)
+## [FIN] Thanh toán & Hàng hải (Billing & Marine)
 
-Được sử dụng bởi dashboard chính để hiển thị dữ liệu thời gian thực mà không bị giới hạn bởi Rate Limit thông thường. Yêu cầu tham số `token`.
-
-| URL | Phương thức | Mô tả |
+| Phương thức | Endpoint | Mô tả |
 | :--- | :--- | :--- |
-| `/api/internal-map/satellites` | GET | Dữ liệu vị trí và quỹ đạo tối ưu cho rendering. |
-| `/api/internal-map/storms` | GET | Danh sách các cơn bão đang hoạt động. |
-| `/api/internal-map/ground-stations`| GET | Tọa độ các trạm mặt đất. |
-| `/api/internal-map/point-info` | GET | Thông tin khí tượng tại một điểm cụ thể. |
-| `/api/internal-map/forecast` | GET | Dữ liệu dự báo thô cho biểu đồ Meteogram. |
+| `GET` | `/api/v1/marine/vessels` | Theo dõi tàu thuyền tích hợp dữ liệu AIS. |
+| `GET` | `/api/v1/plans` | Thông tin các gói PRO/Enterprise. |
+| `POST`| `/api/v1/payments/checkout` | Khởi tạo giao dịch nâng cấp tài khoản. |
 
 ---
 
-## [AI] Microservice Phân tích Ảnh (AI Core)
+## [INT] API Bản đồ Chiến thuật (Internal Map)
 
-Dịch vụ độc lập xử lý dữ liệu hình ảnh từ vệ tinh. Chạy tại cổng `:8001`.
-
-| URL | Phương thức | Mô tả |
+| Endpoint | Mô tả | Tham số |
 | :--- | :--- | :--- |
-| `POST /analyze` | POST | Phân tích ảnh vệ tinh (Input: File, Lat, Lng). Trả về temp, pressure, wind. |
-| `GET /` | GET | Kiểm tra trạng thái microservice. |
+| `/api/internal-map/satellites` | Stream dữ liệu vệ tinh tốc độ cao. | `token` |
+| `/api/internal-map/ground-stations`| Render trạm mặt đất. | `token` |
+| `/api/internal-map/storms` | Overlay bão thời gian thực. | `token` |
+| `/api/internal-map/point-info` | Thông tin điểm click trên Globe. | `lat`, `lng`, `token` |
+| `/api/internal-map/forecast` | Forecast cho Meteogram dashboard. | `lat`, `lng`, `token` |
 
 ---
 
-## [SYS] Sức khỏe Hệ thống (System Health)
+## [AI] Microservice AI Core (:8001)
 
-| URL | Phương thức | Mô tả |
+| Phương thức | Endpoint | Mô tả |
 | :--- | :--- | :--- |
-| `/api/v1/health` | GET | Trạng thái sẵn sàng cơ bản (Health Check). |
-| `/api/v1/health/system` | GET | Chỉ số hiệu năng (Latency, Uptime) của Database, Redis, Gateways. |
+| `POST` | `/analyze` | Phân tích spectral hình ảnh vệ tinh. |
+| `GET` | `/` | Liveness & Heartbeat của AI Core. |
 
 ---
-
-## [FIN] Thanh toán (Billing)
-
-| URL | Phương thức | Mô tả |
-| :--- | :--- | :--- |
-| `/api/v1/plans` | GET | Danh sách các gói dịch vụ và giới hạn băng thông. |
-| `/api/v1/payments/checkout` | POST | Khởi tạo quy trình thanh toán nâng cấp tài khoản. |
-
----
-
-- **ENTERPRISE**: Tùy chỉnh theo SLA.
-
----
-[[Về Trang Chủ|Home]] | [[Kiến Trúc Hệ Thống|Architecture]] | [[Mô Hình Toán Học|Algorithms]]
+[[Về Trang Chủ](Home)] | [[Ki kiến Trúc](Architecture)]
