@@ -1294,45 +1294,93 @@ const switchView = (mode) => {
                             </div>
                         </div>
 
-                        <!-- Real-time Atmospheric Analysis (NEW) -->
+                        <!-- Advanced Orbital Physics -->
                         <div v-if="telemetryData" class="space-y-4">
-                            <h4 class="text-[10px] font-black text-vibrant-blue uppercase tracking-widest border-l-2 border-vibrant-blue pl-3">Ground_Point_Analysis</h4>
-                            
-                            <div class="grid grid-cols-2 gap-3">
-                                <div class="bg-white/5 p-3 rounded-sm border border-white/10">
-                                    <p class="text-[7px] text-white/30 font-black uppercase mb-1">Temperature</p>
-                                    <p class="text-xs font-black text-white">{{ telemetryData.environmental.temperature }}°C</p>
+                            <h4 class="text-[10px] font-black text-vibrant-blue uppercase tracking-widest border-l-2 border-vibrant-blue pl-3">Orbital_Dynamics</h4>
+                            <div class="grid grid-cols-2 gap-3 bg-white/5 p-4 border border-white/10">
+                                <div class="space-y-1">
+                                    <p class="text-[7px] text-white/30 font-black uppercase">Inclination</p>
+                                    <p class="text-xs font-black text-white italic">{{ telemetryData.orbital.physics.inclination_deg }}°</p>
                                 </div>
-                                <div class="bg-white/5 p-3 rounded-sm border border-white/10">
-                                    <p class="text-[7px] text-white/30 font-black uppercase mb-1">Pressure</p>
-                                    <p class="text-xs font-black text-white">{{ telemetryData.environmental.pressure }} hPa</p>
+                                <div class="space-y-1">
+                                    <p class="text-[7px] text-white/30 font-black uppercase">Eccentricity</p>
+                                    <p class="text-xs font-black text-white italic">{{ telemetryData.orbital.physics.eccentricity }}</p>
                                 </div>
-                                <div class="bg-white/5 p-3 rounded-sm border border-white/10">
-                                    <p class="text-[7px] text-white/30 font-black uppercase mb-1">Humidity</p>
-                                    <p class="text-xs font-black text-white">{{ telemetryData.environmental.humidity }}%</p>
+                                <div class="space-y-1">
+                                    <p class="text-[7px] text-white/30 font-black uppercase">Period</p>
+                                    <p class="text-xs font-black text-white">{{ telemetryData.orbital.physics.period_min }}m</p>
                                 </div>
-                                <div class="bg-white/5 p-3 rounded-sm border border-white/10">
-                                    <p class="text-[7px] text-white/30 font-black uppercase mb-1">Solar_Flux</p>
-                                    <p class="text-xs font-black text-vibrant-green">{{ telemetryData.environmental.solar_flux }} W/m²</p>
+                                <div class="space-y-1">
+                                    <p class="text-[7px] text-white/30 font-black uppercase">Velocity</p>
+                                    <p class="text-xs font-black text-vibrant-green italic">{{ telemetryData.orbital.physics.velocity_kms }} km/s</p>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Sensor Status (NEW) -->
+                        <!-- Scientific Intelligence -->
+                        <div v-if="telemetryData" class="space-y-4">
+                            <h4 class="text-[10px] font-black text-vibrant-blue uppercase tracking-widest border-l-2 border-vibrant-blue pl-3">Scientific_Payload</h4>
+                            
+                            <div class="space-y-4">
+                                <!-- Solar State -->
+                                <div class="bg-black/40 p-3 border border-vibrant-blue/20 flex justify-between items-center">
+                                    <div>
+                                        <p class="text-[7px] text-white/30 font-black uppercase mb-1">Solar_Phase</p>
+                                        <div class="flex items-center space-x-2">
+                                            <span :class="telemetryData.scientific.solar.is_daylight ? 'text-yellow-400' : 'text-blue-400'">
+                                                {{ telemetryData.scientific.solar.is_daylight ? '☀️ SUNLIT' : '🌑 ECLIPSE' }}
+                                            </span>
+                                            <span class="text-[8px] text-white/40 font-mono">EL: {{ telemetryData.scientific.solar.sun_elevation_deg }}°</span>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-[7px] text-white/30 font-black uppercase mb-1">LST</p>
+                                        <p class="text-xs font-black text-white font-mono">{{ telemetryData.scientific.solar.local_solar_time }}</p>
+                                    </div>
+                                </div>
+
+                                <!-- Magnetic Field -->
+                                <div class="bg-white/5 p-3 border border-white/10 flex justify-between items-center">
+                                    <div>
+                                        <p class="text-[7px] text-white/30 font-black uppercase mb-1">Geomagnetic_Flux</p>
+                                        <p class="text-xs font-black text-pink-500">{{ telemetryData.scientific.magnetic_field.field_strength_nt }} <span class="text-[8px] text-white/40 font-mono">nT</span></p>
+                                    </div>
+                                    <span class="text-[7px] text-white/20 font-mono uppercase">{{ telemetryData.scientific.magnetic_field.model }}</span>
+                                </div>
+
+                                <!-- Atmosphere derived -->
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div class="bg-white/5 p-3 rounded-sm border border-white/10">
+                                        <p class="text-[7px] text-white/30 font-black uppercase mb-1">Temp_At_GP</p>
+                                        <p class="text-xs font-black text-white">{{ telemetryData.scientific.atmosphere.temperature }}°C</p>
+                                    </div>
+                                    <div class="bg-white/5 p-3 rounded-sm border border-white/10">
+                                        <p class="text-[7px] text-white/30 font-black uppercase mb-1">Press_At_GP</p>
+                                        <p class="text-xs font-black text-white">{{ telemetryData.scientific.atmosphere.pressure }} hPa</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Onboard Subsystems -->
                         <div v-if="telemetryData" class="space-y-4 bg-black/40 p-4 border border-vibrant-blue/20">
-                            <h4 class="text-[10px] font-black text-white/40 uppercase tracking-widest">Onboard_Systems</h4>
+                            <h4 class="text-[10px] font-black text-white/40 uppercase tracking-widest">System_Health_Vector</h4>
                             <div class="space-y-2">
-                                <div class="flex justify-between">
-                                    <span class="text-[8px] text-white/20">PWR_BUS</span>
-                                    <span class="text-[8px] font-mono text-vibrant-green">{{ telemetryData.status.power }}</span>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-[8px] text-white/20">POWER_BUS_CORE</span>
+                                    <span class="text-[10px] font-black text-vibrant-green">{{ telemetryData.subsystems.power_bus }}</span>
                                 </div>
-                                <div class="flex justify-between">
-                                    <span class="text-[8px] text-white/20">SIG_INT</span>
-                                    <span class="text-[8px] font-mono text-vibrant-blue">{{ telemetryData.status.signal_strength }}</span>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-[8px] text-white/20">THERMAL_REG</span>
+                                    <span class="text-[10px] font-black text-white">{{ telemetryData.subsystems.thermal }}</span>
                                 </div>
-                                <div class="flex justify-between">
-                                    <span class="text-[8px] text-white/20">ATTITUDE</span>
-                                    <span class="text-[8px] font-mono text-white/50">{{ telemetryData.status.orientation }}</span>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-[8px] text-white/20">COMMS_LINK</span>
+                                    <span class="text-[10px] font-black text-vibrant-blue">{{ telemetryData.subsystems.comm_link }}</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-[8px] text-white/20">GYRO_STAB</span>
+                                    <span class="text-[10px] font-black text-white/50">{{ telemetryData.subsystems.attitude }}</span>
                                 </div>
                             </div>
                         </div>
