@@ -33,7 +33,18 @@ class HimawariService
 
             $url = "https://himawari8-dl.nict.go.jp/himawari8/img/D531106/1d/800/{$year}/{$month}/{$day}/{$time}_0_0.png";
 
-            $response = Http::timeout(30)->get($url);
+            $response = Http::timeout(60)->get($url);
+
+            if ($response->failed()) {
+                // Retry with 10 minutes prior in case of clock drift or processing delay
+                $date->subMinutes(10);
+                $year = $date->format('Y');
+                $month = $date->format('m');
+                $day = $date->format('d');
+                $time = $date->format('His');
+                $url = "https://himawari8-dl.nict.go.jp/himawari8/img/D531106/1d/800/{$year}/{$month}/{$day}/{$time}_0_0.png";
+                $response = Http::timeout(60)->get($url);
+            }
 
             if ($response->failed()) {
                 Log::warning("Himawari image download failed for URL: {$url}");
