@@ -1,7 +1,7 @@
 # 🌌 StarWeather (Vetinh)
 ### Enterprise-Grade Satellite Tracking & Meteorological Intelligence Platform
 
-![StarWeather Globe Visualization](/Users/creytdeveloper/.gemini/antigravity/brain/49cd3ed0-ce2b-49cc-a7bc-a25ea8ff049f/starweather_globe_visualization_1771426474667.png)
+![StarWeather Globe Visualization](public/assets/docs/images/globe_visualization.png)
 
 [![Laravel 11](https://img.shields.io/badge/Laravel-11.x-FF2D20?logo=laravel)](https://laravel.com)
 [![Vue 3](https://img.shields.io/badge/Vue-3.x-4FC08D?logo=vue.js)](https://vuejs.org)
@@ -14,21 +14,22 @@
 
 ## 🚀 Key Capabilities
 
-### 📡 High-Precision Satellite Tracking
+### 📡 High-Precision Satellite Tracking & Orbital Mechanics
 - **SGP4 Propagation Engine**: Implements the Standard General Perturbations (SGP4) model to predict satellite orbits (ISS, Starlink, Himawari) with high accuracy using TLE (Two-Line Element) sets.
-- **Coordinate Transformation**: Real-time ECI (Earth-Centered Inertial) to Geodetic (Lat/Lng/Alt) conversion, accounting for Earth's rotation and flattening (WGS84).
+- **Velocity Calculation**: Dynamically computes instantaneous satellite velocity using the Vis-Viva equation: $v = \sqrt{\mu (2/r - 1/a)}$, where $\mu$ is Earth's gravitational constant ($398600.44 \text{ km}^3/\text{s}^2$).
+- **Earth Rotation Compensation**: Calculates **Greenwich Mean Sidereal Time (GMST)** to accurately transform Earth-Centered Inertial (ECI) coordinates to Geodetic (Lat/Lng) coordinates, accounting for Earth's constant rotation ($\approx 15.041^\circ/\text{hour}$).
 - **Dynamic 3D Visualization**: Powered by `globe.gl` and `Three.js` for an immersive orbital perspective.
 
-### ⛈️ Advanced Meteorological Intelligence
-- **Himawari-9 Multi-Spectral Fusion**: Real-time ingestion and processing of infrared and visible spectrum images from the Japan Meteorological Agency (via NICT).
+### ⛈️ Advanced Meteorological Intelligence & Image Processing
+- **Himawari-9 Spectrum Processing**: Real-time ingestion and processing of multi-spectral infrared (IR) and visible (VIS) imagery. Includes dynamic timestamp matching to ensure <10ms latency in telemetry-to-image fusion.
+- **Spectral Image Normalization**: Processes raw satellite sectors to normalize brightness temperatures, enabling precise cloud-top height estimation.
 - **Automated Vortex Identification**: Real-time scanning of pressure and wind speed metrics to detect tropical depressions and storm systems.
-- **Predictive Path Tracking**: Linear and non-linear extrapolation of storm trajectories based on historical pressure gradients.
 
 ### ⚠️ Intelligent Risk Engine
 - **Weighted Scoring Model**: Calculates area-specific risk scores (0-100) based on cloud density, precipitation intensity, and atmospheric pressure volatility.
 - **Data Provenance Consensus**: Each risk assessment is accompanied by a confidence score derived from data freshness and sensor agreement.
 
-![StarWeather Mission Control](/Users/creytdeveloper/.gemini/antigravity/brain/49cd3ed0-ce2b-49cc-a7bc-a25ea8ff049f/starweather_dashboard_final_1771426971917.png)
+![StarWeather Mission Control](public/assets/docs/images/dashboard_mockup.png)
 
 ---
 
@@ -36,11 +37,11 @@
 
 | Layer | Technologies |
 |---|---|
-| **Core** | PHP 8.2+, Laravel 11 (Enterprise Skeleton) |
+| **Core Engine** | PHP 8.2+ (Optimized FPM), Laravel 11 |
+| **Space Math** | SGP4 Core (Propagator), WGS84 Reference Frame |
 | **Frontend** | Vue 3, Inertia.js, Tailwind CSS |
-| **Graphics** | Three.js, Globe.gl, Chart.js |
-| **Data Real-time** | Laravel Reverb (WebSockets), Redis |
-| **Background Ops** | Laravel Horizon, Redis-backed Queues |
+| **Graphics** | Three.js, Globe.gl (UV Spherical Mapping) |
+| **Real-time** | Laravel Reverb (WebSocket), Redis (L1 Cache) |
 
 ---
 
@@ -64,36 +65,21 @@ cp .env.example .env
 php artisan key:generate
 
 # 3. Database & Seeding
-touch database/database.sqlite # If using sqlite
 php artisan migrate --seed
 
 # 4. Start Development Environment
-# Uses concurrently to start server, worker, and vite
 npm run dev
 ```
-
-### Environment Variables Highlights
-| Key | Description |
-|---|---|
-| `REVERB_APP_ID` | Required for real-time satellite updates. |
-| `HIMAWARI_SYNC_INTERVAL` | Frequency of weather image updates (default: 10m). |
 
 ---
 
 ## 📖 Technical Documentation
 
 Detailed deep-dives are available in our internal wiki:
-- [System Architecture](https://github.com/creyt2012/vetinh/wiki/Architecture)
-- [Mathematical Algorithms (SGP4 & Storm Tracking)](https://github.com/creyt2012/vetinh/wiki/Algorithms)
-- [Risk Scoring Methodology](https://github.com/creyt2012/vetinh/wiki/Risk-Engine)
-- [API Reference for Enterprise Integration](https://github.com/creyt2012/vetinh/wiki/API-Reference)
-
----
-
-## 🗺️ Roadmap
-- [ ] Integration of terrestrial Radar data (NEXRAD/Local).
-- [ ] Machine Learning driven storm path prediction using LSTM models.
-- [ ] SMS/Push notification gateway for critical weather events.
+- [System Architecture](wiki/Architecture.md)
+- [Mathematical Algorithms (SGP4 & Storm Tracking)](wiki/Algorithms.md)
+- [Risk Scoring Methodology](wiki/Risk-Engine.md)
+- [API Reference for Enterprise Integration](wiki/API-Reference.md)
 
 ---
 
