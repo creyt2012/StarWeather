@@ -127,7 +127,7 @@ Các đầu cuối dành cho khu vực quản trị, yêu cầu quyền `admin`.
 
 ---
 
-## [INT] API Ban do Chien thuat (Internal Map)
+## [INT] API Bản Đồ Chiến Thuật (Internal Map)
 
 | Endpoint | Mô tả | Tham số |
 | :--- | :--- | :--- |
