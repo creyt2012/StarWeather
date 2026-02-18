@@ -1,29 +1,42 @@
-# Kiến trúc Hệ thống StarWeather
+# System Architecture: The Data Fusion Pipeline
 
-StarWeather được xây dựng dựa trên nền tảng Laravel 11, tối ưu hóa cho hiệu suất cao và khả năng mở rộng quy mô lớn (Enterprise Scale).
+StarWeather is engineered as a high-throughput, non-dockerized Laravel 11 ecosystem designed for low-latency meteorological data fusion.
 
-## Công nghệ nền tảng
+---
 
-Cấu trúc công nghệ được lựa chọn để đảm bảo tính ổn định tối đa mà không phụ thuộc vào ảo hóa (Non-Dockerized approach):
+## 🏗️ Core Infrastructure
 
-- Ngôn ngữ: PHP 8.3 với sự hỗ trợ của bộ nhớ đệm và xử lý luồng (FPM).
-- Cơ sở dữ liệu: MySQL 8.0 cho dữ liệu quan hệ và Redis cho dữ liệu luồng tốc độ cao.
-- Xử lý hàng đợi: Laravel Horizon quản lý hàng ngàn công việc xử lý dữ liệu mỗi giây.
-- Truyền tải thời gian thực: Laravel Reverb sử dụng giao thức WebSocket cho các cập nhật quỹ đạo vệ tinh.
+The application bypasses containerization for raw performance, utilizing optimized system-level services:
+- **Application Server**: PHP 8.3-FPM with OPcache optimized for high-complexity math.
+- **WebSocket Engine**: **Laravel Reverb**, handling real-time satellite position broadcasts with <50ms latency.
+- **Data Persistence**: MySQL 8.0 with time-partitioned indexing on weather metric tables.
+- **In-Memory Store**: Redis, serving as the L1 cache for current satellite states and queue management.
 
-## Quy trình xử lý dữ liệu (Data Pipeline)
+---
 
-Luồng dữ liệu trong StarWeather tuân thủ quy tắc "Data Fusion" - kết hợp nhiều nguồn tin để đạt độ chính xác cao nhất:
+## 🔄 The Data Pipeline (ETL)
 
-1. Thu thập: Các Jobs trong Laravel Horizon thực hiện lấy dữ liệu từ Himawari (JMA), Sentinel (Copernicus) và NORAD.
-2. Chuẩn hóa: Dữ liệu được đưa về định dạng Unified Weather State để dễ dàng truy vấn.
-3. Tính toán: Engine Analytics thực hiện tính toán độ phủ mây, lượng mưa và điểm rủi ro.
-4. Phân phối: Dữ liệu được lưu vào MySQL, đẩy lên Redis Cache và phát sóng qua WebSocket tới người dùng cuối.
+We follow a specialized **Extract, Transform, Load (ETL)** pipeline for orbital and weather data:
 
-## Chiến lược mở rộng (Scaling Strategy)
+### 1. Extraction (Ingestion)
+- **Norad Jobs**: Daily sync of TLE sets for over 3,000 tracked objects.
+- **Himawari Jobs**: 10-minute interval polling of NICT image sectors.
+- **IoT/Radar Hooks**: Asynchronous ingestion of ground-station weather metrics.
 
-Để hỗ trợ hàng triệu yêu cầu API mỗi ngày và hàng trăm nghìn người dùng đồng thời:
+### 2. Transformation (Fusion)
+- **SGP4 Propagation**: TLEs are converted into WGS84 coordinates.
+- **Image Rectification**: Full-disk satellite images are sliced and optimized for web delivery.
+- **Weighted Assessment**: Metrics are passed through the Risk Engine to generate severity alerts.
 
-- Phân cấp Caching: Sử dụng Redis L1 để lưu trữ dữ liệu trạng thái mới nhất và CDN L2 cho các tệp tin hình ảnh vệ tinh nặng.
-- Tách biệt luồng xử lý: Các tác vụ tính toán nặng được thực hiện ở các hàng đợi ưu tiên (Priority Queues) tách biệt với luồng xử lý yêu cầu người dùng.
-- Phân vùng dữ liệu: Bảng ghi số liệu khí tượng (weather_metrics) được thiết kế để hỗ trợ phân vùng (partitioning) theo thời gian.
+### 3. Load (Real-time Delivery)
+- **Database**: Permanent record of historical metrics.
+- **Redis**: "Hot" state of active satellites.
+- **Reverb**: Broadcast to all active client sessions via Socket.io/Echo.
+
+---
+
+## 🚀 Scaling Strategy
+
+- **Queue Priority**: Horizon manages three distinct queues: `satellite` (high frequency), `weather` (batch heavy), and `default`.
+- **Stateless Design**: All application logic is stateless, allowing for immediate horizontal scaling by adding more PHP nodes behind a load balancer.
+- **Edge Delivery**: Weather assets are streamed directly from local storage with Nginx caching headers to minimize PHP overhead.

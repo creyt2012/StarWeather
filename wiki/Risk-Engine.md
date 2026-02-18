@@ -1,31 +1,45 @@
-# Công cụ Đánh giá Rủi ro (Risk Engine)
+# Risk Engine: The Mathematical Foundation of Alerts
 
-Risk Engine là linh hồn của nền tảng StarWeather, chịu trách nhiệm chuyển đổi các dữ liệu số học thô thành các cảnh báo có ý nghĩa thực tiễn.
+The Risk Engine is a deterministic scoring system that converts raw sensor and satellite telemetry into a human-readable **Risk Score ($R$)**.
 
-## Phương pháp tính toán
+---
 
-Điểm rủi ro (Risk Score) là một giá trị từ 0 đến 100, được tổng hợp dựa trên các trọng số sau:
+## ⚖️ The Scoring Formula
 
-| Chỉ số | Trọng số | Mô tả |
-|--------|----------|-------|
-| Độ phủ mây | 25% | Tỷ lệ mây bao phủ trên khu vực tracked. |
-| Mật độ mây | 15% | Độ dày và đặc tính của lớp mây qua ảnh hồng ngoại. |
-| Cường độ mưa | 30% | Lượng mưa ước tính từ ảnh vệ tinh và radar. |
-| Tốc độ thay đổi mây | 20% | Tốc độ phát triển của các khối mây trong 30-60 phút. |
-| Áp suất khí quyển | 10% | Các biến động về áp suất bất thường. |
+The risk score is a composite value from 0-100, calculated using a weighted linear combination:
 
-## Phân cấp mức độ (Severity Levels)
+$$R = \sum_{i=1}^{n} (w_i \cdot s_i)$$
 
-Hệ thống tự động phân loại rủi ro dựa trên điểm số cuối cùng:
+Where:
+- $w_i$ = Weight of the specific metric.
+- $s_i$ = Normalized segment score (0-100).
 
-- Thấp (LOW): 0 - 40. Điều kiện thời tiết bình thường.
-- Trung bình (MEDIUM): 41 - 60. Có dấu hiệu thay đổi thời tiết, cần theo dõi.
-- Cao (HIGH): 61 - 80. Điều kiện thời tiết nguy hiểm, có khả năng xảy ra dông lốc, mưa lớn.
-- Nguy cấp (CRITICAL): 81 - 100. Các hiện tượng mây bão hình thành mạnh, cần cảnh báo tức thời.
+### Weighted Components
+| Metric ($i$) | Weight ($w_i$) | Normalization Logic |
+|---|---|---|
+| **Cloud Coverage** | 0.25 | Percentage of pixels in the grey-spectrum above threshold. |
+| **Spectral Density** | 0.15 | Infrared brightness temperature deviation. |
+| **Precipitation** | 0.30 | Derived from radar dBZ or Himawari water-vapor bands. |
+| **Gradient Delta** | 0.20 | Rate of change in metric values over the last 60 minutes. |
+| **Pressure Delta** | 0.10 | Deviation from standard atmospheric pressure (1013.25 hPa). |
 
-## Độ tin cậy (Confidence Score)
+---
 
-Mỗi kết quả tính toán đều đi kèm với một điểm tin cậy. Điểm này phụ thuộc vào:
-- Độ mới của dữ liệu (Data freshness).
-- Số lượng nguồn dữ liệu đồng thuận (Data provenance consensus).
-- Chất lượng tín hiệu từ các sensor/trạm mặt đất.
+## 📶 Confidence Scoring (Data Quality)
+
+To prevent false positives, every Risk Score is accompanied by a **Confidence Metric ($C$)**:
+
+$$C = F_{score} \cdot P_{score}$$
+
+1. **Freshness ($F$)**: Decays exponentially based on time since last update ($T$):
+   $F = e^{- \lambda \cdot T}$ (where $\lambda$ is the decay constant for the specific data source).
+2. **Provenance ($P$)**: Increases based on the number of independent data sources confirming the trend (Himawari + Ground Radar + IoT).
+
+---
+
+## 🚨 Alert Escalation logic
+
+- **Level 1 (Low)**: $R < 40$. Standard periodic updates.
+- **Level 2 (Medium)**: $40 \le R < 60$. Increase polling frequency to 5 minutes.
+- **Level 3 (High)**: $60 \le R < 80$. Trigger WebSocket broadcast to affected zone users.
+- **Level 4 (Critical)**: $R \ge 80$. Immediate push notification/SMS dispatch and mission control override.
