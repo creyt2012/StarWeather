@@ -21,7 +21,7 @@ Wiki này cung cấp các phân tích kỹ thuật chuyên sâu về vận hành
 - [Engine Đánh Giá Rủi Ro Định Lượng](Risk-Engine.md)
 
 ## Chương 4: Tích Hợp Hệ Thống
-- [Tài liệu API RESTful](API-Reference.md)
+- [Tài liệu API-Reference](API-Reference.md)
 - [Xác thực & Giới hạn Băng thông](API-Reference.md#xác-thực-authentication)
 
 ---
