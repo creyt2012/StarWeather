@@ -72,11 +72,11 @@ class ApiExpansionTest extends TestCase
 
         \App\Models\MissionFile::create([
             'tenant_id' => $tenant->id,
-            'name' => 'TEST_REPORT',
-            'filename' => 'report_2026.pdf',
+            'original_name' => 'report_2026.pdf',
+            'stored_path' => 'reports/test.pdf',
+            'mime_type' => 'application/pdf',
             'type' => 'METEOROLOGICAL_REPORT',
-            'size' => 1024,
-            'path' => 'reports/test.pdf'
+            'status' => 'COMPLETED'
         ]);
 
         Storm::create([
