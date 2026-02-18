@@ -19,11 +19,11 @@ class EumetsatService
             $url = "https://eumetview.eumetsat.int/static-images/METEOSAT/RGB/NATURALCOLOR/FULL_RESOLUTION/latest.jpg";
 
             // Fallback to lower res if full fails
-            $response = Http::timeout(60)->get($url);
+            $response = Http::timeout(120)->get($url);
 
             if ($response->failed()) {
                 $url = "https://eumetview.eumetsat.int/static-images/METEOSAT/RGB/NATURALCOLOR/latest.jpg";
-                $response = Http::timeout(60)->get($url);
+                $response = Http::timeout(120)->get($url);
             }
 
             if ($response->failed()) {
