@@ -10,8 +10,9 @@ use Illuminate\Http\Request;
 Route::middleware(['auth.api_key', \App\Http\Middleware\CheckApiKeyLimits::class])->prefix('v1')->group(function () {
     Route::get('/live/state', [LiveStateController::class, 'index']);
 
-    // Satellites
+    // Satellites & Orbital Safety
     Route::get('/satellites/live', [SatelliteController::class, 'index']);
+    Route::get('/satellites/conjunctions', [\App\Http\Controllers\Api\V1\ConjunctionController::class, 'index']);
     Route::get('/satellites/{satellite}/telemetry', [SatelliteController::class, 'telemetry']);
     Route::get('/satellites/{satellite}/tle', [SatelliteController::class, 'tle']);
 
@@ -24,10 +25,10 @@ Route::middleware(['auth.api_key', \App\Http\Middleware\CheckApiKeyLimits::class
     Route::post('/payments/checkout', [\App\Http\Controllers\Api\V1\PaymentController::class, 'checkout']);
     Route::post('/payments/webhook/{gateway}', [\App\Http\Controllers\Api\V1\PaymentController::class, 'webhook']);
 
-    // Weather & Storm Tracking
+    // Weather, Storms & Tactical Zones
     Route::get('/weather/latest', [WeatherController::class, 'latest']);
     Route::get('/weather/metrics', [WeatherController::class, 'metrics']);
-    Route::get('/weather/ground-stations', [WeatherController::class, 'groundStations']);
+    Route::apiResource('/weather/ground-stations', \App\Http\Controllers\Api\V1\GroundStationController::class);
     Route::get('/weather/history', [WeatherController::class, 'locationHistory']);
     Route::get('/weather/heatmap', [WeatherController::class, 'heatmap']);
     Route::get('/weather/forecast', [WeatherController::class, 'forecast']);
@@ -35,19 +36,23 @@ Route::middleware(['auth.api_key', \App\Http\Middleware\CheckApiKeyLimits::class
     Route::get('/weather/storms', [\App\Http\Controllers\Api\V1\StormController::class, 'index']);
     Route::get('/weather/storms/{storm}', [\App\Http\Controllers\Api\V1\StormController::class, 'show']);
     Route::get('/weather/storms/{storm}/vortex', [\App\Http\Controllers\Api\V1\StormController::class, 'vortex']);
+    Route::get('/weather/risk-areas', [\App\Http\Controllers\Api\V1\RiskAreaController::class, 'index']);
 
     Route::get('/weather/trends', function () {
         return \App\Models\DailyWeatherSummary::latest()->limit(30)->get();
     });
 
-    // Alert Rules Management
+    // Alerting & History
     Route::apiResource('/alerts/rules', \App\Http\Controllers\Api\V1\AlertRuleController::class);
+    Route::get('/alerts/history', [\App\Http\Controllers\Api\V1\AlertHistoryController::class, 'index']);
 
     // Marine Tracking
     Route::get('/marine/vessels', [\App\Http\Controllers\Api\V1\MarineController::class, 'index']);
 
-    // Mission Control
+    // Mission Control & Reports
     Route::get('/mission-control/files', [MissionControlController::class, 'index']);
     Route::post('/mission-control/upload', [MissionControlController::class, 'store']);
     Route::get('/mission-control/files/{missionFile}', [MissionControlController::class, 'show']);
+    Route::get('/reports', [\App\Http\Controllers\Api\V1\ReportController::class, 'index']);
+    Route::get('/reports/{file}/download', [\App\Http\Controllers\Api\V1\ReportController::class, 'download']);
 });
