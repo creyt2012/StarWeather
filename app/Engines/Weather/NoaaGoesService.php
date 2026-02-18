@@ -23,7 +23,7 @@ class NoaaGoesService
             $satelliteCode = $this->resolveSatelliteCode($noradId);
             $url = "https://cdn.star.nesdis.noaa.gov/{$satelliteCode}/ABI/FD/GEOCOLOR/latest.jpg";
 
-            $response = Http::timeout(60)->get($url);
+            $response = Http::timeout(180)->get($url);
 
             if ($response->failed()) {
                 Log::warning("NOAA GOES download failed for {$satelliteCode}: {$url}");
