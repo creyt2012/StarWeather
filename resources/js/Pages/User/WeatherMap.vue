@@ -248,6 +248,17 @@ const toggleLayer = (id) => {
 const syncGlobeLayers = () => {
     if (!world) return;
 
+    // 0. Update Globe Surface (Clouds/Imagery)
+    if (activeLayers.value.includes('clouds')) {
+        // Use the selected constellation's latest image
+        // Or implement 12h history logic if needed. 
+        // For real-time, we use the 'latest' pointer.
+        const url = `/storage/imagery/${selectedConstellation.value.id}/latest.jpg?t=${Date.now()}`;
+        world.globeImageUrl(url);
+    } else {
+        world.globeImageUrl('https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg');
+    }
+
     // 1. Unified Points Layer (Storms + Marine + Lightning + Ground Stations)
     let combinedPoints = [];
     if (activeLayers.value.includes('storms')) {
