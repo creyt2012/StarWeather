@@ -215,6 +215,21 @@ const lightningData = ref([]);
 const isDrawingZone = ref(false);
 const currentZonePoints = ref([]);
 const watchZones = ref([]);
+const telemetryData = ref(null);
+
+watch(selectedSatellite, async (newSat) => {
+    if (newSat) {
+        try {
+            const res = await axios.get(`/storage/telemetry/${newSat.norad_id}/latest.json?t=${Date.now()}`);
+            telemetryData.value = res.data;
+        } catch (e) {
+            console.warn("No real-time telemetry JSON found for " + newSat.norad_id);
+            telemetryData.value = null;
+        }
+    } else {
+        telemetryData.value = null;
+    }
+});
 const auroraData = ref([]);
 const riskHeatmapData = ref([]);
 const windParticles = ref([]);
