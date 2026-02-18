@@ -359,13 +359,14 @@ const handleSurfaceClick = async (data) => {
                         </div>
 
                         <!-- TRANSMIT BUTTON -->
-                        <div class="mt-12">
+                        <div class="mt-12 grid grid-cols-2 gap-4">
+                            <button @click="openHistory()" 
+                                    class="py-5 bg-white/5 hover:bg-white/10 text-white text-[12px] font-black uppercase tracking-[0.4em] transition-all flex items-center justify-center space-x-3 rounded-2xl border border-white/10">
+                                <span>VISUAL_HISTORY</span>
+                            </button>
                             <button @click="transmitIntel" 
-                                    class="w-full py-5 bg-vibrant-blue hover:bg-vibrant-blue/80 text-black text-[12px] font-black uppercase tracking-[0.4em] transition-all flex items-center justify-center space-x-3 rounded-2xl shadow-[0_10px_30px_rgba(79,70,229,0.3)]">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M8 12h.01M12 12h.01M16 12h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                <span>INITIALIZE_TRANSMIT</span>
+                                    class="py-5 bg-vibrant-blue hover:bg-vibrant-blue/80 text-black text-[12px] font-black uppercase tracking-[0.4em] transition-all flex items-center justify-center space-x-3 rounded-2xl shadow-[0_10px_30px_rgba(79,70,229,0.3)]">
+                                <span>TRANSMIT</span>
                             </button>
                         </div>
                     </div>
