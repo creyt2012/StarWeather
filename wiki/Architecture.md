@@ -61,8 +61,10 @@ StarWeather được tối ưu hóa để chạy trên các server vật lý m�
 
 ## [STOR] Hạ Tầng Lưu Trữ (Storage Infrastructure)
 
-Dữ liệu hình ảnh (Imagery) từ vệ tinh và radar được quản lý tập trung tại:
-- **Đường dẫn vật lý**: `storage/app/public/weather/`
+Dữ liệu hình ảnh (Imagery) được tổng hợp từ mạng lưới vệ tinh khí tượng toàn cầu:
+- **Nguồn dữ liệu chính**: Constellation **Himawari-8/9** (JMA) cung cấp ảnh đĩa đầy đủ (Full Disk) phục vụ hiển thị lớp mây thời gian thực.
+- **Trạng thái Mở rộng**: Hệ thống đã sẵn sàng pipeline để tích hợp dữ liệu từ **GOES-R Series** (NOAA) và **Meteosat** (EUMETSAT).
+- **Vị trí lưu trữ vật lý**: `storage/app/public/weather/`
 - **Truy cập công khai**: `public/storage/weather/` (được liên kết qua symbolic link).
 - **Quy tắc đặt tên**:
     - `himawari_latest.png`: Ảnh vệ tinh mới nhất phục vụ hiển thị thời gian thực trên Globe.
