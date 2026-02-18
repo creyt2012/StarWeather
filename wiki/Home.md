@@ -17,10 +17,10 @@ Khám phá thiết kế Hybrid Microservices, luồng dữ liệu (Data Pipeline
 ### 🚀 [Cơ chế Vận hành & Thuật toán](Algorithms)
 Phân tích sâu về engine tính toán quỹ đạo SGP4, các thuật toán xử lý ảnh đa phổ và mô hình dự báo AI.
 
-### 🛡️ [Hệ thống Đánh giá Rủi ro](Risk-Engine)
+### 🛡️ [Hệ thống Đánh giá Rủi ro](Risk-Engine.md)
 Tìm hiểu về Condition Engine - bộ não phân tích các chỉ số cực đoan và tự động phát bản tin cảnh báo.
 
-### 🔌 [Tài liệu API Toàn cục](API-Reference)
+### 🔌 [Tài liệu API Toàn cục](API-Reference.md)
 Tra cứu danh mục đầy đủ các đầu cuối API (RESTful), bao gồm cả API nội bộ và giao thức kết nối AI Core.
 
 ---
