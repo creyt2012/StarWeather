@@ -43,4 +43,4 @@ $$C = F(t) \cdot P(n)$$
 - **Mức 3 (Nguy Cơ Cao)**: $60 \le R < 80$. Tự động phát sóng WebSocket cho các vùng bị ảnh hưởng.
 - **Mức 4 (Nguy Cấp)**: $R \ge 80$. Kích hoạt quy trình cảnh báo khẩn cấp qua SMS/Email và ghi đè các ưu tiên hệ thống.
 
-![Bảng điều khiển Phân tích Rủi ro StarWeather](../public/assets/docs/images/dashboard_mockup.png)
+![Bảng điều khiển Phân tích Rủi ro StarWeather](images/dashboard_mockup.png)
