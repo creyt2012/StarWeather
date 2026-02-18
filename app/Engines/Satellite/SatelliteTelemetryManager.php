@@ -7,13 +7,15 @@ use App\Engines\Weather\AtmosphericModel;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
+use App\Engines\Geo\GeoEngine;
 
 class SatelliteTelemetryManager
 {
     public function __construct(
         protected SatelliteEngine $engine,
         protected AtmosphericModel $atmosphericModel,
-        protected SatelliteImageryService $imageryService
+        protected SatelliteImageryService $imageryService,
+        protected GeoEngine $geoEngine
     ) {
     }
 
@@ -63,6 +65,7 @@ class SatelliteTelemetryManager
 
         // 4. Vantage Viewport (Imagery Zoom) - NEW
         $vantageUrl = $this->imageryService->getNadirViewUrl($orbital['latitude'], $orbital['longitude'], 15);
+        $groundAddress = $this->geoEngine->getGlobalLocation($orbital['latitude'], $orbital['longitude']);
 
         // 5. Environmental Proxy
         $seed = crc32($satellite->norad_id . $now->format('YmdH'));
@@ -84,6 +87,7 @@ class SatelliteTelemetryManager
                 'timestamp' => $orbital['timestamp'],
                 'organization' => $satellite->api_config['organization'] ?? 'UNKNOWN',
                 'type' => $satellite->type,
+                'location' => $groundAddress,
                 'can_image' => in_array($satellite->type, ['METEOROLOGICAL', 'RECONNAISSANCE', 'EARTH_OBSERVATION', 'STATION']),
             ],
             'orbital' => [
