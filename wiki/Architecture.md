@@ -1,42 +1,43 @@
-# System Architecture: The Data Fusion Pipeline
+# Kiến Trúc Hệ Thống & Chiến Lược Mở Rộng
 
-StarWeather is engineered as a high-throughput, non-dockerized Laravel 11 ecosystem designed for low-latency meteorological data fusion.
-
----
-
-## 🏗️ Core Infrastructure
-
-The application bypasses containerization for raw performance, utilizing optimized system-level services:
-- **Application Server**: PHP 8.3-FPM with OPcache optimized for high-complexity math.
-- **WebSocket Engine**: **Laravel Reverb**, handling real-time satellite position broadcasts with <50ms latency.
-- **Data Persistence**: MySQL 8.0 with time-partitioned indexing on weather metric tables.
-- **In-Memory Store**: Redis, serving as the L1 cache for current satellite states and queue management.
+StarWeather được thiết kế theo kiến trúc **Monolithic-Distributed Hybrid**, tận dụng sức mạnh xử lý tập trung của Laravel đồng thời phân tán các tác vụ nặng thông qua hàng đợi Redis và các Node xử lý riêng biệt.
 
 ---
 
-## 🔄 The Data Pipeline (ETL)
+## 🏢 Phân Lớp Kiến Trúc (Architectural Layers)
 
-We follow a specialized **Extract, Transform, Load (ETL)** pipeline for orbital and weather data:
+Hệ thống được tổ chức thành 4 phân lớp logic chính:
 
-### 1. Extraction (Ingestion)
-- **Norad Jobs**: Daily sync of TLE sets for over 3,000 tracked objects.
-- **Himawari Jobs**: 10-minute interval polling of NICT image sectors.
-- **IoT/Radar Hooks**: Asynchronous ingestion of ground-station weather metrics.
+### 1. Lớp Ingestion (Thu Thập Dữ Liệu)
+Sử dụng các tiến trình daemon chạy ngầm (Laravel Horizon) để duy trì kết nối liên tục với các trạm cung cấp dữ liệu:
+- **Orbital Stream**: Kết nối với API của NORAD để lấy dữ liệu TLE mới nhất mỗi 24 giờ.
+- **Weather Stream**: Polling dữ liệu ảnh Himawari-9 mỗi 10 phút để đảm bảo tính thời sự của bản đồ mây toàn cầu.
 
-### 2. Transformation (Fusion)
-- **SGP4 Propagation**: TLEs are converted into WGS84 coordinates.
-- **Image Rectification**: Full-disk satellite images are sliced and optimized for web delivery.
-- **Weighted Assessment**: Metrics are passed through the Risk Engine to generate severity alerts.
+### 2. Lớp Processing & Analytics (Xử Lý & Phân Tích)
+Đây là nơi thực thi các thuật toán SGP4 và QAQC:
+- **SGP4 Propagator**: Chuyển đổi dữ liệu orbital thành tọa độ địa lý.
+- **QA/QC Processor**: Thực hiện kiểm tra tính nhất quán không gian và rào cản vật lý để loại bỏ dữ liệu nhiễu.
 
-### 3. Load (Real-time Delivery)
-- **Database**: Permanent record of historical metrics.
-- **Redis**: "Hot" state of active satellites.
-- **Reverb**: Broadcast to all active client sessions via Socket.io/Echo.
+### 3. Lớp Distribution (Phân Phối & Real-time)
+Dữ liệu sau khi xử lý được đẩy ra ngoài thông qua hai kênh:
+- **RESTful API**: Dành cho các bên thứ ba tích hợp dữ liệu.
+- **WebSocket (Laravel Reverb)**: Phát sóng trực tiếp vị trí vệ tinh cho hàng ngàn người dùng đồng thời với độ trễ cực thấp.
 
 ---
 
-## 🚀 Scaling Strategy
+## 🚀 Chiến Lược Mở Rộng (Scaling Strategy)
 
-- **Queue Priority**: Horizon manages three distinct queues: `satellite` (high frequency), `weather` (batch heavy), and `default`.
-- **Stateless Design**: All application logic is stateless, allowing for immediate horizontal scaling by adding more PHP nodes behind a load balancer.
-- **Edge Delivery**: Weather assets are streamed directly from local storage with Nginx caching headers to minimize PHP overhead.
+StarWeather được tối ưu hóa để chạy trên các server vật lý mạnh mẽ mà không cần ảo hóa, giúp giảm overhead và tăng hiệu năng tính toán:
+
+### 1. Phân Cấp Bộ Nhớ Đệm (Multi-level Caching)
+- **L1 Cache (Redis)**: Lưu trữ "Hot States" - trạng thái hiện tại của tất cả vệ tinh đang hoạt động để truy xuất tức thì.
+- **L2 Cache (Filesystem/CDN)**: Lưu trữ các tệp tin hình ảnh vệ tinh và radar đã qua xử lý.
+
+### 2. Quản Lý Hàng Đợi (Queue Orchestration)
+Sử dụng **Laravel Horizon** để giám sát và điều phối hàng trăm Worker. Các tác vụ được phân bổ vào các hàng đợi có ưu tiên khác nhau:
+- `high`: Dùng cho các cảnh báo bão và rủi ro khẩn cấp.
+- `satellite`: Dùng cho việc tính toán quỹ đạo định kỳ.
+- `weather`: Dùng cho việc tải và xử lý ảnh vệ tinh nặng.
+
+### 3. Cấu Trúc Dữ Liệu Lớn (Big Data Handling)
+Bảng `weather_metrics` được thiết kế để hỗ trợ **Table Partitioning** theo tháng hoặc năm, cho phép truy vấn dữ liệu lịch sử hàng tỷ bản ghi mà không làm chậm hệ thống.
