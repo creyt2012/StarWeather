@@ -50,3 +50,22 @@ Dữ liệu từ cảm biến AHI (Advanced Himawari Imager) được xử lý q
 Hệ thống triển khai một công cụ quét tự động (`StormTrackingService`) để phát hiện các bất thường khí quyển:
 - Phân tích Gradient: Tính toán tốc độ thay đổi áp suất theo thời gian ($dP/dt$).
 - Mô Hình Nội Suy Vectơ: Dự báo quỹ đạo dựa trên hướng di chuyển lịch sử và các trường dòng chảy khí quyển tầng cao.
+
+---
+
+## 4. Mạng Lưới Vệ Tinh Chiến Thuật (Strategic Satellite Network)
+
+Hệ thống StarWeather không chỉ lấy dữ liệu từ một nguồn duy nhất. Chúng tôi phân loại làm hai nhóm chính:
+
+### 4.1. Nhóm Imagery (Cung cấp Hình ảnh)
+Hiện tại, hệ thống sử dụng **Himawari-9** là nguồn cung cấp ảnh đĩa (Full Disk) chính với tần suất cập nhật 10 phút/lần. Đây là vệ tinh có độ phân giải phổ cao nhất khu vực Châu Á - Thái Bình Dương.
+
+### 4.2. Nhóm Telemetry (Cung Cấp Tọa Độ & Viễn Thám)
+Hệ thống đồng bộ hóa dữ liệu TLE thời gian thực cho hơn **14 vệ tinh khí tượng** hàng đầu thế giới để hiển thị trên bản đồ 3D:
+- **Mỹ (NOAA)**: GOES-16, GOES-17, GOES-19, NOAA-19/20/21.
+- **Châu Âu (EUMETSAT)**: METOP-B/C, METEOSAT-9.
+- **Nhật Bản (JMA)**: HIMAWARI-8, HIMAWARI-9.
+- **Trung Quốc (CMA)**: FENGYUN-3D, FENGYUN-3F.
+
+> [!TIP]
+> Việc kết hợp dữ liệu TLE từ CelesTrak và ảnh vệ tinh từ JMA giúp StarWeather tạo ra một bản đồ động chính xác giữa vị trí vật lý của thiết bị và hiện tượng thời tiết chúng đang quan sát.
