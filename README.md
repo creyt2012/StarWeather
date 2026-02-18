@@ -11,7 +11,7 @@
 
 ---
 
-## 🏛️ Kiến Trúc Hệ Thống & Phân Lớp Kỹ Thuật
+## [ARCH] Kiến Trúc Hệ Thống & Phân Lớp Kỹ Thuật
 
 Dự án được xây dựng trên triết lý **"Data-Centric Architecture"**, ưu tiên xử lý dữ liệu hiệu năng cao mà không phụ thuộc vào ảo hóa (Non-Dockerized) để tận dụng tối đa tài nguyên phần cứng I/O.
 
@@ -47,7 +47,7 @@ Hệ thống không dựa trên cảm tính, mà sử dụng các công thức t
 
 ---
 
-## 💻 Công Nghệ Nền Tảng (Core Stack)
+## [TECH] Công Nghệ Nền Tảng (Core Stack)
 
 | Lớp (Layer) | Công Nghệ & Tiêu Chuẩn |
 |---|---|
@@ -59,7 +59,7 @@ Hệ thống không dựa trên cảm tính, mà sử dụng các công thức t
 
 ---
 
-## 🛠️ Hướng Dẫn Triển Khai Hệ Thống (Deployment)
+## [DEPLOY] Hướng Dẫn Triển Khai Hệ Thống (Deployment)
 
 ### Yêu Cầu Hạ Tầng
 - **PHP**: Phiên bản 8.2 trở lên với các extension: `bcmath`, `gmp`, `redis`.
@@ -86,7 +86,7 @@ npm run dev
 
 ---
 
-## 📊 Lộ Trình Phát Triển (Scientific Roadmap)
+## [ROADMAP] Lộ Trình Phát Triển (Scientific Roadmap)
 - [ ] Tích hợp hệ thống máy học (LSTM) để dự báo quỹ đạo bão phi tuyến tính.
 - [ ] Triển khai đo đạc mật độ Plasma tầng điện ly để phân tích ảnh hưởng đến tín hiệu liên lạc vệ tinh.
 - [ ] Dashboard dành riêng cho các cơ quan ứng phó thiên tai chuyên sâu.
