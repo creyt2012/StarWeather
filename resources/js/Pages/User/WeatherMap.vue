@@ -216,6 +216,11 @@ const isDrawingZone = ref(false);
 const currentZonePoints = ref([]);
 const watchZones = ref([]);
 const telemetryData = ref(null);
+const showSensorPayload = ref(false);
+
+const toggleSensorPayload = () => {
+    showSensorPayload.value = !showSensorPayload.value;
+};
 
 // Polling Timer for Telemetry
 let telemetryInterval = null;
@@ -1500,8 +1505,10 @@ const switchView = (mode) => {
                                 <span class="text-lg">👁️</span>
                                 <span>{{ isPOVMode ? 'EXIT_ORBITAL_POV' : 'ENTER_ORBITAL_POV' }}</span>
                             </button>
-                            <button class="w-full py-3 bg-white/5 text-white/40 text-[9px] font-black uppercase tracking-[0.3em] hover:bg-white/10 transition-all border border-white/5">
-                                ACCESS_SENSOR_PAYLOAD
+                            <button @click="toggleSensorPayload" 
+                                :class="showSensorPayload ? 'bg-vibrant-blue text-white shadow-[0_0_30px_#0088ff]' : 'bg-white/5 text-white/40 hover:bg-white/10'"
+                                class="w-full py-3 text-[9px] font-black uppercase tracking-[0.3em] transition-all border border-white/5">
+                                {{ showSensorPayload ? 'CLOSE_SENSOR_PAYLOAD' : 'ACCESS_SENSOR_PAYLOAD' }}
                             </button>
                         </div>
                     </div>
