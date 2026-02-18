@@ -91,7 +91,7 @@ X-API-KEY: your_api_key_here
 
 ---
 
-## [ADM] Quan ly Ve tinh & Tram (Admin Assets)
+## [ADM] Quản Lý Vệ Tinh & Tram (Admin Assets)
 
 Các đầu cuối dành cho khu vực quản trị, yêu cầu quyền `admin`.
 
