@@ -69,4 +69,4 @@ Sử dụng **Laravel Horizon** để giám sát và điều phối hàng trăm 
 Bảng `weather_metrics` được thiết kế để hỗ trợ **Table Partitioning** theo tháng hoặc năm, cho phép truy vấn dữ liệu lịch sử hàng tỷ bản ghi mà không làm chậm hệ thống.
 
 ---
-[[Về Trang Chủ|Home]] | [[Danh mục API|API-Reference]]
+[Về Trang Chủ](Home) | [Danh mục API](API-Reference)
