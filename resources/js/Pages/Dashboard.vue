@@ -24,7 +24,7 @@ const showHistory = ref(false);
 const historyLocation = ref(null);
 const satellites = ref([]);
 const groundStations = ref([]); // Added groundStations ref
-const activeLayers = ref(['COMMUNICATION', 'NAVIGATION', 'STATION', 'SCIENTIFIC', 'WEATHER', 'SPACE_DEBRIS', 'RISK_HEATMAP', 'RADAR_REFLECTIVITY']);
+const activeLayers = ref(['COMMUNICATION', 'NAVIGATION', 'STATION', 'SCIENTIFIC', 'WEATHER', 'METEOROLOGICAL', 'SPACE_DEBRIS', 'RISK_HEATMAP', 'RADAR_REFLECTIVITY']);
 const now = ref(new Date());
 
 const openHistory = (satellite = null) => {
