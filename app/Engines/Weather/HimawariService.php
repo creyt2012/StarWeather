@@ -40,10 +40,13 @@ class HimawariService
                 return $this->usePlaceholder();
             }
 
-            $path = 'weather/himawari_latest.png';
-            Storage::disk('local')->put($path, $response->body());
+            $path = "weather/himawari_{$year}{$month}{$day}_{$time}.png";
+            Storage::disk('public')->put($path, $response->body());
 
-            return Storage::path($path);
+            // Also update the latest pointer for the current map view
+            Storage::disk('public')->put('weather/himawari_latest.png', $response->body());
+
+            return Storage::disk('public')->path($path);
         } catch (\Exception $e) {
             Log::error("Himawari Service Error: " . $e->getMessage());
             return $this->usePlaceholder();
