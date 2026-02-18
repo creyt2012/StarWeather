@@ -55,7 +55,12 @@ class SatelliteTelemetryManager
         $solar = $this->deriveSolarState($orbital['latitude'], $orbital['longitude'], $now);
         $magnetic = $this->deriveMagneticField($orbital['latitude'], $orbital['altitude']);
 
-        // 3. Environmental Proxy (Atmospheric Model)
+        // 3. Advanced Intel Payload (NEW)
+        $heading = $this->deriveHeading($satellite, $now);
+        $footprint = $this->deriveFootprint($orbital['altitude']);
+        $linkIntel = $this->deriveLinkIntelligence($orbital['latitude'], $orbital['longitude'], $orbital['altitude'], $orbital['velocity']);
+
+        // 4. Environmental Proxy
         $seed = crc32($satellite->norad_id . $now->format('YmdH'));
         mt_srand($seed);
         $brightness = mt_rand(50, 200);
@@ -87,11 +92,17 @@ class SatelliteTelemetryManager
                     'period_min' => $orbital['period'],
                     'inclination_deg' => $elements['inclination'],
                     'eccentricity' => $elements['eccentricity'],
+                    'bstar_drag' => $elements['bstar'],
                 ]
             ],
-            'scientific' => [
+            'intel' => [
+                'heading_deg' => $heading,
+                'footprint_radius_km' => $footprint,
+                'link_specs' => $linkIntel,
                 'solar' => $solar,
                 'magnetic_field' => $magnetic,
+            ],
+            'scientific' => [
                 'atmosphere' => $env,
             ],
             'subsystems' => [
@@ -108,11 +119,72 @@ class SatelliteTelemetryManager
      */
     private function extractOrbitalElements(Satellite $sat): array
     {
+        $tle1 = $sat->tle_line1;
         $tle2 = $sat->tle_line2;
+
+        // Extract BSTAR drag term from TLE1 (cols 54-61)
+        $bstar_raw = substr($tle1, 53, 6);
+        $bstar_exp = substr($tle1, 59, 2);
+        $bstar = (float) ($bstar_raw * pow(10, (int) $bstar_exp));
+
         return [
             'inclination' => (float) substr($tle2, 8, 8),
             'eccentricity' => (float) ("0." . substr($tle2, 26, 7)),
             'raan' => (float) substr($tle2, 17, 8),
+            'bstar' => $bstar,
+        ];
+    }
+
+    /**
+     * Derive satellite ground heading.
+     */
+    private function deriveHeading(Satellite $sat, \DateTime $time): float
+    {
+        $pos1 = $this->engine->propagate($sat, $time);
+        $future = clone $time;
+        $future->modify('+60 seconds');
+        $pos2 = $this->engine->propagate($sat, $future);
+
+        $y = sin(deg2rad($pos2['longitude'] - $pos1['longitude'])) * cos(deg2rad($pos2['latitude']));
+        $x = cos(deg2rad($pos1['latitude'])) * sin(deg2rad($pos2['latitude'])) -
+            sin(deg2rad($pos1['latitude'])) * cos(deg2rad($pos2['latitude'])) * cos(deg2rad($pos2['longitude'] - $pos1['longitude']));
+
+        return round((rad2deg(atan2($y, $x)) + 360) % 360, 2);
+    }
+
+    /**
+     * Derive visibility footprint radius (km).
+     */
+    private function deriveFootprint(float $alt): float
+    {
+        $re = 6371;
+        return round($re * acos($re / ($re + $alt)), 1);
+    }
+
+    /**
+     * Derive RF Link intelligence (Doppler and Slant Range).
+     */
+    private function deriveLinkIntelligence(float $satLat, float $satLng, float $satAlt, float $satVel): array
+    {
+        // Ground Station: Hanoi (21.0285, 105.8542)
+        $gsLat = 21.0285;
+        $gsLng = 105.8542;
+
+        $re = 6371;
+        $r_sat = $re + $satAlt;
+
+        // Simplified Slant Range
+        $dLat = deg2rad($satLat - $gsLat);
+        $dLng = deg2rad($satLng - $gsLng);
+        $slantRange = sqrt(pow($re, 2) + pow($r_sat, 2) - 2 * $re * $r_sat * cos($dLat) * cos($dLng));
+
+        // Simplified Doppler Estimate (relative to 400MHz carrier)
+        $doppler = ($satVel * 1000 / 300000000) * 400000000;
+
+        return [
+            'slant_range_km' => round($slantRange, 2),
+            'doppler_shift_hz' => round($doppler, 1),
+            'is_visible_to_hanoi' => $slantRange < 3000, // Horizon approximation
         ];
     }
 
