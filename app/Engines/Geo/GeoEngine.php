@@ -4,6 +4,8 @@ namespace App\Engines\Geo;
 
 use App\Models\WeatherMetric;
 use App\Engines\Analytics\RiskEngine;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Cache;
 
 class GeoEngine
 {
@@ -36,6 +38,63 @@ class GeoEngine
         if ($lat > 14.0)
             return $this->mockCentral($lat, $lng);
         return $this->mockSouth($lat, $lng);
+    }
+
+    /**
+     * Resolve global coordinates to a readable address string.
+     * Uses OpenStreetMap Nominatim with heavy caching to prevent rate limits.
+     */
+    public function getGlobalLocation(float $lat, float $lng): string
+    {
+        // Accuracy: 0.1 deg (~11km) is enough for city/province naming
+        $cacheKey = "geo_loc_" . round($lat, 1) . "_" . round($lng, 1);
+
+        return Cache::remember($cacheKey, now()->addDays(7), function () use ($lat, $lng) {
+            try {
+                $response = Http::withHeaders([
+                    'User-Agent' => 'StarWeather_Mission_Control_v2'
+                ])->get('https://nominatim.openstreetmap.org/reverse', [
+                            'lat' => $lat,
+                            'lon' => $lng,
+                            'format' => 'json',
+                            'zoom' => 10, // City level
+                            'addressdetails' => 1
+                        ]);
+
+                if ($response->successful()) {
+                    $data = $response->json();
+                    $address = $data['address'] ?? [];
+
+                    $city = $address['city'] ?? $address['town'] ?? $address['village'] ?? $address['state'] ?? 'International Waters';
+                    $country = $address['country'] ?? '';
+
+                    return $country ? "{$city}, {$country}" : $city;
+                }
+            } catch (\Exception $e) {
+                // Fail gracefully to ocean mapping
+            }
+
+            return $this->guessOcean($lat, $lng);
+        });
+    }
+
+    /**
+     * Fallback for maritime or failed API calls.
+     */
+    private function guessOcean(float $lat, float $lng): string
+    {
+        if ($lng > -30 && $lng < 40)
+            return 'Atlantic Ocean';
+        if ($lng >= 40 && $lng < 100)
+            return 'Indian Ocean';
+        if ($lng >= 100 || $lng <= -120)
+            return 'Pacific Ocean';
+        if ($lat > 60)
+            return 'Arctic Ocean';
+        if ($lat < -60)
+            return 'Southern Ocean';
+
+        return 'International Waters';
     }
 
     /**
