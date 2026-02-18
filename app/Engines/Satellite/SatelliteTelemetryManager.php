@@ -12,7 +12,8 @@ class SatelliteTelemetryManager
 {
     public function __construct(
         protected SatelliteEngine $engine,
-        protected AtmosphericModel $atmosphericModel
+        protected AtmosphericModel $atmosphericModel,
+        protected SatelliteImageryService $imageryService
     ) {
     }
 
@@ -55,12 +56,15 @@ class SatelliteTelemetryManager
         $solar = $this->deriveSolarState($orbital['latitude'], $orbital['longitude'], $now);
         $magnetic = $this->deriveMagneticField($orbital['latitude'], $orbital['altitude']);
 
-        // 3. Advanced Intel Payload (NEW)
+        // 3. Advanced Intel Payload
         $heading = $this->deriveHeading($satellite, $now);
         $footprint = $this->deriveFootprint($orbital['altitude']);
         $linkIntel = $this->deriveLinkIntelligence($orbital['latitude'], $orbital['longitude'], $orbital['altitude'], $orbital['velocity']);
 
-        // 4. Environmental Proxy
+        // 4. Vantage Viewport (Imagery Zoom) - NEW
+        $vantageUrl = $this->imageryService->getNadirViewUrl($orbital['latitude'], $orbital['longitude'], 15);
+
+        // 5. Environmental Proxy
         $seed = crc32($satellite->norad_id . $now->format('YmdH'));
         mt_srand($seed);
         $brightness = mt_rand(50, 200);
@@ -80,6 +84,7 @@ class SatelliteTelemetryManager
                 'timestamp' => $orbital['timestamp'],
                 'organization' => $satellite->api_config['organization'] ?? 'UNKNOWN',
                 'type' => $satellite->type,
+                'can_image' => in_array($satellite->type, ['METEOROLOGICAL', 'RECONNAISSANCE', 'EARTH_OBSERVATION', 'STATION']),
             ],
             'orbital' => [
                 'coordinates' => [
@@ -94,6 +99,10 @@ class SatelliteTelemetryManager
                     'eccentricity' => $elements['eccentricity'],
                     'bstar_drag' => $elements['bstar'],
                 ]
+            ],
+            'visual' => [
+                'vantage_capture' => $vantageUrl,
+                'fov_deg' => 0.5, // Representative for high-res zoom
             ],
             'intel' => [
                 'heading_deg' => $heading,
