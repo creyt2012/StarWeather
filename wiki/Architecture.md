@@ -62,8 +62,11 @@ StarWeather được tối ưu hóa để chạy trên các server vật lý m�
 ### 2. Quản Lý Hàng Đợi (Queue Orchestration)
 Sử dụng **Laravel Horizon** để giám sát và điều phối hàng trăm Worker. Các tác vụ được phân bổ vào các hàng đợi có ưu tiên khác nhau:
 - `high`: Dùng cho các cảnh báo bão và rủi ro khẩn cấp.
-- `satellite`: Dùng cho việc tính toán quỹ đạo định kỳ.
+- `satellite`: Dùng cho việc tính toán quỹ đạo định kỳ (Tham khảo [Thuật toán Orbit](Algorithms)).
 - `weather`: Dùng cho việc tải và xử lý ảnh vệ tinh nặng.
 
 ### 3. Cấu Trúc Dữ Liệu Lớn (Big Data Handling)
 Bảng `weather_metrics` được thiết kế để hỗ trợ **Table Partitioning** theo tháng hoặc năm, cho phép truy vấn dữ liệu lịch sử hàng tỷ bản ghi mà không làm chậm hệ thống.
+
+---
+[[Về Trang Chủ|Home]] | [[Danh mục API|API-Reference]]
