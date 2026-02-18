@@ -1,47 +1,46 @@
-# Risk Engine: The Mathematical Foundation of Alerts
+# Engine Đánh Giá Rủi Ro: Cơ Sở Định Lượng Cảnh Báo
 
-![Risk Analytics Dashboard](../public/assets/docs/images/dashboard_mockup.png)
-
-The Risk Engine is a deterministic scoring system that converts raw sensor and satellite telemetry into a human-readable **Risk Score ($R$)**.
+Engine Đánh giá Rủi ro (Risk Engine) là thành phần trung tâm của hệ thống StarWeather, chịu trách nhiệm chuyển đổi các dữ liệu đo xa và cảm biến thô thành các chỉ số rủi ro có thể hiểu được bằng phương thức định lượng.
 
 ---
 
-## ⚖️ The Scoring Formula
+## ⚖️ 1. Phương Pháp Luận Tính Điểm Rủi Ro ($R$)
 
-The risk score is a composite value from 0-100, calculated using a weighted linear combination:
+Điểm rủi ro không phải là một giá trị định tính mà là kết quả của một hàm tổng trọng số được chuẩn hóa trong khoảng $[0, 100]$.
 
+### 1.1. Công Thức Tổng Quát
 $$R = \sum_{i=1}^{n} (w_i \cdot s_i)$$
 
-Where:
-- $w_i$ = Weight of the specific metric.
-- $s_i$ = Normalized segment score (0-100).
+Trong đó:
+- $w_i$: Trọng số của thành phần thứ $i$, phản ánh tầm quan trọng của chỉ số đó đối với rủi ro tổng thể.
+- $s_i$: Giá trị đã chuẩn hóa của chỉ số thứ $i$ (thường là từ ảnh vệ tinh hoặc radar).
 
-### Weighted Components
-| Metric ($i$) | Weight ($w_i$) | Normalization Logic |
+### 1.2. Phân Bổ Trọng Số Hệ Thống
+| Chỉ số ($i$) | Trọng số ($w_i$) | Logic Phân Tích |
 |---|---|---|
-| **Cloud Coverage** | 0.25 | Percentage of pixels in the grey-spectrum above threshold. |
-| **Spectral Density** | 0.15 | Infrared brightness temperature deviation. |
-| **Precipitation** | 0.30 | Derived from radar dBZ or Himawari water-vapor bands. |
-| **Gradient Delta** | 0.20 | Rate of change in metric values over the last 60 minutes. |
-| **Pressure Delta** | 0.10 | Deviation from standard atmospheric pressure (1013.25 hPa). |
+| **Độ Phủ Mây (Cloud Cover)** | 25% | Tỷ lệ diện tích bề mặt bị che phủ bởi mây dày. |
+| **Độ Dày Quang Học (Optical Depth)** | 15% | Độ xuyên thấu của phổ hồng ngoại qua lớp mây. |
+| **Cường Độ Lượng Mưa (Rain Rate)** | 30% | Dữ liệu tích hợp từ vệ tinh và mạng lưới radar XYZ. |
+| **Biến Thiên Áp Suất (Pressure Delta)** | 10% | Độ lệch so với áp suất chuẩn ($1013.25\text{ hPa}$). |
+| **Tốc Độ Thay Đổi (Gradient)** | 20% | Vận tốc phát triển của các khối mây trong 60 phút qua. |
 
 ---
 
-## 📶 Confidence Scoring (Data Quality)
+## 📶 2. Chỉ Số Tin Cậy (Confidence Metric - $C$)
 
-To prevent false positives, every Risk Score is accompanied by a **Confidence Metric ($C$)**:
+Để đảm bảo tính xác thực của cảnh báo, mỗi kết quả tính toán đều đi kèm với một giá trị tin cậy:
+$$C = F(t) \cdot P(n)$$
 
-$$C = F_{score} \cdot P_{score}$$
-
-1. **Freshness ($F$)**: Decays exponentially based on time since last update ($T$):
-   $F = e^{- \lambda \cdot T}$ (where $\lambda$ is the decay constant for the specific data source).
-2. **Provenance ($P$)**: Increases based on the number of independent data sources confirming the trend (Himawari + Ground Radar + IoT).
+1. **Hàm Suy Giảm Thời Gian (Freshness - $F$)**: Dữ liệu càng cũ, độ tin cậy càng giảm theo hàm mũ $e^{-\lambda t}$.
+2. **Sự Đồng Thuận Nguồn (Provenance - $P$)**: Độ tin cậy tăng lên khi có sự xác nhận chéo từ nhiều nguồn (ví dụ: Himawari đồng thuận với Radar mặt đất).
 
 ---
 
-## 🚨 Alert Escalation logic
+## 🚨 3. Phân Cấp Cảnh Báo & Hành Động (Severity Levels)
 
-- **Level 1 (Low)**: $R < 40$. Standard periodic updates.
-- **Level 2 (Medium)**: $40 \le R < 60$. Increase polling frequency to 5 minutes.
-- **Level 3 (High)**: $60 \le R < 80$. Trigger WebSocket broadcast to affected zone users.
-- **Level 4 (Critical)**: $R \ge 80$. Immediate push notification/SMS dispatch and mission control override.
+- **Mức 1 (An Toàn)**: $R < 40$. Điều kiện môi trường ổn định.
+- **Mức 2 (Theo Dõi)**: $40 \le R < 60$. Hệ thống tăng tần suất quét và cập nhật trạng thái mỗi 5 phút.
+- **Mức 3 (Nguy Cơ Cao)**: $60 \le R < 80$. Tự động phát sóng WebSocket cho các vùng bị ảnh hưởng.
+- **Mức 4 (Nguy Cấp)**: $R \ge 80$. Kích hoạt quy trình cảnh báo khẩn cấp qua SMS/Email và ghi đè các ưu tiên hệ thống.
+
+![Bảng điều khiển Phân tích Rủi ro StarWeather](../public/assets/docs/images/dashboard_mockup.png)
