@@ -9,6 +9,13 @@
 
 **StarWeather** is a large-scale data analysis ecosystem designed to solve complex problems at the intersection of celestial mechanics and atmospheric dynamics. The system provides a unified solution for tracking Low Earth Orbit (LEO) objects and analyzing extreme weather phenomena based on real-time multispectral data.
 
+### 📚 Technical Documentation & Wiki
+[![System Architecture](https://img.shields.io/badge/Architecture-0078D4?style=for-the-badge&logo=architecture&logoColor=white)](https://github.com/creyt2012/StarWeather/wiki/Architecture)
+[![Scientific Algorithms](https://img.shields.io/badge/Algorithms-FFD700?style=for-the-badge&logo=math&logoColor=black)](https://github.com/creyt2012/StarWeather/wiki/Algorithms)
+[![Modular System](https://img.shields.io/badge/Modular_System-FF5722?style=for-the-badge&logo=mod&logoColor=white)](https://github.com/creyt2012/StarWeather/wiki/Modular-Architecture)
+[![API Reference](https://img.shields.io/badge/API_Reference-4CAF50?style=for-the-badge&logo=api&logoColor=white)](https://github.com/creyt2012/StarWeather/wiki/API-Reference)
+[![Risk Engine](https://img.shields.io/badge/Risk_Engine-D32F2F?style=for-the-badge&logo=risk&logoColor=white)](https://github.com/creyt2012/StarWeather/wiki/Risk-Engine)
+
 ### [SYSTEM FLOW] Global Data Pipeline
 ```mermaid
 graph LR
