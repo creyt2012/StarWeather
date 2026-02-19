@@ -9,10 +9,10 @@
             "email": "mortarcloud@gmail.com"
         }
     ],
-    "homepage": "https://github.com/creyt2012/StarWeather",
+    "homepage": "https://github.com/creyt2012/vortex-aerospace",
     "support": {
-        "issues": "https://github.com/creyt2012/StarWeather/issues",
-        "source": "https://github.com/creyt2012/StarWeather/tree/main/packages/vortex-aerospace"
+        "issues": "https://github.com/creyt2012/vortex-aerospace/issues",
+        "source": "https://github.com/creyt2012/vortex-aerospace"
     },
     "require": {
         "php": "^8.2"
