@@ -1,0 +1,19 @@
+# Labels configuration
+
+backend:
+- 'app/**/*'
+- 'routes/**/*'
+- 'config/**/*'
+- 'database/**/*'
+
+frontend:
+- 'resources/js/**/*'
+- 'resources/css/**/*'
+- 'resources/views/**/*'
+
+documentation:
+- 'wiki/**/*'
+- 'README.md'
+
+ci:
+- '.github/workflows/**/*'
