@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Engines\Satellite\CelesTrakService;
+use Vortex\Aerospace\CelesTrakService;
 use App\Models\Satellite;
 use Illuminate\Console\Command;
 

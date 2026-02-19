@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Engines\Satellite\CelesTrakService;
+use Vortex\Aerospace\CelesTrakService;
 use App\Models\Satellite;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;

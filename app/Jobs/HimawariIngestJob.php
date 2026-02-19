@@ -3,8 +3,8 @@
 namespace App\Jobs;
 
 use App\Models\WeatherMetric;
-use App\Engines\Weather\HimawariService;
-use App\Engines\Weather\HimawariProcessor;
+use Vortex\Meteo\HimawariService;
+use Vortex\Meteo\HimawariProcessor;
 use App\Engines\Analytics\RiskEngine;
 use App\Events\WeatherMetricsUpdated;
 use Illuminate\Contracts\Queue\ShouldQueue;

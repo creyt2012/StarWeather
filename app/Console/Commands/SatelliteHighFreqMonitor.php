@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Engines\Satellite\SatelliteTelemetryManager;
+use Vortex\Aerospace\SatelliteTelemetryManager;
 use App\Models\Satellite;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;

@@ -39,6 +39,6 @@ class Satellite extends Model
      */
     public function getTelemetryAttribute()
     {
-        return app(\App\Engines\Satellite\SatelliteEngine::class)->propagate($this);
+        return app(\Vortex\Aerospace\SatelliteEngine::class)->propagate($this);
     }
 }

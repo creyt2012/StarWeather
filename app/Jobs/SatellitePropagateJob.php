@@ -4,7 +4,7 @@ namespace App\Jobs;
 
 use App\Models\Satellite;
 use App\Models\SatelliteTrack;
-use App\Engines\Satellite\SatelliteEngine;
+use Vortex\Aerospace\SatelliteEngine;
 use App\Events\SatelliteUpdated;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -16,7 +16,7 @@ class SatellitePropagateJob implements ShouldQueue
 
     public function handle(
         SatelliteEngine $engine,
-        \App\Engines\Satellite\ConjunctionEngine $conjunctionEngine,
+        \Vortex\Aerospace\ConjunctionEngine $conjunctionEngine,
         \App\Repositories\StateRepository $stateRepo
     ): void {
         $satellites = Satellite::where('status', 'ACTIVE')->get();

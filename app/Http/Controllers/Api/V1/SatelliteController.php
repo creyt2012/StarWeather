@@ -11,11 +11,11 @@ class SatelliteController extends Controller
 {
     protected \App\Repositories\StateRepository $stateRepo;
 
-    protected \App\Engines\Satellite\SatelliteEngine $engine;
+    protected \Vortex\Aerospace\SatelliteEngine $engine;
 
     public function __construct(
         \App\Repositories\StateRepository $stateRepo,
-        \App\Engines\Satellite\SatelliteEngine $engine
+        \Vortex\Aerospace\SatelliteEngine $engine
     ) {
         $this->stateRepo = $stateRepo;
         $this->engine = $engine;

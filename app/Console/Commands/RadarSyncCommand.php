@@ -14,7 +14,7 @@ class RadarSyncCommand extends Command
     protected $signature = 'radar:sync';
     protected $description = 'Sync latest global radar metadata from RainViewer';
 
-    public function handle(\App\Engines\Weather\RainViewerService $rainViewer)
+    public function handle(\Vortex\Meteo\RainViewerService $rainViewer)
     {
         $this->info("Fetching latest Radar metadata from RainViewer...");
 

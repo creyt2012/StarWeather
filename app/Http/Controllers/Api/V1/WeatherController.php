@@ -12,12 +12,12 @@ class WeatherController extends Controller
 {
     protected RiskEngine $riskEngine;
     protected \App\Repositories\StateRepository $stateRepo;
-    protected \App\Engines\Geo\GeoEngine $geoEngine;
+    protected \Vortex\Aerospace\GeoEngine $geoEngine;
 
     public function __construct(
         RiskEngine $riskEngine,
         \App\Repositories\StateRepository $stateRepo,
-        \App\Engines\Geo\GeoEngine $geoEngine
+        \Vortex\Aerospace\GeoEngine $geoEngine
     ) {
         $this->riskEngine = $riskEngine;
         $this->stateRepo = $stateRepo;
@@ -168,7 +168,7 @@ class WeatherController extends Controller
     /**
      * Get instant intelligence for a specific coordinate (Point Intelligence).
      */
-    public function pointInfo(Request $request, \App\Engines\Weather\AtmosphericModel $atmosphere): JsonResponse
+    public function pointInfo(Request $request, \Vortex\Meteo\AtmosphericModel $atmosphere): JsonResponse
     {
         $lat = (float) $request->get('lat');
         $lng = (float) $request->get('lng');
@@ -246,7 +246,7 @@ class WeatherController extends Controller
     public function satellites(): JsonResponse
     {
         return \Illuminate\Support\Facades\Cache::remember('satellite_intelligence_list', 60, function () {
-            $engine = app(\App\Engines\Satellite\SatelliteEngine::class);
+            $engine = app(\Vortex\Aerospace\SatelliteEngine::class);
             $satellites = \App\Models\Satellite::where('status', 'ACTIVE')->get();
 
             $data = $satellites->map(function ($sat) use ($engine) {
