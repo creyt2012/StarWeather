@@ -9,6 +9,38 @@
 
 **StarWeather** is a large-scale data analysis ecosystem designed to solve complex problems at the intersection of celestial mechanics and atmospheric dynamics. The system provides a unified solution for tracking Low Earth Orbit (LEO) objects and analyzing extreme weather phenomena based on real-time multispectral data.
 
+### [SYSTEM FLOW] Global Data Pipeline
+```mermaid
+graph LR
+    subgraph Data_Sources["Data Sources"]
+        NORAD["NORAD/CelesTrak (TLE)"]
+        JMA["JMA Himawari-9 (Imagery)"]
+        RV["RainViewer (Radar)"]
+    end
+
+    subgraph Core_Engine["Computational Core"]
+        SGP4["SGP4 Propagator"]
+        AI["AI Atmospheric Engine"]
+        MOSAIC["Radar Mosaic Processor"]
+    end
+
+    subgraph Delivery["Delivery Layer"]
+        REVERB["Laravel Reverb (WebSocket)"]
+        API["REST V1 API"]
+        GLOBE["Three.js 3D Globe"]
+    end
+
+    NORAD --> SGP4
+    JMA --> AI
+    RV --> MOSAIC
+
+    SGP4 --> REVERB
+    AI --> API
+    MOSAIC --> GLOBE
+    REVERB --> GLOBE
+    API --> GLOBE
+```
+
 ---
 
 ## [ARCH] System Architecture & Engineering Layers
