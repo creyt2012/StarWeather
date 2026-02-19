@@ -1,5 +1,5 @@
 # Hệ Thống StarWeather (Dự án Vệ Tinh)
-## Nền Tảng Phân Tích Cơ Học Quỹ Đạo & Trí Tuệ Khí Tượng Tổng Hợp Cấp Liên Bang
+## Nền Tảng Phân Tích Cơ Học Quỹ Đạo & Trí Tuệ Khí Tượng Tổng Hợp
 
 ![Bảng điều khiển Trung tâm Nhiệm vụ StarWeather](public/assets/docs/images/mission_control_terminal.png)
 
