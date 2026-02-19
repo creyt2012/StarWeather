@@ -9,6 +9,36 @@ The system addresses **Big Data** challenges in the meteorological industry by c
 
 ---
 
+### [CORE] Ecosystem Intelligence
+```mermaid
+graph TD
+    subgraph Space_Layer["Space & Remote Sensing"]
+        SATS["Multi-Satellite Constellation"]
+        GS["Global Ground Station Network"]
+    end
+
+    subgraph Intelligence_Core["Intelligence & Processing"]
+        AI_CORE["AI Core (FastAPI)"]
+        LARAVEL["Central Orbit Engine (Laravel)"]
+        REDIS["Real-time State Cache"]
+    end
+
+    subgraph Consumer_Layer["Consumer Interface"]
+        DASH["Tactical Mission Dashboard"]
+        API["Developer API V1"]
+        WEB["3D Web GIS Interface"]
+    end
+
+    SATS <--> GS
+    GS --> AI_CORE
+    AI_CORE --> LARAVEL
+    GS --> LARAVEL
+    LARAVEL <--> REDIS
+    LARAVEL --> DASH
+    LARAVEL --> API
+    REDIS --> WEB
+```
+
 ## Documentation Structure (Table of Contents)
 
 ### [System Architecture](Architecture)
