@@ -4,7 +4,7 @@ Engine Đánh giá Rủi ro (Risk Engine) là thành phần trung tâm của h�
 
 ---
 
-## [MODEL] 1. Phướng Pháp Luận Tính Điểm Rủi Ro
+## [MODEL] 1. Phương Pháp Luận Tính Điểm Rủi Ro
 
 Điểm rủi ro không phải là một giá trị định tính mà là kết quả của một hàm tổng trọng số được chuẩn hóa trong khoảng $[0, 100]$.
 
