@@ -1,6 +1,39 @@
 # API Reference (V1 Full Catalog)
 
 The StarWeather system provides standard RESTful Application Programming Interfaces (APIs). Below is a detailed directory of all currently available endpoints.
+---
+
+### [CYCLE] API Request Lifecycle
+```mermaid
+graph LR
+    subgraph Client["Consumer"]
+        REQ["HTTP Request"]
+    end
+
+    subgraph Security["Security Layer"]
+        KEY["X-API-KEY Validation"]
+        SANCTUM["Sanctum/CSRF Check"]
+        LIMIT["Rate Limiter (Redis)"]
+    end
+
+    subgraph Processing["Application Logic"]
+        ROUTE["Route Dispatcher"]
+        VAL["Request Validator"]
+        CONTROLLER["Resource Controller"]
+        SVC["Scientific/Business Service"]
+    end
+
+    subgraph Storage["Persistence"]
+        DB[(MySQL Spatial)]
+        L1[(Redis Cache)]
+    end
+
+    REQ --> KEY --> SANCTUM --> LIMIT
+    LIMIT --> ROUTE --> VAL --> CONTROLLER --> SVC
+    CONTROLLER <--> L1
+    SVC <--> DB
+    SVC --> RES["JSON Response"]
+```
 
 ## [AUTH] Authentication
 
