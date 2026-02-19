@@ -88,6 +88,6 @@
             "url": "packages/vortex-meteo"
         }
     ],
-    "minimum-stability": "stable",
+    "minimum-stability": "dev",
     "prefer-stable": true
 }
