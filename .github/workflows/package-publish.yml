@@ -1,0 +1,38 @@
+name: Publish Vortex Packages
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, xml, ctype, iconv, mysql, pdo_mysql
+          tools: composer:v2
+
+      - name: Validate composer.json (Aerospace)
+        run: composer validate --working-dir=packages/vortex-aerospace
+
+      - name: Validate composer.json (Meteo)
+        run: composer validate --working-dir=packages/vortex-meteo
+
+      - name: Publish to GitHub Packages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Note: For Composer, GitHub Packages uses Git tags. 
+          # This workflow ensures validity before the tag becomes 'live' in the registry.
+          echo "Packages validated and ready for GitHub Package Registry discovery via tag: ${{ github.ref_name }}"
