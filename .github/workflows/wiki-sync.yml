@@ -1,0 +1,24 @@
+name: Wiki Sync
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'wiki/**'
+
+jobs:
+  sync-wiki:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Push to Wiki
+        uses: Andrew-Chen-Wang/github-wiki-action@v4
+        with:
+          path: wiki/
+          strategy: sync
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
