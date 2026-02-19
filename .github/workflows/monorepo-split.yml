@@ -1,0 +1,37 @@
+name: Monorepo Split
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - '*'
+
+jobs:
+  packages_split:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        package:
+          - local_path: 'vortex-aerospace'
+            repository: 'vortex-aerospace'
+          - local_path: 'vortex-meteo'
+            repository: 'vortex-meteo'
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Note: This uses the Symplify Monorepo Split Action
+      # It requires a MONOREPO_SPLIT_TOKEN with 'repo' scope
+      - uses: symplify/monorepo-split-github-action@v1.1
+        with:
+          package_directory: 'packages/${{ matrix.package.local_path }}'
+          repository_organization: 'creyt2012'
+          repository_name: '${{ matrix.package.repository }}'
+          user_name: 'creyt2012'
+          user_email: 'mortarcloud@gmail.com'
+          branch: 'main'
+          access_token: ${{ secrets.MONOREPO_SPLIT_TOKEN }}
