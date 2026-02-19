@@ -53,6 +53,9 @@ Learn about the Condition Engine - the analytical "brain" that monitors extreme 
 ### [Global API Reference](API-Reference)
 Consult the full directory of API endpoints (RESTful), including internal APIs and AI Core connection protocols.
 
+### [Modular Architecture](Modular-Architecture)
+Learn about the "Plug-and-Play" system, how to create isolated modules, and dynamic feature activation.
+
 ---
 
 ## Core Technologies
