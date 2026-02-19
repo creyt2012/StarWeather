@@ -4,6 +4,29 @@ The Risk Engine is a central component of the StarWeather system, responsible fo
 
 ---
 
+## [PIPE] Risk Scoring Pipeline
+```mermaid
+graph TD
+    META["Sensor Metadata (Time/Source)"] --> CONF
+    
+    subgraph Weight_Matrix["Weight Calculation Engine"]
+        CC["Cloud Cover (25%)"]
+        OD["Optical Depth (15%)"]
+        RR["Rain Rate (30%)"]
+        PD["Pressure Delta (10%)"]
+        GG["Growth Gradient (20%)"]
+    end
+
+    CC & OD & RR & PD & GG --> SUM{Weighted Sum}
+    SUM --> SCORE((Final Risk Score))
+    
+    CONF{Confidence Check} --> VALIDATION{Decision Gate}
+    SCORE --> VALIDATION
+    
+    VALIDATION -->|Score > 80| ALERT[EMERGENCY ALERT]
+    VALIDATION -->|Score < 40| SAFE[STATUS: STABLE]
+```
+
 ## [MODEL] 1. Risk Scoring Methodology
 
 The risk score is not a qualitative value but the result of a weighted sum function normalized in the range of $[0, 100]$.
