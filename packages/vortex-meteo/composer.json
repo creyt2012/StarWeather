@@ -1,6 +1,6 @@
 {
-    "name": "vortex/aerospace",
-    "description": "StarWeather Aerospace & Orbital Mechanics Engine",
+    "name": "vortex/meteo",
+    "description": "StarWeather Meteorological Intelligence Engine",
     "type": "library",
     "license": "MIT",
     "authors": [
@@ -14,7 +14,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Vortex\\Aerospace\\": "src/"
+            "Vortex\\Meteo\\": "src/"
         }
     }
 }
