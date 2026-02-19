@@ -1,75 +1,75 @@
-# Phân Tích Thuật Toán & Mô Hình Toán Học Nâng Cao
+# Analysis of Algorithms & Advanced Mathematical Models
 
-Hệ thống StarWeather được vận hành bởi các mô hình hàng không vũ trụ và vật lý khí quyển tiêu chuẩn quốc tế, đảm bảo tính nhất quán và độ chính xác của dữ liệu đầu ra.
+The StarWeather system is operated by international standard aerospace and atmospheric physics models, ensuring consistency and accuracy of the output data.
 
 ---
 
-## 1. Động Lực Học Quỹ Đạo Vệ Tinh (Orbital Dynamics)
+## 1. Orbital Dynamics
 
-Hệ thống sử dụng các phương pháp mô phỏng số để xác định trạng thái của vệ tinh trong không gian ba chiều.
+The system uses numerical simulation methods to determine the state of satellites in three-dimensional space.
 
-### 1.1. Lan Truyền SGP4 (Simplified General Perturbations)
-Thuật toán SGP4 giải quyết các phương trình vi phân chuyển động có tính đến các lực nhiễu loạn chính:
-- Độ dẹt của Trái đất ($J_2$): Ảnh hưởng của hình dạng không cầu đối với quỹ đạo.
-- Lực cản khí quyển: Đặc biệt quan trọng đối với các vệ tinh ở quỹ đạo thấp (LEO).
+### 1.1. SGP4 Propagation (Simplified General Perturbations)
+The SGP4 algorithm solves differential equations of motion taking into account major perturbative forces:
+- Earth's Oblateness ($J_2$): Effect of the non-spherical shape on the orbit.
+- Atmospheric Drag: Particularly important for satellites in Low Earth Orbit (LEO).
 
-**Các tham số đầu vào chính từ TLE:**
-- Độ nghiêng ($i$): Góc giữa mặt phẳng quỹ đạo và mặt phẳng xích đạo.
-- RAAN ($\Omega$): Kinh độ của nút lên, xác định hướng của mặt phẳng quỹ đạo trong không gian.
-- Độ lệch tâm ($e$): Độ "méo" của quỹ đạo (0 cho hình tròn hoàn hảo).
+**Key input parameters from TLE:**
+- Inclination ($i$): Angle between the orbital plane and the equatorial plane.
+- RAAN ($\Omega$): Right Ascension of the Ascending Node, defining the orientation of the orbital plane in space.
+- Eccentricity ($e$): The "out-of-roundness" of the orbit (0 for a perfect circle).
 
-### 1.2. Tính Toán Vận Tốc Tức Thời (Vis-Viva Equation)
-Tốc độ của vệ tinh tại bất kỳ điểm nào trên quỹ đạo được tính bằng hàm số của khoảng cách đến tâm Trái đất:
+### 1.2. Instantaneous Velocity Calculation (Vis-Viva Equation)
+The speed of the satellite at any point in its orbit is calculated as a function of the distance to the Earth's center:
 $$v = \sqrt{\mu \left(2/r - 1/a \right)}$$
-Trong đó:
-- $\mu$: Hằng số trọng trường Trái đất ($398600.44\text{ km}^3/\text{s}^2$).
-- $r$: Khoảng cách tức thời từ vệ tinh đến tâm địa cầu.
-- $a$: Bán trục lớn của quỹ đạo elip.
+Where:
+- $\mu$: Earth's gravitational constant ($398600.44\text{ km}^3/\text{s}^2$).
+- $r$: Instantaneous distance from the satellite to the Earth's center.
+- $a$: Semi-major axis of the elliptical orbit.
 
-### 1.3. Hệ Quy Chiếu & Bù Trừ Chuyển Động Quay WGS84
-Do Trái đất quay quanh trục của nó, một điểm cố định trong không gian Inertial (ECI) sẽ có tọa độ địa lý thay đổi theo thời gian. Chúng tôi sử dụng **Giờ Sidereal Trung bình tại Greenwich (GMST)** để thực hiện phép xoay tọa độ:
+### 1.3. WGS84 Reference Frame & Rotation Compensation
+Because the Earth rotates on its axis, a fixed point in Inertial space (ECI) will have geographic coordinates that change over time. We use **Greenwich Mean Sidereal Time (GMST)** to perform coordinate rotation:
 $$lng = \alpha - GMST$$
-trong đó $\alpha$ là độ thăng thiên thẳng (Right Ascension) của vệ tinh.
+where $\alpha$ is the satellite's Right Ascension.
 
 ---
 
-## 2. Xử Lý Phổ Khí Tượng & Hợp Nhất Dữ Liệu (Data Fusion)
+## 2. Meteorological Spectral Processing & Data Fusion
 
-### 2.1. Phân Tích Băng Thông Đa Phổ Himawari
-Dữ liệu từ cảm biến AHI (Advanced Himawari Imager) được xử lý qua hai kênh chính:
-- Kênh Hồng Ngoại (Băng 13 - 10.4µm): Dùng để xác định nhiệt độ bức xạ của đỉnh mây. Nhiệt độ càng thấp tương ứng với mây càng cao và dày (nguy cơ bão lớn).
-- Kênh Khả Kiến (Băng 3 - 0.64µm): Dùng để phân tích cấu trúc bề mặt mây và độ phản xạ Albedo.
+### 2.1. Himawari Multispectral Bandwidth Analysis
+Data from the AHI (Advanced Himawari Imager) sensor is processed through two main channels:
+- Infrared Channel (Band 13 - 10.4µm): Used to determine the brightness temperature of the cloud tops. Lower temperatures correspond to higher and thicker clouds (higher risk of intense storms).
+- Visible Channel (Band 3 - 0.64µm): Used to analyze cloud surface structures and Albedo reflectivity.
 
-### 2.2. Thuật Toán Mosaic Radar XYZ
-Để duy trì hiệu năng hiển thị, dữ liệu radar lượng mưa được phân phối dưới dạng các mảnh (tiles) 256x256 pixel. Hệ thống sử dụng thuật toán nội suy song tuyến tính (Bilinear Interpolation) để đảm bảo các cạnh của các mảnh radar khớp nhau hoàn hảo trên địa cầu 3D.
+### 2.2. XYZ Radar Mosaic Algorithm
+To maintain display performance, precipitation radar data is distributed as 256x256 pixel tiles. The system uses Bilinear Interpolation algorithms to ensure the edges of the radar tiles match perfectly on the 3D globe.
 
 ---
 
-## 3. Định Danh Xoáy Thuận & Dự Báo (Vortex ID)
+## 3. Cyclogenesis Identification & Forecasting (Vortex ID)
 
-Hệ thống triển khai một công cụ quét tự động (`StormTrackingService`) để phát hiện các bất thường khí quyển:
-- Phân tích Gradient: Tính toán tốc độ thay đổi áp suất theo thời gian ($dP/dt$).
-- Mô Hình Nội Suy Vectơ: Dự báo vị trí vệ tinh trong tương lai dựa trên các tham số nhiễu loạn (perturbations) mặt trời và khí quyển.
+The system implements an automated scanning tool (`StormTrackingService`) to detect atmospheric anomalies:
+- Gradient Analysis: Calculates the rate of pressure change over time ($dP/dt$).
+- Vector Interpolation Model: Forecasts future satellite positions based on solar and atmospheric perturbation parameters.
 
 ![Constellation View](images/constellation.png)
 
 ---
 
-## 4. Mạng Lưới Vệ Tinh Chiến Thuật (Strategic Satellite Network)
+## 4. Strategic Satellite Network
 
-Hệ thống StarWeather sử dụng các mô hình toán học và vật lý tiên tiến nhất để xử lý dữ liệu viễn thám.
+The StarWeather system utilizes the most advanced mathematical and physical models to process remote sensing data.
 
 ![Spectral Analysis](images/spectral_analysis.png)
 
-### 4.1. Nhóm Imagery (Cung cấp Hình ảnh)
-Hiện tại, hệ thống sử dụng **Himawari-9** là nguồn cung cấp ảnh đĩa (Full Disk) chính với tần suất cập nhật 10 phút/lần. Đây là vệ tinh có độ phân giải phổ cao nhất khu vực Châu Á - Thái Bình Dương.
+### 4.1. Imagery Group (Providing Images)
+Currently, the system uses **Himawari-9** as its primary source for Full Disk images, updated every 10 minutes. This satellite has the highest spectral resolution in the Asia-Pacific region.
 
-### 4.2. Nhóm Telemetry (Cung Cấp Tọa Độ & Viễn Thám)
-Hệ thống đồng bộ hóa dữ liệu TLE thời gian thực cho hơn **14 vệ tinh khí tượng** hàng đầu thế giới để hiển thị trên bản đồ 3D:
-- **Mỹ (NOAA)**: GOES-16, GOES-17, GOES-19, NOAA-19/20/21.
-- **Châu Âu (EUMETSAT)**: METOP-B/C, METEOSAT-9.
-- **Nhật Bản (JMA)**: HIMAWARI-8, HIMAWARI-9.
-- **Trung Quốc (CMA)**: FENGYUN-3D, FENGYUN-3F.
+### 4.2. Telemetry Group (Providing Coordinates & Remote Sensing)
+The system synchronizes real-time TLE data for over **14 leading meteorological satellites** worldwide for display on the 3D map:
+- **USA (NOAA)**: GOES-16, GOES-17, GOES-19, NOAA-19/20/21.
+- **Europe (EUMETSAT)**: METOP-B/C, METEOSAT-9.
+- **Japan (JMA)**: HIMAWARI-8, HIMAWARI-9.
+- **China (CMA)**: FENGYUN-3D, FENGYUN-3F.
 
 > [!TIP]
-> Việc kết hợp dữ liệu TLE từ CelesTrak và ảnh vệ tinh từ JMA giúp StarWeather tạo ra một bản đồ động chính xác giữa vị trí vật lý của thiết bị và hiện tượng thời tiết chúng đang quan sát.
+> Combining TLE data from CelesTrak and satellite imagery from JMA allows StarWeather to create an accurate dynamic map between the physical location of the equipment and the weather phenomena they are observing.
