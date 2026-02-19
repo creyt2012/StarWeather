@@ -42,8 +42,7 @@ class ModuleServiceProvider extends ServiceProvider
         }
 
         $modules = File::directories($modulesPath);
-        // $activeModules = Module::where('is_active', true)->pluck('name')->toArray();
-        $activeModules = []; // Temp
+        $activeModules = Module::where('is_active', true)->pluck('name')->toArray();
 
         foreach ($modules as $modulePath) {
             $moduleName = basename($modulePath);
