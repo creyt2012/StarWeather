@@ -4,7 +4,7 @@ StarWeather được thiết kế theo kiến trúc **Monolithic-Distributed Hyb
 
 ---
 
-## [SVC] He sinh thai Dich vu (Service Ecosystem)
+## [SVC] Hệ sinh thái Dịch vụ (Service Ecosystem)
 
 Dự án được thiết kế theo mô hình **Hybrid Microservices**:
 
@@ -14,7 +14,7 @@ Dự án được thiết kế theo mô hình **Hybrid Microservices**:
 
 ![Mission Control](images/mission_control.png)
 
-## [PIPE] Luong Du lieu (Data Pipeline)
+## [PIPE] Luồng Dữ liệu (Data Pipeline)
 
 ```mermaid
 graph TD
