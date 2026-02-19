@@ -9,7 +9,7 @@
 
 **StarWeather** is a large-scale data analysis ecosystem designed to solve complex problems at the intersection of celestial mechanics and atmospheric dynamics. The system provides a unified solution for tracking Low Earth Orbit (LEO) objects and analyzing extreme weather phenomena based on real-time multispectral data.
 
-### 📚 Technical Documentation & Wiki
+###  Technical Documentation & Wiki
 [![System Architecture](https://img.shields.io/badge/Architecture-0078D4?style=for-the-badge&logo=architecture&logoColor=white)](https://github.com/creyt2012/StarWeather/wiki/Architecture)
 [![Scientific Algorithms](https://img.shields.io/badge/Algorithms-FFD700?style=for-the-badge&logo=math&logoColor=black)](https://github.com/creyt2012/StarWeather/wiki/Algorithms)
 [![Modular System](https://img.shields.io/badge/Modular_System-FF5722?style=for-the-badge&logo=mod&logoColor=white)](https://github.com/creyt2012/StarWeather/wiki/Modular-Architecture)
