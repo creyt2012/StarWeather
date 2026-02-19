@@ -33,7 +33,67 @@ where $\alpha$ is the satellite's Right Ascension.
 
 ---
 
-## 2. Meteorological Spectral Processing & Data Fusion
+## 1. Orbital Dynamics (Space-to-Ground Pipeline)
+```mermaid
+graph TD
+    subgraph Input_Space["Input Space"]
+        TLE["Two-Line Element (TLE)"]
+        EPOCH["Epoch Timestamp (t0)"]
+    end
+
+    subgraph Mathematical_Engine["SGP4 Engine"]
+        PROP["SGP4 Propagator"]
+        PERT["Perturbation Solver (J2, Drag)"]
+        STATE["State Vector (r, v) ECI"]
+    end
+
+    subgraph Transformation["Geo-Reference"]
+        GMST["GMST/Sidereal Time Rotation"]
+        WGS84["WGS84 Ellipsoid Projection"]
+        GEO["Lat/Lng/Alt Coordinates"]
+    end
+
+    TLE --> PROP
+    EPOCH --> PROP
+    PROP <--> PERT
+    PERT --> STATE
+    STATE --> GMST
+    GMST --> WGS84
+    WGS84 --> GEO
+```
+
+Hệ thống sử dụng các phương pháp mô phỏng số để xác định trạng thái của vệ tinh trong không gian ba chiều.
+
+---
+
+## 2. Meteorological Spectral Processing (Sensor-to-Metric Pipeline)
+```mermaid
+graph LR
+    subgraph Sensors["AHI Sensors (Himawari-9)"]
+        IR["Band 13 (Infrared 10.4µm)"]
+        VIS["Band 3 (Visible 0.64µm)"]
+    end
+
+    subgraph Logic_Pipe["AI Normalization Pipe"]
+        NORM["Spectral Normalization"]
+        GRAD["Gradient Analysis (dT/dt)"]
+        VORT["Vortex/Cyclogenesis ID"]
+    end
+
+    subgraph Output["Meteorological Products"]
+        TEMP["Cloud Top Temperature"]
+        WIND["Estimated Wind Field"]
+        STORM["Storm Eye Location"]
+    end
+
+    IR --> NORM
+    VIS --> NORM
+    NORM --> GRAD
+    GRAD --> VORT
+    VORT --> TEMP
+    VORT --> WIND
+    VORT --> STORM
+```
 
 ### 2.1. Himawari Multispectral Bandwidth Analysis
 Data from the AHI (Advanced Himawari Imager) sensor is processed through two main channels:
