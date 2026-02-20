@@ -5,18 +5,30 @@ import cv2
 import os
 from datetime import datetime
 
-# Import C++ High-Performance Computing Bridge
+# HPC C++ Bridge
 from hpc_bridge import hpc
 
-app = FastAPI(title="StarWeather AI Core (HPC Enhanced)")
+# AI Core Pipelines (Level 1 to 3)
+from core.pipelines.level1_calibration import run_level1_pipeline
+from core.pipelines.level2_inference import run_level2_inference
+from core.pipelines.level3_physics import run_level3_physics
 
-class WeatherAnalysisResponse(BaseModel):
+app = FastAPI(title="StarWeather AI Core (Deep Learning Edition)")
+
+class CycloneInfo(BaseModel):
+    active: bool
+    confidence: float
+    category_prediction: str
+    max_sustained_wind_knots: float
+
+class DeepAnalysisResponse(BaseModel):
     status: str
     temperature_c: float
     pressure_hpa: float
     wind_speed_kmh: float
-    wind_direction_deg: int
     cloud_coverage_pct: float
+    mean_cloud_top_height_km: float
+    cyclone_detection: CycloneInfo
     timestamp: str
     metadata: dict
 
@@ -24,63 +36,65 @@ class WeatherAnalysisResponse(BaseModel):
 async def root():
     return {
         "name": "StarWeather AI Core", 
-        "version": "2.0.0-HPC", 
+        "version": "3.0.0-DEEP-LEARNING", 
         "status": "operational",
-        "hpc_engine": "C++ Extension Active" if hpc else "Python/OpenCV Fallback"
+        "hpc_engine": "Active (C++)" if hpc else "Inactive",
+        "ai_engine": "PyTorch Enabled"
     }
 
-@app.post("/analyze", response_model=WeatherAnalysisResponse)
+@app.post("/analyze", response_model=DeepAnalysisResponse)
 async def analyze_imagery(file: UploadFile = File(...), lat: float = 0.0, lng: float = 0.0):
     try:
-        # 1. Read image bytes into Memory (RAM)
+        # Load raw bytes to memory
         contents = await file.read()
         nparr = np.frombuffer(contents, np.uint8)
         img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
 
         if img is None:
-            raise HTTPException(status_code=400, detail="Invalid image format")
+            raise HTTPException(status_code=400, detail="Invalid image payload")
 
-        # 2. Level-1 Processing (Route to C++ if available, else Python)
-        if hpc:
-            # ZERO-COPY: Send continuous memory pointer to C++
-            hpc_metrics = hpc.analyze_image(img)
-            
-            # Extract results directly from C++ memory space
-            temp_c = hpc_metrics["temperature_c"]
-            pressure = hpc_metrics["pressure_hpa"]
-            coverage = hpc_metrics["cloud_coverage_pct"]
-            mean_brightness = hpc_metrics["mean_brightness"]
-            engine = "AI_CORE_V2_CPP_HPC"
-        else:
-            # FALLBACK: Python / OpenCV Processing
-            gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-            mean_brightness = np.mean(gray)
-            cloud_pixels = np.sum(gray > 130)
-            coverage = (cloud_pixels / gray.size) * 100
-            temp_c = round((300 - (mean_brightness / 255) * 100) - 273.15, 1)
-            pressure = round(1013.25 - (coverage / 100) * 45, 1)
-            engine = "AI_CORE_V1_PYTHON_FALLBACK"
+        # -------------------------------------------------------------------
+        # 1. Level-1 Processing (Radiometric Calibration & HPC Acceleration)
+        # -------------------------------------------------------------------
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        
+        # Physics calibration (DN to Radiance to Tb)
+        l1_data = run_level1_pipeline(gray)
+        
+        # HPC Extensions for dense calculations (Optical Flow, Thresholding)
+        hpc_metrics = hpc.analyze_image(img) if hpc else {}
 
-        # 3. Model Derived Physics (e.g. Optical flow mockup)
-        wind_speed = round(15 + (coverage / 100) * 20, 1)
-        wind_dir = 90 if lat < 30 and lat > -30 else 270
+        # -------------------------------------------------------------------
+        # 2. Level-2 Processing (Deep Learning Inference - UNet/ResNet)
+        # -------------------------------------------------------------------
+        l2_data = run_level2_inference(img)
 
-        return WeatherAnalysisResponse(
+        # -------------------------------------------------------------------
+        # 3. Level-3 Processing (Atmospheric Physics & Synthesis)
+        # -------------------------------------------------------------------
+        final_products = run_level3_physics(l1_data, l2_data, hpc_metrics)
+
+        # Build response payload combining DL models and physics
+        return DeepAnalysisResponse(
             status="success",
-            temperature_c=temp_c,
-            pressure_hpa=pressure,
-            wind_speed_kmh=wind_speed,
-            wind_direction_deg=wind_dir,
-            cloud_coverage_pct=round(coverage, 2),
+            temperature_c=round(float(np.mean(l1_data["brightness_temp_k"])) - 273.15, 1),
+            pressure_hpa=final_products["atmospheric_pressure_hpa"],
+            wind_speed_kmh=final_products["wind_speed_kmh"],
+            cloud_coverage_pct=l2_data["cloud_mask_pct"],
+            mean_cloud_top_height_km=final_products["mean_cloud_top_height_km"],
+            cyclone_detection=final_products["cyclone_detection"],
             timestamp=datetime.now().isoformat(),
             metadata={
-                "mean_brightness": float(mean_brightness),
+                "mean_radiance_W_m2": float(np.mean(l1_data["radiance"])),
                 "resolution": f"{img.shape[1]}x{img.shape[0]}",
-                "engine": engine
+                "ai_network": "UNet+ResNet50",
+                "hpc_engine": "C++ High-Performance Computing" if hpc else "Python Fallback"
             }
         )
 
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":
