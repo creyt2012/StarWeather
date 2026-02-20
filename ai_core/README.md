@@ -13,6 +13,22 @@ Gone is the monolithic OpenCV script. The AI Core is now composed of three horiz
    - **Level 2 (Deep Learning Inference):** PyTorch U-Net (Cloud Masking) & ResNet50 (Cyclone Intensity Regression).
    - **Level 3 (Geophysical Modeling):** Physics engines deriving Cloud Top Height and Wind Speed via zero-copy C++ High-Performance Computing (HPC).
 
+```mermaid
+graph TD
+    API["STAC API Gateway (FastAPI)"] -->|POST Task| REDIS[(Redis Task Queue)]
+    REDIS -->|Consume Task| WORKER["Celery Worker Node"]
+    
+    subgraph Heavy_Compute_Node ["3-Tier AI Pipeline"]
+        WORKER --> L1["Level-1 Radiometric Calibration"]
+        L1 --> HPC["Zero-Copy C++ Optical Flow"]
+        L1 --> L2["Level-2 Deep Learning (PyTorch)"]
+        HPC --> L3["Level-3 Atmospheric Physics"]
+        L2 --> L3
+    end
+    
+    L3 -->|Return DeepAnalysisResponse| REDIS
+```
+
 ## Setup & Execution
 
 ### 1. Compile HPC Extensions (C++)
