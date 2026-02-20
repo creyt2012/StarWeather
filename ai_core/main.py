@@ -5,7 +5,10 @@ import cv2
 import os
 from datetime import datetime
 
-app = FastAPI(title="StarWeather AI Core")
+# Import C++ High-Performance Computing Bridge
+from hpc_bridge import hpc
+
+app = FastAPI(title="StarWeather AI Core (HPC Enhanced)")
 
 class WeatherAnalysisResponse(BaseModel):
     status: str
@@ -19,12 +22,17 @@ class WeatherAnalysisResponse(BaseModel):
 
 @app.get("/")
 async def root():
-    return {"name": "StarWeather AI Core", "version": "1.0.0", "status": "operational"}
+    return {
+        "name": "StarWeather AI Core", 
+        "version": "2.0.0-HPC", 
+        "status": "operational",
+        "hpc_engine": "C++ Extension Active" if hpc else "Python/OpenCV Fallback"
+    }
 
 @app.post("/analyze", response_model=WeatherAnalysisResponse)
 async def analyze_imagery(file: UploadFile = File(...), lat: float = 0.0, lng: float = 0.0):
     try:
-        # 1. Read image bytes
+        # 1. Read image bytes into Memory (RAM)
         contents = await file.read()
         nparr = np.frombuffer(contents, np.uint8)
         img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
@@ -32,24 +40,28 @@ async def analyze_imagery(file: UploadFile = File(...), lat: float = 0.0, lng: f
         if img is None:
             raise HTTPException(status_code=400, detail="Invalid image format")
 
-        # 2. Basic Computer Vision Statistics (Proprietary Logic)
-        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        mean_brightness = np.mean(gray)
-        cloud_pixels = np.sum(gray > 130)
-        total_pixels = gray.size
-        coverage = (cloud_pixels / total_pixels) * 100
+        # 2. Level-1 Processing (Route to C++ if available, else Python)
+        if hpc:
+            # ZERO-COPY: Send continuous memory pointer to C++
+            hpc_metrics = hpc.analyze_image(img)
+            
+            # Extract results directly from C++ memory space
+            temp_c = hpc_metrics["temperature_c"]
+            pressure = hpc_metrics["pressure_hpa"]
+            coverage = hpc_metrics["cloud_coverage_pct"]
+            mean_brightness = hpc_metrics["mean_brightness"]
+            engine = "AI_CORE_V2_CPP_HPC"
+        else:
+            # FALLBACK: Python / OpenCV Processing
+            gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+            mean_brightness = np.mean(gray)
+            cloud_pixels = np.sum(gray > 130)
+            coverage = (cloud_pixels / gray.size) * 100
+            temp_c = round((300 - (mean_brightness / 255) * 100) - 273.15, 1)
+            pressure = round(1013.25 - (coverage / 100) * 45, 1)
+            engine = "AI_CORE_V1_PYTHON_FALLBACK"
 
-        # 3. Derive Metrics (Physics-based)
-        # Stefan-Boltzmann approximation for T from IR brightness
-        # Scaling: 300K (Dark/Ground) to 200K (Bright/High Clouds)
-        temp_k = 300 - (mean_brightness / 255) * 100
-        temp_c = round(temp_k - 273.15, 1)
-
-        # Barometric pressure relative to convection (Cloud coverage proxy)
-        pressure = round(1013.25 - (coverage / 100) * 45, 1)
-
-        # 4. Mock Wind field from brightness gradients (Optical Flow demo logic)
-        # In a full temporal system, we'd compare two frames.
+        # 3. Model Derived Physics (e.g. Optical flow mockup)
         wind_speed = round(15 + (coverage / 100) * 20, 1)
         wind_dir = 90 if lat < 30 and lat > -30 else 270
 
@@ -64,7 +76,7 @@ async def analyze_imagery(file: UploadFile = File(...), lat: float = 0.0, lng: f
             metadata={
                 "mean_brightness": float(mean_brightness),
                 "resolution": f"{img.shape[1]}x{img.shape[0]}",
-                "engine": "AI_CORE_V1_PYTHON"
+                "engine": engine
             }
         )
 
