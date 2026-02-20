@@ -4,3 +4,7 @@ opencv-python-headless==4.9.0.80
 numpy==1.26.3
 pydantic==2.5.3
 python-multipart==0.0.6
+torch>=2.0.0
+torchvision>=0.15.0
+scikit-image>=0.21.0
+scipy>=1.11.0
