@@ -30,31 +30,58 @@ sequenceDiagram
 
 ## [SVC] Service Ecosystem
 
-The project is designed following a **Hybrid Microservices** model:
+The project is designed following a **NASA-Compliant Hybrid Microservices** model:
 
-1.  **Core Backend (Laravel/PHP)**: Manages API, authentication, database, and task orchestration.
-2.  **AI Core (FastAPI/Python)**: Specialized microservice handling Computer Vision and atmospheric physics calculations from satellite imagery.
-3.  **Real-time Engine (WebSockets)**: Broadcasts satellite coordinates and instant warnings.
+1.  **Core Backend (Laravel/PHP)**: Manages authentication, database, and telemetry orchestration.
+2.  **STAC API Gateway (FastAPI)**: Lightweight router that registers SpatioTemporal Asset Catalog (STAC) items and queues them instantly using HTTP 202.
+3.  **Distributed Compute Nodes (Celery/Redis)**: Asynchronous workers running Deep Learning (PyTorch) and Zero-Copy HPC (C++) processing on satellite tiles.
+4.  **Real-time Engine (WebSockets)**: Broadcasts satellite trajectory streams.
 
 ![Mission Control](images/mission_control.png)
 
-## [PIPE] Data Pipeline
+## [PIPE] DeepSky Enterprise Data Pipeline
 
 ```mermaid
 graph TD
-    A[Satellite Data - Himawari/GOES] --> B[HimawariIngestJob]
-    B --> C{AI Analysis}
-    C -->|Image Data| D[AI Core Microservice]
-    D -->|Meteorological Metrics| B
-    B --> E[Database/L1 Cache]
-    E --> F[API V1 / Internal Map]
-    F --> G[Tactical Dashboard / Globe]
+    subgraph Geo_Ingestion ["Data Source"]
+        A[NOAA/GOES S3 Bucket]
+        B[Himawari-9 JMA API]
+    end
+
+    subgraph Laravel_Aggregator ["Laravel Orchestrator"]
+        C[SatelliteImageryManager]
+    end
+
+    subgraph AI_Core_Gateway ["Python STAC Gateway (Port 8000)"]
+        D[STAC Item Registration]
+    end
+
+    subgraph Redis_Broker ["Message Broker"]
+        E[(Redis Queue)]
+    end
+
+    subgraph Celery_Worker_Nodes ["Distributed Compute Cluster"]
+        F1((Worker Node 1))
+        F2((Worker Node 2))
+        F1 --> G1(L1 Radiometric Calib)
+        G1 --> G2(L2 PyTorch UNet)
+        G2 --> G3(L3 Physics/HPC)
+    end
+
+    A --> C
+    B --> C
+    C -->|POST /collections/imagery/items| D
+    D -->|Task ID| E
+    D -.->|HTTP 202 Async Return| C
+    E -->|Pull Job| F1
+    E -->|Pull Job| F2
+    G3 -->|Insights Payload| H[PostGIS/DB]
 ```
 
-1.  **Ingestion**: `HimawariIngestJob` downloads satellite images from public sources.
-2.  **Analysis**: AI Core processes pixels to derive temperature, pressure, and wind speed.
-3.  **Propagation**: `SatellitePropagateJob` calculates the next satellite position every second based on TLE.
-4.  **Delivery**: Data is pushed to the frontend via API or WebSockets.
+1.  **Ingestion**: `SatelliteImageryManager` pulls the latest planetary tile from public S3/HTTP sources.
+2.  **STAC Registration**: Laravel sends the URI to the FastAPI Gateway. The Gateway creates a STAC v1.0.0 Item, pushes it to Redis, and returns a Task ID.
+3.  **Asynchronous Execution**: Idle Celery Worker Nodes pull the task from Redis, download the image directly to their RAM, and execute the 3-Tier Pipeline (L1->L3).
+4.  **Delivery**: Results (Cloud Top Height, Cyclonic Intensity) are stored, ready for the Frontend Tactical Map to display.
 
 ## Architectural Layers
 
