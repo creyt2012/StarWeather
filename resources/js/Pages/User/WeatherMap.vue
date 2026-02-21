@@ -1001,9 +1001,8 @@ const initLeaflet = () => {
         satelliteLayer.addTo(map);
         labelLayer.addTo(map);
     } else if (viewMode.value === 'TEMPERATURE') {
+    } else {
         darkLayer.addTo(map);
-        tempLayer.addTo(map);
-        labelLayer.addTo(map);
     }
 
     // Global Cloud Layer (OpenWeatherMap)
