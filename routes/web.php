@@ -106,6 +106,7 @@ Route::prefix('admin')->group(function () {
     Route::delete('/ground-stations/{station}', [\App\Http\Controllers\Admin\GroundStationController::class, 'destroy'])->name('admin.ground-stations.destroy');
 
     // Radar Stations (NEW)
+    Route::post('/radar-stations/{station}/ping', [\App\Http\Controllers\Admin\RadarStationController::class, 'ping'])->name('admin.radar-stations.ping');
     Route::get('/radar-stations', [\App\Http\Controllers\Admin\RadarStationController::class, 'index'])->name('admin.radar-stations.index');
     Route::post('/radar-stations', [\App\Http\Controllers\Admin\RadarStationController::class, 'store'])->name('admin.radar-stations.store');
     Route::put('/radar-stations/{station}', [\App\Http\Controllers\Admin\RadarStationController::class, 'update'])->name('admin.radar-stations.update');
