@@ -163,6 +163,22 @@ const pingStation = async (station) => {
                             <span class="text-white/20">SWEEP RADIUS</span>
                             <span class="text-vibrant-blue">{{ station.coverage_radius_km }}km (Doppler)</span>
                         </div>
+                        
+                        <!-- Hiển thị thêm các cấu hình từ parameters (RainViewer) -->
+                        <div v-if="station.parameters && station.parameters.timezone" class="flex justify-between items-center text-[10px] font-mono">
+                            <span class="text-white/20">TIMEZONE</span>
+                            <span>{{ station.parameters.timezone }}</span>
+                        </div>
+                        <div v-if="station.parameters && station.parameters.data_coverage" class="flex justify-between items-center text-[10px] font-mono">
+                            <span class="text-white/20">DATA COVERAGE</span>
+                            <span>{{ station.parameters.data_coverage }}</span>
+                        </div>
+                        <div v-if="station.parameters && (station.parameters.provider || station.parameters.source)" class="flex justify-between items-center text-[10px] font-mono">
+                            <span class="text-white/20">OPERATOR</span>
+                            <span class="text-orange-400 truncate max-w-[150px]" :title="station.parameters.provider || station.parameters.source">
+                                {{ station.parameters.provider || station.parameters.source }}
+                            </span>
+                        </div>
                     </div>
 
                     <!-- Aesthetics -->
