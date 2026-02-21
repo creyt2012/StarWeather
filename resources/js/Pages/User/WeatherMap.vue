@@ -1004,9 +1004,6 @@ const initLeaflet = () => {
         darkLayer.addTo(map);
         tempLayer.addTo(map);
         labelLayer.addTo(map);
-    } else {
-        darkLayer.addTo(map);
-    }
     }
 
     // Global Cloud Layer (OpenWeatherMap)
