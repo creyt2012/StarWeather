@@ -1001,6 +1001,9 @@ const initLeaflet = () => {
         satelliteLayer.addTo(map);
         labelLayer.addTo(map);
     } else if (viewMode.value === 'TEMPERATURE') {
+        darkLayer.addTo(map);
+        tempLayer.addTo(map);
+        labelLayer.addTo(map);
     } else {
         darkLayer.addTo(map);
     }
