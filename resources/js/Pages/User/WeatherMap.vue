@@ -1153,18 +1153,20 @@ const syncLeafletMarkers = () => {
         });
     }
 
-    // Radar Facilities
+    // Radar Facilities (Tactical Aesthetic)
     if (showRadar.value) {
         radarFacilities.value.forEach(radar => {
             const marker = L.circleMarker([radar.latitude, radar.longitude], {
-                radius: 6,
-                fillColor: '#facc15',
-                color: '#ca8a04',
-                weight: 2,
-                opacity: 0.9,
-                fillOpacity: 0.7
+                radius: 3,
+                fillColor: '#0ea5e9', // Sky blue
+                color: '#0284c7', // Darker blue border
+                weight: 1,
+                opacity: 0.5,
+                fillOpacity: 0.4
             });
-            marker.bindTooltip(`DOPPLER_RADAR: ${radar.name} [${radar.frequency_band}]<br/>Radius: ${radar.coverage_radius_km}km`);
+            marker.bindTooltip(`DOPPLER_RADAR: ${radar.name} [${radar.frequency_band}]<br/>Radius: ${radar.coverage_radius_km}km`, {
+                className: 'tactical-tooltip'
+            });
             marker.on('click', () => {
                 handleGlobeClick({ type: 'radar', isRadar: true, lat: radar.latitude, lng: radar.longitude, ...radar });
             });
