@@ -83,7 +83,12 @@ class SyncRealRadarStations extends Command
                     'radar_id' => $radarId,
                     'antenna' => $data['antenna'] ?? null,
                     'wrwp' => $data['wrwp'] ?? null,
-                    'state' => $data['state'] ?? null
+                    'state' => $data['state'] ?? null,
+                    'timezone' => $data['timezone'] ?? null,
+                    'provider' => $data['data_coverage'] ?? null,
+                    'source' => $data['source'] ?? null,
+                    'data_coverage' => $data['data_coverage'] ?? null,
+                    'domain' => $data['domain'] ?? null
                 ];
 
                 // Upsert to handle unique constraints without failing the whole batch
