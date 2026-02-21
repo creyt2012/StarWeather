@@ -176,19 +176,74 @@ class WeatherController extends Controller
         // 1. Resolve Location Intel
         $location = $this->geoEngine->reverseGeocode($lat, $lng);
 
-        // 2. Derive Metrics using proprietary physics vs random
-        // Using average brightness 180 as a baseline for unknown pixel
-        $temp = $atmosphere->deriveTemperature(180, $lat);
-        $pressure = $atmosphere->derivePressure(30, $lat); // 30% default cloud assumption
+        // 2. Call the Local Python AI Core
+        $aiAnalysis = null;
+        try {
+            // Generate a synthetic satellite tile in memory to feed the AI (simulating an Earth Observation fetch)
+            $img = imagecreatetruecolor(256, 256);
+
+            // Fill with some perlin-noise-like data based on lat/lng to simulate cloud textures
+            $baseColor = imagecolorallocate($img, abs($lat) * 2, abs($lng) * 1.5, 100);
+            imagefill($img, 0, 0, $baseColor);
+
+            // Add some "clouds"
+            for ($i = 0; $i < 50; $i++) {
+                $cloudColor = imagecolorallocatealpha($img, 255, 255, 255, rand(50, 100));
+                imagefilledellipse($img, rand(0, 256), rand(0, 256), rand(20, 100), rand(20, 100), $cloudColor);
+            }
+
+            ob_start();
+            imagejpeg($img, null, 85);
+            $imageBytes = ob_get_clean();
+            imagedestroy($img);
+
+            // POST to AI Core
+            $response = \Illuminate\Support\Facades\Http::timeout(10)
+                ->attach('file', $imageBytes, 'satellite_tile.jpg')
+                ->post('http://127.0.0.1:8001/analyze', [
+                    'lat' => $lat,
+                    'lng' => $lng
+                ]);
+
+            if ($response->successful()) {
+                $aiData = $response->json();
+                $aiAnalysis = [
+                    'cloud_depth' => $aiData['mean_cloud_top_height_km'] ?? 0,
+                    'cyclone_genesis' => ($aiData['cyclone_detection']['confidence'] ?? 0) * 100,
+                    'anomaly_detected' => ($aiData['cyclone_detection']['active'] ?? false),
+                    'hpc_engine' => $aiData['metadata']['hpc_engine'] ?? 'Unknown'
+                ];
+
+                // Override default physics with AI Deep Learning results
+                $temp = $aiData['temperature_c'];
+                $pressure = $aiData['pressure_hpa'];
+                $windSpeed = $aiData['wind_speed_kmh'];
+                $cloudDensity = $aiData['cloud_coverage_pct'];
+            }
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("AI Core Unreachable: " . $e->getMessage());
+        }
+
+        // 3. Fallback or baseline Metrics
+        if (!$aiAnalysis) {
+            $temp = $atmosphere->deriveTemperature(180, $lat) + rand(-2, 2);
+            $pressure = $atmosphere->derivePressure(30, $lat);
+            $windSpeed = 15 + cos($lng * 0.1) * 20 + rand(0, 5);
+            $cloudDensity = 30;
+        }
 
         $data = [
-            'temperature' => $temp + rand(-2, 2),
-            'wind_speed' => 15 + cos($lng * 0.1) * 20 + rand(0, 5),
+            'temperature' => $temp,
+            'wind_speed' => $windSpeed,
             'pressure' => $pressure,
-            'cloud_density' => 30,
+            'cloud_density' => $cloudDensity,
             'humidity' => $atmosphere->deriveHumidity(0, $temp),
             'visibility' => 10 - (abs(sin($lat)) * 5)
         ];
+
+        if ($aiAnalysis) {
+            $data['ai_analysis'] = $aiAnalysis;
+        }
 
         return response()->json([
             'status' => 'success',
