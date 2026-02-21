@@ -324,9 +324,9 @@ const syncGlobeLayers = () => {
     }
     
     world.pointsData(combinedPoints)
-         .pointColor(d => d.isStorm ? '#ef4444' : (d.isMarine ? '#00ccff' : (d.isStation ? '#00ffaa' : (d.isLightning ? '#ffffff' : (d.isRadar ? '#facc15' : '#0088ff')))))
-         .pointAltitude(d => d.isRadar ? 0.05 : 0.01)
-         .pointRadius(d => d.isRadar ? 0.6 : 0.5);
+         .pointColor(d => d.isStorm ? '#ef4444' : (d.isMarine ? '#00ccff' : (d.isStation ? '#00ffaa' : (d.isLightning ? '#ffffff' : (d.isRadar ? '#0ea5e9' : '#0088ff')))))
+         .pointAltitude(d => d.isRadar ? 0.02 : 0.01)
+         .pointRadius(d => d.isRadar ? 0.2 : 0.5);
 
     // 2. Unified Rings Layer (Storms + Aurora)
     let combinedRings = [];
