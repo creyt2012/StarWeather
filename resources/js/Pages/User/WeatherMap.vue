@@ -981,12 +981,10 @@ const initLeaflet = () => {
         maxZoom: 20
     });
 
-    // Temperature/Cloud Infrared Overlay (RainViewer Satellite IR)
-    // Using RainViewer's Infrared Satellite which gives a thermal-like view of cloud tops
-    const tempLayer = L.tileLayer('https://tilecache.rainviewer.com/v2/satellite/f52ca85ba0bd/512/{z}/{x}/{y}/0/1_0.png', {
+    // Temperature Overlay (OpenWeatherMap Heatmap)
+    const tempLayer = L.tileLayer('https://tile.openweathermap.org/map/temp_new/{z}/{x}/{y}.png?appid=b1b15e88fa797225412429c1c50c122a1', {
         maxZoom: 18,
-        opacity: 0.6,
-        className: 'hue-rotate-180 contrast-150' // CSS filter to make IR look more like a thermal map (blue/red)
+        opacity: 0.65
     });
 
     // Initial layer based on mode
