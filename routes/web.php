@@ -91,11 +91,17 @@ Route::prefix('admin')->group(function () {
     Route::put('/satellites/{satellite}', [\App\Http\Controllers\Admin\SatelliteManagementController::class, 'update'])->name('admin.satellites.update');
     Route::delete('/satellites/{satellite}', [\App\Http\Controllers\Admin\SatelliteManagementController::class, 'destroy'])->name('admin.satellites.destroy');
 
-    // Ground Stations (NEW)
+    // Ground Stations
     Route::get('/ground-stations', [\App\Http\Controllers\Admin\GroundStationController::class, 'index'])->name('admin.ground-stations.index');
     Route::post('/ground-stations', [\App\Http\Controllers\Admin\GroundStationController::class, 'store'])->name('admin.ground-stations.store');
     Route::put('/ground-stations/{station}', [\App\Http\Controllers\Admin\GroundStationController::class, 'update'])->name('admin.ground-stations.update');
     Route::delete('/ground-stations/{station}', [\App\Http\Controllers\Admin\GroundStationController::class, 'destroy'])->name('admin.ground-stations.destroy');
+
+    // Radar Stations (NEW)
+    Route::get('/radar-stations', [\App\Http\Controllers\Admin\RadarStationController::class, 'index'])->name('admin.radar-stations.index');
+    Route::post('/radar-stations', [\App\Http\Controllers\Admin\RadarStationController::class, 'store'])->name('admin.radar-stations.store');
+    Route::put('/radar-stations/{station}', [\App\Http\Controllers\Admin\RadarStationController::class, 'update'])->name('admin.radar-stations.update');
+    Route::delete('/radar-stations/{station}', [\App\Http\Controllers\Admin\RadarStationController::class, 'destroy'])->name('admin.radar-stations.destroy');
 
     // Mission Control
     Route::get('/mission-control', function () {
