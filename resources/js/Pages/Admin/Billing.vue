@@ -1,7 +1,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { Head } from '@inertiajs/vue3';
 import axios from 'axios';
 
@@ -121,7 +121,7 @@ onMounted(fetchPlans);
                 </div>
             </div>
         </div>
-    </AuthenticatedLayout>
+    </AdminLayout>
 </template>
 
 <style scoped>
