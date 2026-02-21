@@ -311,7 +311,7 @@ const syncGlobeLayers = () => {
         combinedPoints = [...combinedPoints, ...groundStations.value.map(s => ({ ...s, isStation: true }))];
     }
     if (showRadar.value && radarFacilities.value.length > 0) {
-        combinedPoints = [...combinedPoints, ...radarFacilities.value.map(s => ({ ...s, isRadar: true, lat: s.latitude, lng: s.longitude }))];
+        combinedPoints = [...combinedPoints, ...radarFacilities.value.map(s => ({ ...s, type: 'radar', isRadar: true, lat: s.latitude, lng: s.longitude }))];
     }
     
     world.pointsData(combinedPoints)
@@ -1123,14 +1123,19 @@ const syncLeafletMarkers = () => {
     // Radar Facilities
     if (showRadar.value) {
         radarFacilities.value.forEach(radar => {
-            L.circleMarker([radar.latitude, radar.longitude], {
+            const marker = L.circleMarker([radar.latitude, radar.longitude], {
                 radius: 6,
                 fillColor: '#facc15',
                 color: '#ca8a04',
                 weight: 2,
                 opacity: 0.9,
                 fillOpacity: 0.7
-            }).addTo(markers).bindTooltip(`DOPPLER_RADAR: ${radar.name} [${radar.frequency_band}]<br/>Radius: ${radar.coverage_radius_km}km`);
+            });
+            marker.bindTooltip(`DOPPLER_RADAR: ${radar.name} [${radar.frequency_band}]<br/>Radius: ${radar.coverage_radius_km}km`);
+            marker.on('click', () => {
+                handleGlobeClick({ type: 'radar', isRadar: true, lat: radar.latitude, lng: radar.longitude, ...radar });
+            });
+            marker.addTo(markers);
         });
     }
     
