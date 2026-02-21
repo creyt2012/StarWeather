@@ -1005,14 +1005,27 @@ const initLeaflet = () => {
     map._darkLayer = darkLayer;
     map._tempLayer = tempLayer;
 
-    // Radar Overlay (Leaflet)
+    // Composite Radar/Precipitation Overlay Group (Leaflet)
+    // RainViewer has high-detail ground radar but missing coverage in Asia/Africa
+    // OWM provides global satellite-derived precipitation to fill the gaps
+    const radGroup = L.layerGroup();
+    
+    // 1. Global Precipitation Fallback (OpenWeatherMap)
+    const precipLayer = L.tileLayer('https://tile.openweathermap.org/map/precipitation_new/{z}/{x}/{y}.png?appid=b1b15e88fa797225412429c1c50c122a1', {
+        opacity: 0.55,
+        zIndex: 90
+    }).addTo(radGroup);
+
+    // 2. High-Res Ground Radar (RainViewer)
     if (radarTimestamp.value) {
-        map._radarLayer = L.tileLayer(`https://tilecache.rainviewer.com/v2/radar/${radarTimestamp.value}/256/{z}/{x}/{y}/2/1_1.png`, {
-            opacity: 0.6,
+        L.tileLayer(`https://tilecache.rainviewer.com/v2/radar/${radarTimestamp.value}/256/{z}/{x}/{y}/2/1_1.png`, {
+            opacity: 0.75,
             zIndex: 100
-        });
-        if (showRadar.value) map._radarLayer.addTo(map);
+        }).addTo(radGroup);
     }
+    
+    map._radarLayer = radGroup;
+    if (showRadar.value) map._radarLayer.addTo(map);
 };
 
 const handleSearch = async () => {
