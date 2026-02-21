@@ -2,6 +2,7 @@
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
+import axios from 'axios';
 
 const props = defineProps({
     stations: Array
@@ -9,6 +10,7 @@ const props = defineProps({
 
 const isModalOpen = ref(false);
 const editingStation = ref(null);
+const pingingStationId = ref(null);
 
 const form = useForm({
     name: '',
@@ -73,6 +75,24 @@ const deleteStation = (id) => {
         form.delete(route('admin.radar-stations.destroy', id));
     }
 };
+
+const pingStation = async (station) => {
+    pingingStationId.value = station.id;
+    try {
+        const response = await axios.post(route('admin.radar-stations.ping', station.id));
+        const data = response.data;
+        
+        if (data.status === 'operational') {
+            alert(`[CONNECTION SECURED]\nStatus: ${data.status.toUpperCase()}\nLatency: ${data.ping_ms}ms\nLast Sweep: ${data.last_sweep}`);
+        } else {
+            alert(`[CONNECTION FAILED]\nStatus: ${data.status.toUpperCase()}\nDetail: ${data.message}`);
+        }
+    } catch (e) {
+        alert(`[UPLINK ERROR]\nFailed to establish connection to radar node.`);
+    } finally {
+        pingingStationId.value = null;
+    }
+};
 </script>
 
 <template>
@@ -99,6 +119,12 @@ const deleteStation = (id) => {
                     class="bg-[#050508] border border-white/5 p-6 relative group overflow-hidden">
                     
                     <div class="absolute top-0 right-0 p-4 flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button @click="pingStation(station)" :disabled="pingingStationId === station.id" class="p-2 bg-white/5 hover:bg-vibrant-green/20 text-white/40 hover:text-vibrant-green transition-all relative">
+                            <span v-if="pingingStationId === station.id" class="absolute inset-0 flex items-center justify-center">
+                                <span class="w-3 h-3 border-2 border-vibrant-green border-t-transparent rounded-full animate-spin"></span>
+                            </span>
+                            <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </button>
                         <button @click="openEditModal(station)" class="p-2 bg-white/5 hover:bg-vibrant-blue/20 text-white/40 hover:text-white transition-all">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         </button>
