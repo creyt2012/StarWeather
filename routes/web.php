@@ -148,4 +148,8 @@ Route::prefix('admin')->group(function () {
 
     // System Health (SLA) (NEW)
     Route::get('/system/health', [\App\Http\Controllers\Admin\SystemHealthController::class, 'index'])->name('admin.system.health');
+
+    // System Infrastructure Settings
+    Route::get('/settings', [\App\Http\Controllers\Admin\SystemSettingController::class, 'index'])->name('admin.settings.index');
+    Route::post('/settings', [\App\Http\Controllers\Admin\SystemSettingController::class, 'update'])->name('admin.settings.update');
 });
